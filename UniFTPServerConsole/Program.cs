@@ -9,6 +9,7 @@ namespace UniFTPServerTestConsole
         {
             FtpServer f = new FtpServer(null);
             f.Start();
+            Console.WriteLine("UniFTP Server Started!");
             Console.ReadLine();
             f.Stop();
             return;

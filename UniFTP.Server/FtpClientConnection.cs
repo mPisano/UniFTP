@@ -107,7 +107,7 @@ namespace UniFTP.Server
                 CIP = ClientIP,
                 CSUriStem = cmd.RawArguments
             };
-
+            //请求的命令需要权限
             if (!_validCommands.Contains(cmd.Code))
             {
                 response = CheckUser();
@@ -153,7 +153,7 @@ namespace UniFTP.Server
                         response = Port(cmd.RawArguments);
                         logEntry.CPort = _dataEndpoint.Port.ToString(CultureInfo.InvariantCulture);
                         break;
-                    case "PASV":
+                    case "PASV":    //进入被动模式
                         response = Passive();
                         logEntry.SPort = ((IPEndPoint)_passiveListener.LocalEndpoint).Port.ToString(CultureInfo.InvariantCulture);
                         break;
@@ -185,12 +185,12 @@ namespace UniFTP.Server
                     case "PWD":
                         response = PrintWorkingDirectory();
                         break;
-                    case "RETR":
+                    case "RETR":    //下载文件
                         //FIXED:文件名含空格
                         response = Retrieve(cmd.RawArguments);
                         logEntry.Date = DateTime.Now;
                         break;
-                    case "STOR":
+                    case "STOR":    //上传文件
                         response = Store(cmd.Arguments.FirstOrDefault());
                         logEntry.Date = DateTime.Now;
                         break;
@@ -438,7 +438,8 @@ namespace UniFTP.Server
             }
             else
             {
-                return CopyStream(input, limitedStream, BUFFER_SIZE, _currentEncoding, perfAction);
+                //BUG:ANSI模式传输
+                return CopyStream(input, limitedStream, BUFFER_SIZE, Encoding.BigEndianUnicode, perfAction);
             }
         }
 
@@ -571,7 +572,7 @@ namespace UniFTP.Server
         /// <summary>
         /// PORT Command - RFC 959 - Section 4.1.2
         /// </summary>
-        /// <param name="username"></param>
+        /// <param name="hostPort"></param>
         /// <returns></returns>
         private Response Port(string hostPort)
         {
@@ -610,6 +611,7 @@ namespace UniFTP.Server
 
         /// <summary>
         /// PASV Command - RFC 959 - Section 4.1.2
+        /// <para>进入被动模式（请求服务器等待数据连接）</para>
         /// </summary>
         /// <param name="username"></param>
         /// <returns></returns>
@@ -1237,6 +1239,12 @@ namespace UniFTP.Server
             return GetResponse(FtpResponses.TRANSFER_SUCCESSFUL);
         }
 
+        /// <summary>
+        /// 列目录操作
+        /// </summary>
+        /// <param name="dataStream"></param>
+        /// <param name="pathname"></param>
+        /// <returns></returns>
         private Response ListOperation(NetworkStream dataStream, string pathname)
         {
             DateTime now = DateTime.Now;
@@ -1271,6 +1279,7 @@ namespace UniFTP.Server
                     f.LastWriteTime.ToString("MMM dd  yyyy", CultureInfo.InvariantCulture) :
                     f.LastWriteTime.ToString("MMM dd HH:mm", CultureInfo.InvariantCulture);
 
+                //权限 所有者 组
                 dataWriter.Write("-rw-r--r--    2 2003     2003     ");
 
                 string length = f.Length.ToString(CultureInfo.InvariantCulture);
@@ -1288,7 +1297,7 @@ namespace UniFTP.Server
                 dataWriter.Write(date);
                 dataWriter.Write(' ');
                 dataWriter.WriteLine(f.Name);
-
+                //Console.WriteLine(f.Name);
                 dataWriter.Flush();
 
                 f = null;

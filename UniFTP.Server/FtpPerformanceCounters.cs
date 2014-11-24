@@ -6,7 +6,7 @@ namespace UniFTP.Server
     // TODO: Fix to handle multiple instances.
     public static class FtpPerformanceCounters
     {
-        private const string CATEGORY = "SharpServerFTP";
+        private const string CATEGORY = "UniFTP";
 
         private static object _anonUsersLock = new object();
         private static object _nonAnonUsersLock = new object();
@@ -43,7 +43,9 @@ namespace UniFTP.Server
         {
             if (PerformanceCounterCategory.Exists(CATEGORY))
             {
-                PerformanceCounterCategory.Delete(CATEGORY);
+                //return;
+                //BUG:每次都要创建效率很低啊，而且还需要管理员权限
+                //PerformanceCounterCategory.Delete(CATEGORY);
             }
 
             if (!PerformanceCounterCategory.Exists(CATEGORY))
@@ -215,7 +217,7 @@ namespace UniFTP.Server
 
                 #endregion
 
-                PerformanceCounterCategory.Create(CATEGORY, "Sharp FTP Server", PerformanceCounterCategoryType.MultiInstance, counters);
+                PerformanceCounterCategory.Create(CATEGORY, "UniFTP", PerformanceCounterCategoryType.MultiInstance, counters);
             }
 
             string instanceName = string.Concat("Port: ", port);
