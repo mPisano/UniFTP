@@ -16,7 +16,7 @@ namespace SharpServer
 
         private byte[] _buffer = new byte[128];
         private StringBuilder _commandBuffer = new StringBuilder();
-        private Encoding _controlStreamEncoding = Encoding.ASCII;
+        private Encoding _controlStreamEncoding = Encoding.Default;
         private string _expectedTerminator = "\r\n";
 
         #endregion

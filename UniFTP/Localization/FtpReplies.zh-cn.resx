@@ -166,7 +166,7 @@
     <value>成功</value>
   </data>
   <data name="OPENING_DATA_TRANSFER" xml:space="preserve">
-    <value>Opening {0} mode data transfer for {1}</value>
+    <value>Opening {0} mode data transfer for {1}.</value>
   </data>
   <data name="PARAMETER_NOT_RECOGNIZED" xml:space="preserve">
     <value>Parameter {0} not recogonized</value>
@@ -179,6 +179,9 @@
   </data>
   <data name="SERVICE_READY" xml:space="preserve">
     <value>UniFTP Server Ready. (Ver.0.1)</value>
+  </data>
+  <data name="SYNTAX_ERROR" xml:space="preserve">
+    <value>语法错误，命令未能识别</value>
   </data>
   <data name="SYSTEM" xml:space="preserve">
     <value>UNIX Type: L8</value>

@@ -250,6 +250,15 @@ namespace UniFTP.Common.Localization {
         }
         
         /// <summary>
+        ///   查找类似 Syntax error, command unrecognized. 的本地化字符串。
+        /// </summary>
+        public static string SYNTAX_ERROR {
+            get {
+                return ResourceManager.GetString("SYNTAX_ERROR", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 UNIX Type: L8 的本地化字符串。
         /// </summary>
         public static string SYSTEM {

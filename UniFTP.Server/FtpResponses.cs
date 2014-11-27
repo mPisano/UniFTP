@@ -13,7 +13,7 @@ namespace UniFTP.Server
     static class FtpResponses
     {
         public static readonly Response QUIT = new Response { Code = "221", Text = FtpReplies.QUIT, ShouldQuit = true };
-        public static readonly Response UNABLE_TO_OPEN_DATA_CONNECTION = new Response { Code = "500", Text = FtpReplies.UNABLE_TO_OPEN_DATA_CONNECTION, ShouldQuit = true };
+        public static readonly Response UNABLE_TO_OPEN_DATA_CONNECTION = new Response { Code = "425", Text = FtpReplies.UNABLE_TO_OPEN_DATA_CONNECTION, ShouldQuit = true };
 
         public static readonly Response SYSTEM = new Response { Code = "215", ResourceManager = FtpReplies.ResourceManager, Text = "SYSTEM" };
         public static readonly Response SERVICE_READY = new Response { Code = "220", ResourceManager = FtpReplies.ResourceManager, Text = "SERVICE_READY" };
@@ -42,5 +42,11 @@ namespace UniFTP.Server
         public static readonly Response CURRENT_DIRECTORY = new Response { Code = "257", ResourceManager = FtpReplies.ResourceManager, Text = "CURRENT_DIRECTORY" };
 
         public static readonly Response FEATURES = new Response { Code = "211-", Text = string.Format("{0}:\r\n MDTM\r\n SIZE\r\n UTF8\r\n211 End", FtpReplies.EXTENSIONS_SUPPORTED) };
+    
+        //ADDED
+        /// <summary>
+        /// 无法打开数据连接
+        /// </summary>
+        public static readonly Response CANNOT_OPEN_DATACONNECTION = new Response { Code = "500", ResourceManager = FtpReplies.ResourceManager, Text = "SYNTAX_ERROR" };
     }
 }

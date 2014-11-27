@@ -25,6 +25,10 @@ namespace UniFTP.Server
 
         #region 枚举
 
+        /// <summary>
+        /// 传输类型
+        /// <para>只实现了Image和ASCII，且ASCII由于传输UTF8文档时会出错所以弃用</para>
+        /// </summary>
         public enum TransferType
         {
             Ascii,
@@ -85,7 +89,7 @@ namespace UniFTP.Server
 
         private string _renameFrom;
 
-        private Encoding _currentEncoding = Encoding.ASCII;
+        private Encoding _currentEncoding = Encoding.Default;
         private CultureInfo _currentCulture = CultureInfo.CurrentCulture;
 
         public FtpClientConnection()
@@ -131,7 +135,7 @@ namespace UniFTP.Server
                         logEntry.CSUriStem = "******";
                         break;
                     case "CWD":
-                        response = ChangeWorkingDirectory(cmd.Arguments.FirstOrDefault());
+                        response = ChangeWorkingDirectory(cmd.RawArguments);
                         break;
                     case "CDUP":
                         response = ChangeWorkingDirectory("..");
@@ -177,12 +181,12 @@ namespace UniFTP.Server
                         response = Delete(cmd.Arguments.FirstOrDefault());
                         break;
                     case "RMD":
-                        response = RemoveDir(cmd.Arguments.FirstOrDefault());
+                        response = RemoveDir(cmd.RawArguments);
                         break;
-                    case "MKD":
-                        response = CreateDir(cmd.Arguments.FirstOrDefault());
+                    case "MKD":     //建立文件夹
+                        response = CreateDir(cmd.RawArguments);
                         break;
-                    case "PWD":
+                    case "PWD":     //显示目录
                         response = PrintWorkingDirectory();
                         break;
                     case "RETR":    //下载文件
@@ -191,7 +195,7 @@ namespace UniFTP.Server
                         logEntry.Date = DateTime.Now;
                         break;
                     case "STOR":    //上传文件
-                        response = Store(cmd.Arguments.FirstOrDefault());
+                        response = Store(cmd.RawArguments);
                         logEntry.Date = DateTime.Now;
                         break;
                     case "STOU":
@@ -199,10 +203,10 @@ namespace UniFTP.Server
                         logEntry.Date = DateTime.Now;
                         break;
                     case "APPE":
-                        response = Append(cmd.Arguments.FirstOrDefault());
+                        response = Append(cmd.RawArguments);
                         logEntry.Date = DateTime.Now;
                         break;
-                    case "LIST":
+                    case "LIST":    //列出目录文件
                         response = List(cmd.Arguments.FirstOrDefault() ?? _currentDirectory);
                         logEntry.Date = DateTime.Now;
                         break;
@@ -255,10 +259,10 @@ namespace UniFTP.Server
 
                     // Extensions defined by rfc 3659
                     case "MDTM":
-                        response = FileModificationTime(cmd.Arguments.FirstOrDefault());
+                        response = FileModificationTime(cmd.RawArguments);//FIXED:只接受一个参数的 务必使用RawArg 醉了
                         break;
                     case "SIZE":
-                        response = FileSize(cmd.Arguments.FirstOrDefault());
+                        response = FileSize(cmd.RawArguments);
                         break;
 
                     // Extensions defined by rfc 2428
@@ -385,6 +389,11 @@ namespace UniFTP.Server
 
         #endregion
 
+        /// <summary>
+        /// 检测目录是否有效（必须在根目录以下）
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
         private bool IsPathValid(string path)
         {
             return path.StartsWith(_root, StringComparison.OrdinalIgnoreCase);
@@ -401,19 +410,27 @@ namespace UniFTP.Server
             {
                 return null;
             }
+            try
+            {
+                if (path == "/")
+                {
+                    return _root;
+                }
+                else if (path.StartsWith("/", StringComparison.OrdinalIgnoreCase))
+                {
+                    path = new FileInfo(Path.Combine(_root, path.Substring(1))).FullName;
+                }
+                else
+                {
+                    path = new FileInfo(Path.Combine(_currentDirectory, path)).FullName;
+                }
+            }
+            catch (Exception)
+            {
 
-            if (path == "/")
-            {
-                return _root;
+                return null;
             }
-            else if (path.StartsWith("/", StringComparison.OrdinalIgnoreCase))
-            {
-                path = new FileInfo(Path.Combine(_root, path.Substring(1))).FullName;
-            }
-            else
-            {
-                path = new FileInfo(Path.Combine(_currentDirectory, path)).FullName;
-            }
+
 
             return IsPathValid(path) ? path : null;
         }
@@ -438,8 +455,10 @@ namespace UniFTP.Server
             }
             else
             {
-                //BUG:ANSI模式传输
-                return CopyStream(input, limitedStream, BUFFER_SIZE, Encoding.BigEndianUnicode, perfAction);
+                //FIXED:ANSI模式传输是有问题的，尤其是在非英语国家，非ANSI编码的文档势必导致混乱，因此统一用二进制
+                //return CopyStream(input, limitedStream, BUFFER_SIZE, Encoding.UTF8 , perfAction);
+                //return CopyStream(input, limitedStream, BUFFER_SIZE, Encoding.Default, perfAction);
+                return CopyStream(input, limitedStream, BUFFER_SIZE, perfAction);
             }
         }
 
@@ -585,8 +604,8 @@ namespace UniFTP.Server
 
             if (BitConverter.IsLittleEndian)
                 Array.Reverse(port);
-
-            _dataEndpoint = new IPEndPoint(new IPAddress(ipAddress), BitConverter.ToInt16(port, 0));
+            
+            _dataEndpoint = new IPEndPoint(new IPAddress(ipAddress), BitConverter.ToUInt16(port, 0)); //FIXED:端口号16位无负数！
 
             return GetResponse(FtpResponses.OK);
         }
@@ -684,6 +703,12 @@ namespace UniFTP.Server
                 case "I":
                     _connectionType = TransferType.Image;
                     break;
+                //case "E":
+                //    _connectionType = TransferType.Ebcdic;
+                //    break;
+                //case "L":
+                //    _connectionType = TransferType.Local;
+                //    break;
                 default:
                     return GetResponse(FtpResponses.NOT_IMPLEMENTED_FOR_PARAMETER);
             }
@@ -712,11 +737,12 @@ namespace UniFTP.Server
         {
             switch (structure)
             {
-                case "F":
+
+                case "F":   //文件结构
                     _fileStructureType = FileStructureType.File;
                     break;
-                case "R":
-                case "P":
+                case "R":   //记录结构
+                case "P":   //页结构
                     return GetResponse(FtpResponses.NOT_IMPLEMENTED_FOR_PARAMETER);
                 default:
                     return GetResponse(FtpResponses.PARAMETER_NOT_RECOGNIZED.SetData(structure));
@@ -890,7 +916,7 @@ namespace UniFTP.Server
         /// <summary>
         /// RMD Command - RFC 959 - Section 4.1.3
         /// </summary>
-        /// <param name="username"></param>
+        /// <param name="pathname"></param>
         /// <returns></returns>
         private Response RemoveDir(string pathname)
         {
@@ -980,6 +1006,11 @@ namespace UniFTP.Server
         /// <returns></returns>
         private Response List(string pathname)
         {
+            if (_dataEndpoint == null && _dataConnectionType == DataConnectionType.Active)
+            {
+                return GetResponse(FtpResponses.UNABLE_TO_OPEN_DATA_CONNECTION);
+            }
+
             pathname = NormalizeFilename(pathname);
 
             if (pathname != null)
@@ -996,8 +1027,9 @@ namespace UniFTP.Server
 
         /// <summary>
         /// AUTH Command - RFC 2228 - Section 3
+        /// <para>要求认证</para>
         /// </summary>
-        /// <param name="authMode"></param>
+        /// <param name="authMode">认证模式</param>
         /// <returns></returns>
         private Response Auth(string authMode)
         {
@@ -1078,6 +1110,7 @@ namespace UniFTP.Server
 
         /// <summary>
         /// LANG Command - RFC 2640 - Section 4
+        /// <para>指定服务端的响应语言</para>
         /// </summary>
         /// <param name="lang"></param>
         /// <returns></returns>
@@ -1098,13 +1131,13 @@ namespace UniFTP.Server
                 {
                     _currentCulture = culture;
 
-                    return new Response { Code = "200", Text = "Changed language to what you asked for" };
+                    return new Response { Code = "200", Text = string.Format("Language Changed to {0}",_currentCulture) };
                 }
             }
             catch
             {
                 _currentCulture = CultureInfo.CurrentCulture;
-                return new Response { Code = "500", Text = "Invalid language, using en-US" };
+                return new Response { Code = "500", Text = "Invalid language, using default language" };
             }
         }
 
@@ -1247,9 +1280,12 @@ namespace UniFTP.Server
         /// <returns></returns>
         private Response ListOperation(NetworkStream dataStream, string pathname)
         {
+
             DateTime now = DateTime.Now;
 
             StreamWriter dataWriter = new StreamWriter(dataStream, _currentEncoding);
+
+            dataWriter.WriteLine(); //FIXED:必须加一空行 否则FileZilla会吃掉第一个文件
 
             IEnumerable<string> directories = Directory.EnumerateDirectories(pathname);
 
@@ -1260,13 +1296,17 @@ namespace UniFTP.Server
                 string date = editDate < now.Subtract(TimeSpan.FromDays(180)) ?
                     editDate.ToString("MMM dd  yyyy", CultureInfo.InvariantCulture) :
                     editDate.ToString("MMM dd HH:mm", CultureInfo.InvariantCulture);
-
-                dataWriter.Write("drwxr-xr-x    2 2003     2003         4096 ");
+                //参考格式
+                //drwxrwxrwx   1 user     group           0 Nov 27 00:13 上传
+                dataWriter.Write("drwxrwxrwx   1 user     group           0 ");
                 dataWriter.Write(date);
                 dataWriter.Write(' ');
                 dataWriter.WriteLine(Path.GetFileName(dir));
-
                 dataWriter.Flush();
+                Console.Write("drwxrwxrwx   1 2003     2003         4096 ");
+                Console.Write(date);
+                Console.Write(' ');
+                Console.WriteLine(Path.GetFileName(dir));
             }
 
             IEnumerable<string> files = Directory.EnumerateFiles(pathname);
@@ -1279,8 +1319,10 @@ namespace UniFTP.Server
                     f.LastWriteTime.ToString("MMM dd  yyyy", CultureInfo.InvariantCulture) :
                     f.LastWriteTime.ToString("MMM dd HH:mm", CultureInfo.InvariantCulture);
 
+                //参考格式
+                //-rw-rw-rw-   1 user     group     2339366 Aug 31  2013 音乐全表20130831.TXT
                 //权限 所有者 组
-                dataWriter.Write("-rw-r--r--    2 2003     2003     ");
+                dataWriter.Write("-rw-r--r--   2 2003     2003     ");
 
                 string length = f.Length.ToString(CultureInfo.InvariantCulture);
 
@@ -1297,9 +1339,23 @@ namespace UniFTP.Server
                 dataWriter.Write(date);
                 dataWriter.Write(' ');
                 dataWriter.WriteLine(f.Name);
-                //Console.WriteLine(f.Name);
-                dataWriter.Flush();
 
+                dataWriter.Flush();
+                
+                Console.Write("-rw-r--r--   2 2003     2003     ");
+                if (length.Length < 8)
+                {
+                    for (int i = 0; i < 8 - length.Length; i++)
+                    {
+                        Console.Write(' ');
+                    }
+                }
+                Console.Write(length);
+                Console.Write(' ');
+                Console.Write(date);
+                Console.Write(' ');
+                Console.WriteLine(f.Name);
+                
                 f = null;
             }
 
@@ -1317,11 +1373,25 @@ namespace UniFTP.Server
             return GetResponse(FtpResponses.TRANSFER_SUCCESSFUL);
         }
 
+        /// <summary>
+        /// 列文件名操作
+        /// </summary>
+        /// <param name="dataStream"></param>
+        /// <param name="pathname"></param>
+        /// <returns></returns>
         private Response NameListOperation(NetworkStream dataStream, string pathname)
         {
             StreamWriter dataWriter = new StreamWriter(dataStream, _currentEncoding);
 
+            IEnumerable<string> dirs = Directory.EnumerateDirectories(pathname);
+
             IEnumerable<string> files = Directory.EnumerateFiles(pathname);
+
+            foreach (string dir in dirs)
+            {
+                dataWriter.WriteLine(Path.GetFileName(dir));
+                dataWriter.Flush();
+            }
 
             foreach (string file in files)
             {

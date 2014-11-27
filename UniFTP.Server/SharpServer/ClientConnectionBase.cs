@@ -95,6 +95,15 @@ namespace SharpServer
             return total;
         }
 
+        /// <summary>
+        /// 流传输
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="output"></param>
+        /// <param name="bufferSize"></param>
+        /// <param name="encoding">编码方式</param>
+        /// <param name="performanceCounterAction">计数器操作</param>
+        /// <returns></returns>
         protected virtual long CopyStream(Stream input, Stream output, int bufferSize, Encoding encoding, Action<int> performanceCounterAction)
         {
             char[] buffer = new char[bufferSize];
