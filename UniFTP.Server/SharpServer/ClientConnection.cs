@@ -10,10 +10,15 @@ namespace SharpServer
     {
         public event EventHandler<EventArgs> Disposed;
 
+        /// <summary>
+        /// 所属服务器
+        /// </summary>
+        public object CurrentServer { get; set; } /// MARK:尝试建立Connection与Server的联系
+                                                  
         private bool _disposed = false;
 
         #region Private Fields
-
+        
         private byte[] _buffer = new byte[128];
         private StringBuilder _commandBuffer = new StringBuilder();
         private Encoding _controlStreamEncoding = Encoding.Default;

@@ -10,7 +10,7 @@ namespace SharpServer
     /// 通用Server
     /// </summary>
     /// <typeparam name="T">特定客户端连接方式</typeparam>
-    public class Server<T> : IDisposable where T : ClientConnection, new()
+    public class Server<T> : IDisposable where T : ClientConnection , new()
     {
         private static readonly object _listLock = new object();
 
@@ -115,8 +115,7 @@ namespace SharpServer
 
                 TcpClient client = listener.EndAcceptTcpClient(result);
 
-                var connection = new T();
-
+                var connection = new T {CurrentServer = this};
                 connection.Disposed += new EventHandler<EventArgs>(AsyncClientConnection_Disposed);
 
                 connection.HandleClient(client);

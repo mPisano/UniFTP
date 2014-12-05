@@ -133,7 +133,7 @@
     <value>Entering Extended Passive Mode (|||{0}|)</value>
   </data>
   <data name="ENTERING_PASSIVE_MODE" xml:space="preserve">
-    <value>Entering Passive Mode ({0},{1},{2},{3},{4},{5})</value>
+    <value>进入Passive传输模式 ({0},{1},{2},{3},{4},{5})</value>
   </data>
   <data name="EXTENSIONS_SUPPORTED" xml:space="preserve">
     <value>Extensions supported</value>
@@ -148,7 +148,7 @@
     <value>File not found</value>
   </data>
   <data name="LOGGED_IN" xml:space="preserve">
-    <value>User logged in</value>
+    <value>用户已登录</value>
   </data>
   <data name="NEED_VERIFICATION" xml:space="preserve">
     <value>Need more verification</value>
@@ -190,10 +190,10 @@
     <value>Transfer aborted</value>
   </data>
   <data name="TRANSFER_SUCCESSFUL" xml:space="preserve">
-    <value>Closing data connection, transfer successful</value>
+    <value>数据连接关闭，传输成功</value>
   </data>
   <data name="UNABLE_TO_OPEN_DATA_CONNECTION" xml:space="preserve">
-    <value>Unable to open data connection</value>
+    <value>无法打开数据连接</value>
   </data>
   <data name="USER_OK" xml:space="preserve">
     <value>Username ok, need password</value>

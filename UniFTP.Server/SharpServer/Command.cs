@@ -16,6 +16,7 @@ namespace SharpServer
         public string Code { get; set; }
         /// <summary>
         /// 参数
+        /// <para>注意：空格会作为分界符，请慎用</para>
         /// </summary>
         public List<string> Arguments { get; set; }
         public string Raw { get; set; }

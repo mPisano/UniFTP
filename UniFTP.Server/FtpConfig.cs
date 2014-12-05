@@ -1,34 +1,94 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
-using System.Xml.Serialization;
 
 namespace UniFTP.Server
 {
+    //BUG:XML序列化有点辣鸡
+
     /// <summary>
     /// FTP配置
     /// </summary>
     [Serializable]
-    class FtpConfig
+    public class FtpConfig
     {
+
+        /// <summary>
+        /// FTP配置
+        /// </summary>
+        /// <param name="homeDir"></param>
+        /// <param name="name"></param>
+        /// <param name="allowAnonymous"></param>
+        public FtpConfig(string homeDir = null, string name = "UniFTP", bool allowAnonymous = true, string owner = "UniFTP",string ownerGroup="UniFTP",string welcome = null,string loginWelcome = null)
+        {
+            HomeDir = homeDir;
+            if (homeDir == null)
+            {
+                string workDir = Path.Combine(Environment.CurrentDirectory, "UniFTPServerRoot");
+                Directory.CreateDirectory(workDir);
+                HomeDir = workDir;
+            }
+            ServerName = name;
+            AllowAnonymous = allowAnonymous;
+            Owner = owner??"UniFTP";
+            OwnerGroup = ownerGroup ?? "UniFTP";
+            Welcome = welcome;
+            LogInWelcome = loginWelcome;
+
+        }
+
+        //public FtpConfig()
+        //{
+        //    string workDir = Path.Combine(Environment.CurrentDirectory, "UniFTPServerRoot");
+        //    Directory.CreateDirectory(workDir);
+        //    HomeDir = workDir;
+        //    ServerName = "UniFTP";
+        //    AllowAnonymous = true;
+        //}
         /// <summary>
         /// 服务器名
-        /// <para>注意：若两个服务器示例采用同样的服务器名，它们可能将被视为同一个服务器而共享日志与计数器。</para>
+        /// <para>名称不能包含路径字符</para>
+        /// <para>注意：不同的服务器实例默认都会共享日志与计数器。</para>
         /// </summary>
-        [XmlAttribute("ServerName")]
         public string ServerName { get; set; }
 
-        [XmlAttribute("AllowAnonymous")]
+        /// <summary>
+        /// 允许匿名
+        /// </summary>
         public bool AllowAnonymous { get; set; }
 
-        [XmlAttribute("homedir")]
+        /// <summary>
+        /// 服务器主目录
+        /// </summary>
         public string HomeDir { get; set; }
 
-        [XmlAttribute("twofactorsecret")]
-        public string TwoFactorSecret { get; set; }
+        /// <summary>
+        /// 文件所有者
+        /// </summary>
+        public string Owner { get; set; }
 
-        [XmlIgnore]
-        public bool IsAnonymous { get; set; }
+        /// <summary>
+        /// 文件所有组
+        /// </summary>
+        public string OwnerGroup { get; set; }
+
+        /// <summary>
+        /// 欢迎语
+        /// </summary>
+        public string Welcome { get; set; }
+
+        /// <summary>
+        /// 登录后欢迎语
+        /// </summary>
+        public string LogInWelcome { get; set; }
+
+        /// <summary>
+        /// 文件规则
+        /// </summary>
+        public Dictionary<string, string> Rules { get; set; }
+
+
     }
 }

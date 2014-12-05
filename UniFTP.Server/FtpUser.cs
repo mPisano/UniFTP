@@ -2,88 +2,110 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Xml.Serialization;
 
 namespace UniFTP.Server
 {
     [Serializable]
     public class FtpUser
     {
-        [XmlAttribute("username")]
+        internal static FtpUser Anonymous = new FtpUser("anonymous");
+        public FtpUser(string name, string groupName = null, int conn = 4096, string pass = "", string md5 = "")
+        {
+            UserName = name;
+            MaxConnection = conn;
+            Password = pass;
+            PasswordMD5 = md5;
+            GroupName = groupName ?? "anonymous";
+        }
+
+        /// <summary>
+        /// 用户名
+        /// </summary>
         public string UserName { get; set; }
 
-        [XmlAttribute("password")]
+        /// <summary>
+        /// 密码
+        /// </summary>
         public string Password { get; set; }
 
-        [XmlAttribute("homedir")]
-        public string HomeDir { get; set; }
+        /// <summary>
+        /// MD5
+        /// </summary>
+        public string PasswordMD5 { get; set; }
+
+        /// <summary>
+        /// GroupName
+        /// </summary>
+        public string GroupName { get; internal set; }
+
+        /// <summary>
+        /// 最大连接数
+        /// </summary>
+        public int MaxConnection { get; set; }
 
         //[XmlAttribute("twofactorsecret")]
         //public string TwoFactorSecret { get; set; }
 
-        [XmlIgnore]
         public bool IsAnonymous { get; set; }
-    }
+        
+        public FtpUserGroup UserGroup { get; internal set; }
 
-    [Obsolete("This is not a real user store. It is just a stand-in for testing. DO NOT USE IN PRODUCTION CODE.")]
-    public static class FtpUserStore
-    {
-        private static List<FtpUser> _users;
-
-        static FtpUserStore()
+        public static FtpUser Validate(FtpServer server, string username, string password)
         {
-            _users = new List<FtpUser>();
-
-            XmlSerializer serializer = new XmlSerializer(_users.GetType(), new XmlRootAttribute("Users"));
-
-            if (File.Exists("users.xml"))
+            if (server.Users.ContainsKey(username))
             {
-                _users = serializer.Deserialize(new StreamReader("users.xml")) as List<FtpUser>;
-            }
-            else
-            {
-                _users.Add(new FtpUser
+                var user = server.Users[username];
+                if (server.UserGroups.ContainsKey(user.GroupName))
                 {
-                    UserName = "root",
-                    Password = "test",
-                    HomeDir = "D:\\Temp"
-                });
-
-                using (StreamWriter w = new StreamWriter("users.xml"))
-                {
-                    serializer.Serialize(w, _users);
+                    var group = server.UserGroups[user.GroupName];
+                    user.UserGroup = group;
+                    if (group.UserGroupName == "anonymous")
+                    {
+                        user.IsAnonymous = true;
+                    }
+                    if (!@group.Forbidden)
+                    {
+                        switch (@group.Auth)
+                        {
+                            case AuthType.None:
+                                user.IsAnonymous = true;
+                                return user;
+                                break;
+                            case AuthType.UniZip:
+                            case AuthType.SSL:
+                            case AuthType.Password:
+                                if (!String.IsNullOrEmpty(user.Password) && user.Password == password)
+                                {
+                                    return user;
+                                }
+                                return null;
+                                break;
+                            case AuthType.MD5:
+                                if (!String.IsNullOrEmpty(user.PasswordMD5) && user.PasswordMD5 == password)
+                                {
+                                    return user;
+                                }
+                                return null;
+                                break;
+                        }
+                    }
                 }
             }
+            return null;
         }
-
-        public static FtpUser Validate(string username, string password)
-        {
-            FtpUser user = (from u in _users where u.UserName == username && u.Password == password select u).SingleOrDefault();
-
-            if (user == null)
-            {
-                user = new FtpUser
-                {
-                    UserName = username,
-                    HomeDir = "D:\\Temp",
-                    IsAnonymous = true
-                };
-            }
-
-            return user;
-        }
-
-
-        //public static FtpUser Validate(string username, string password, string twoFactorCode)
-        //{
-        //    FtpUser user = (from u in _users where u.UserName == username && u.Password == password select u).SingleOrDefault();
-
-        //    if (TwoFactor.TimeBasedOneTimePassword.IsValid(user.TwoFactorSecret, twoFactorCode))
-        //    {
-        //        return user;
-        //    }
-
-        //    return null;
-        //}
     }
+
+
+    //public static FtpUser Validate(string username, string password, string twoFactorCode)
+    //{
+    //    FtpUser user = (from u in _users where u.UserName == username && u.Password == password select u).SingleOrDefault();
+
+    //    if (TwoFactor.TimeBasedOneTimePassword.IsValid(user.TwoFactorSecret, twoFactorCode))
+    //    {
+    //        return user;
+    //    }
+
+    //    return null;
+    //}
+ 
 }
