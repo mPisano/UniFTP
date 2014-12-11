@@ -67,7 +67,6 @@ namespace SharpServer
         {
             Data.Clear();
             Data.AddRange(data);
-
             return this;
         }
 

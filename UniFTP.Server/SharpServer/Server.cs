@@ -10,7 +10,7 @@ namespace SharpServer
     /// 通用Server
     /// </summary>
     /// <typeparam name="T">特定客户端连接方式</typeparam>
-    public class Server<T> : IDisposable where T : ClientConnection , new()
+    public class Server<T> : IDisposable where T : ClientConnection, new()
     {
         private static readonly object _listLock = new object();
 
@@ -39,7 +39,7 @@ namespace SharpServer
         public Server(IPEndPoint[] localEndPoints, string logHeader = null)
         {
             _localEndPoints = new List<IPEndPoint>(localEndPoints);
-            _logHeader = logHeader;
+            _logHeader = logHeader??"";
         }
 
         public void Start()
@@ -47,7 +47,7 @@ namespace SharpServer
             if (_disposed)
                 throw new ObjectDisposedException("AsyncServer");
 
-            _log.Info(_logHeader);
+            _log.Info("#" + _logHeader);
             _state = new List<T>();
             _listeners = new List<TcpListener>();
 
@@ -111,17 +111,26 @@ namespace SharpServer
 
             if (_listening)
             {
-                listener.BeginAcceptTcpClient(HandleAcceptTcpClient, listener);
+                TcpClient client;
+                try
+                {
+                    listener.BeginAcceptTcpClient(HandleAcceptTcpClient, listener);
 
-                TcpClient client = listener.EndAcceptTcpClient(result);
+                    client = listener.EndAcceptTcpClient(result);
 
-                var connection = new T {CurrentServer = this};
-                connection.Disposed += new EventHandler<EventArgs>(AsyncClientConnection_Disposed);
+                    var connection = new T { CurrentServer = this };
 
-                connection.HandleClient(client);
+                    connection.Disposed += new EventHandler<EventArgs>(AsyncClientConnection_Disposed);
 
-                lock (_listLock)
-                    _state.Add(connection);
+                    connection.HandleClient(client);
+
+                    lock (_listLock)
+                        _state.Add(connection);
+                }
+                catch (SocketException e)
+                {
+                    //throw;
+                }
             }
         }
 

@@ -177,6 +177,9 @@
   <data name="RENAME_FROM" xml:space="preserve">
     <value>Requested file action pending further information</value>
   </data>
+  <data name="RESTART_FROM" xml:space="preserve">
+    <value>Restarting at {0}. Send STORE or RETRIEVE.</value>
+  </data>
   <data name="SERVICE_READY" xml:space="preserve">
     <value>UniFTP Server Ready. (Ver.0.1)</value>
   </data>
@@ -187,7 +190,7 @@
     <value>UNIX Type: L8</value>
   </data>
   <data name="TRANSFER_ABORTED" xml:space="preserve">
-    <value>Transfer aborted</value>
+    <value>传输被中断</value>
   </data>
   <data name="TRANSFER_SUCCESSFUL" xml:space="preserve">
     <value>数据连接关闭，传输成功</value>

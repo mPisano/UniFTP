@@ -15,18 +15,12 @@ namespace UniFTP.Server
     public class FtpConfig
     {
 
-        /// <summary>
-        /// FTP配置
-        /// </summary>
-        /// <param name="homeDir"></param>
-        /// <param name="name"></param>
-        /// <param name="allowAnonymous"></param>
-        public FtpConfig(string homeDir = null, string name = "UniFTP", bool allowAnonymous = true, string owner = "UniFTP",string ownerGroup="UniFTP",string welcome = null,string loginWelcome = null)
+        public FtpConfig(string homeDir = null, string name = "UniFTP", bool allowAnonymous = true, string owner = "UniFTP",string ownerGroup="UniFTP",string[] welcome = null,string[] loginWelcome = null)
         {
             HomeDir = homeDir;
             if (homeDir == null)
             {
-                string workDir = Path.Combine(Environment.CurrentDirectory, "UniFTPServerRoot");
+                string workDir = Path.Combine(Environment.CurrentDirectory, name, "Root");
                 Directory.CreateDirectory(workDir);
                 HomeDir = workDir;
             }
@@ -39,18 +33,9 @@ namespace UniFTP.Server
 
         }
 
-        //public FtpConfig()
-        //{
-        //    string workDir = Path.Combine(Environment.CurrentDirectory, "UniFTPServerRoot");
-        //    Directory.CreateDirectory(workDir);
-        //    HomeDir = workDir;
-        //    ServerName = "UniFTP";
-        //    AllowAnonymous = true;
-        //}
         /// <summary>
         /// 服务器名
         /// <para>名称不能包含路径字符</para>
-        /// <para>注意：不同的服务器实例默认都会共享日志与计数器。</para>
         /// </summary>
         public string ServerName { get; set; }
 
@@ -77,12 +62,17 @@ namespace UniFTP.Server
         /// <summary>
         /// 欢迎语
         /// </summary>
-        public string Welcome { get; set; }
+        public string[] Welcome { get; set; }
 
         /// <summary>
         /// 登录后欢迎语
         /// </summary>
-        public string LogInWelcome { get; set; }
+        public string[] LogInWelcome { get; set; }
+
+        /// <summary>
+        /// 退出提示语
+        /// </summary>
+        public string[] LogOutWelcome { get; set; }
 
         /// <summary>
         /// 文件规则

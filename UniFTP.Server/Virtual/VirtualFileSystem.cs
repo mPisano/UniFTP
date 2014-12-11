@@ -19,7 +19,7 @@ namespace UniFTP.Server.Virtual
     /// <summary>
     /// 虚拟文件系统
     /// </summary>
-    class VirtualFileSystem
+    internal class VirtualFileSystem
     {
         private string _rootPath;
 
@@ -41,6 +41,9 @@ namespace UniFTP.Server.Virtual
             _group = group;
             _rootPath = rootpath ?? group.HomeDir?? config.HomeDir;
             _rootDirectory = new VDirectory(null, new FilePermission("r-xr-xr-x"), _rootPath, "");
+
+            AddGroupLinks();
+
             _currentDirectory = _rootDirectory;
             _currentDirectory.Refresh();
             SetPermission(_currentDirectory,true);
@@ -268,11 +271,15 @@ namespace UniFTP.Server.Virtual
                         return false;
                     }
                     Directory.Delete(vf.RealPath);
+                    vf.ParentDirectory.SubFiles.Remove(vf); //FIXED:删除文件更新相应虚拟目录
+                    f = null;
                 }
                 else if(!f.IsDirectory && !delDir)
                 {
                     var vf = (VFile) f;
                     File.Delete(f.RealPath);
+                    vf.ParentDirectory.SubFiles.Remove(vf);
+                    f = null;
                 }
                 else
                 {
@@ -293,7 +300,7 @@ namespace UniFTP.Server.Virtual
         /// <param name="vPath">链接所要添加到的虚拟路径</param>
         /// <param name="name">别名，默认为原名</param>
         /// <param name="permission">权限，设为null则继承父目录权限</param>
-        public bool AddLink(string realPath, string vPath, FilePermission permission, string name = null)
+        public bool AddLink(string realPath, string vPath, FilePermission permission = null, string name = null)
         {
 
             var folder = Get(vPath) as VDirectory;
@@ -354,7 +361,7 @@ namespace UniFTP.Server.Virtual
         /// </summary>
         /// <param name="vPath">虚拟路径</param>
         /// <returns></returns>
-        public List<string> ListFileNames(string vPath = null)
+        public IEnumerable<string> ListFileNames(string vPath = null)
         {
             VDirectory dir;
             if (string.IsNullOrEmpty(vPath))
@@ -395,6 +402,8 @@ namespace UniFTP.Server.Virtual
             {
                 dir = Get(VPath.NormalizeFilename(vPath), true) as VDirectory ?? _currentDirectory;
             }
+
+            dir.Refresh();  //FIXED:目录及时更新
 
             List<string> fileList = new List<string>();
 
@@ -499,7 +508,10 @@ namespace UniFTP.Server.Virtual
             {
                 currentPosition = _currentDirectory;
             }
-            
+            if (vdir == "")
+            {
+                return currentPosition;
+            }
             string pre;
             string[] dirs = vdir.Split(new char[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries);
             for (int i = 0; i < dirs.Length; i++)
@@ -551,16 +563,6 @@ namespace UniFTP.Server.Virtual
             if (setParentFiles)
             {
                 file.ClearPermission();
-                //IFile current = file;
-                //while (current.ParentDirectory != current)
-                //{
-                //    current = CurrentDirectory.ParentDirectory;
-                //    SetPermission(current);
-                //    foreach (var sub in ((VDirectory)current).SubFiles)
-                //    {
-                //        sub.Permission = current.Permission;
-                //    }
-                //}
                 SetPermission(file);
             }
             if (_group.Rules.ContainsKey(file.VirtualPath))
@@ -589,6 +591,22 @@ namespace UniFTP.Server.Virtual
             }
 
         }
+
+        private void AddGroupLinks()
+        {
+            foreach (var link in _group.Links)
+            {
+                try
+                {
+                    AddLink(link.Key, link.Value);
+                }
+                catch (Exception)
+                {
+                    continue;
+                }
+            }
+        }
+
         #endregion
     }
 }

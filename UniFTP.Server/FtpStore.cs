@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using UniFTP.Server.Virtual;
@@ -24,20 +25,28 @@ namespace UniFTP.Server
             {
                 using (FileStream fs = new FileStream(Path.Combine(sname, "Config", file), FileMode.Open))
                 {
-                    switch (file)
+                    try
                     {
-                        case "users.cfg":
-                            server.Users = serializer.Deserialize(fs) as Dictionary<string, FtpUser> ?? server.Users;
-                            break;
-                        case "usergroups.cfg":
-                            server.UserGroups = serializer.Deserialize(fs) as Dictionary<string, FtpUserGroup> ?? server.UserGroups;
-                            break;
-                        case "configs.cfg":
-                            server.Config = serializer.Deserialize(fs) as FtpConfig ?? server.Config;
-                            break;
-                        default:
-                            fs.Close();
-                            return false;
+                        switch (file)
+                        {
+                            case "users.cfg":
+                                server.Users = serializer.Deserialize(fs) as Dictionary<string, FtpUser> ?? server.Users;
+                                break;
+                            case "usergroups.cfg":
+                                server.UserGroups = serializer.Deserialize(fs) as Dictionary<string, FtpUserGroup> ??
+                                                    server.UserGroups;
+                                break;
+                            case "config.cfg":
+                                server.Config = serializer.Deserialize(fs) as FtpConfig ?? server.Config;
+                                break;
+                            default:
+                                fs.Close();
+                                return false;
+                        }
+                    }
+                    catch (SerializationException)
+                    {
+
                     }
                     //server.Users = serializer.Deserialize(fs) as Dictionary<string, FtpUser> ?? server.Users;
                     fs.Close();
@@ -65,7 +74,7 @@ namespace UniFTP.Server
                     case "usergroups.cfg":
                         serializer.Serialize(fs, server.UserGroups);
                         break;
-                    case "configs.cfg":
+                    case "config.cfg":
                         serializer.Serialize(fs, server.Config);
                         break;
                     default:

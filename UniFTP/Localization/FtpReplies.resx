@@ -177,6 +177,9 @@
   <data name="RENAME_FROM" xml:space="preserve">
     <value>Requested file action pending further information</value>
   </data>
+  <data name="RESTART_FROM" xml:space="preserve">
+    <value>Restarting at {0}. Send STORE or RETRIEVE.</value>
+  </data>
   <data name="SERVICE_READY" xml:space="preserve">
     <value>UniFTP Server Ready. (Ver.0.1)</value>
   </data>

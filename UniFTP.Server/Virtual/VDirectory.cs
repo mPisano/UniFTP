@@ -106,6 +106,10 @@ namespace UniFTP.Server.Virtual
         public void Refresh()
         {
             _realSub.Clear();
+            if (!RealDirectory.Exists)
+            {
+                return;
+            }
             var infos = RealDirectory.GetFileSystemInfos();
             foreach (var fileSystemInfo in infos)
             {

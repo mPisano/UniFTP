@@ -47,9 +47,9 @@
     <Compile Include="FtpConfig.cs" />
     <Compile Include="FtpListenerPool.cs" />
     <Compile Include="FtpLogEntry.cs" />
-    <Compile Include="FtpPerformanceCounters.cs" />
+    <Compile Include="FtpPerformanceCounter.cs" />
+    <Compile Include="FtpStaticPerformanceCounters.cs" />
     <Compile Include="FtpResponses.cs" />
-    <Compile Include="FtpRule.cs" />
     <Compile Include="FtpServer.cs" />
     <Compile Include="FtpStore.cs" />
     <Compile Include="FtpUser.cs" />
@@ -75,7 +75,11 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="App.config" />
     <None Include="packages.config" />
+    <None Include="UniFTP.Server.log4net">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

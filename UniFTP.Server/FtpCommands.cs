@@ -14,8 +14,14 @@ namespace UniFTP.Server
 {
     public partial class FtpClientConnection : ClientConnection
     {
+        private string _renameFrom;
+        private long _transPosition = 0;
+        private Command _lastCommand = null;
+
         protected override Response HandleCommand(Command cmd)
         {
+            Console.WriteLine(cmd.Raw);
+
             Response response = null;
 
             FtpLogEntry logEntry = new FtpLogEntry
@@ -27,13 +33,18 @@ namespace UniFTP.Server
             //请求的命令需要权限
             if (!_validCommands.Contains(cmd.Code))
             {
-                response = CheckUser();
+                response = CheckUser(); //如果被拒绝将直接发送权限认证的响应
             }
 
-            // Reset rename from if we don't receive a rename to command. These must be issued back-to-back.
+            // RNFR重命名后面必须立即接RNTO命令
             if (cmd.Code != "RNTO")
             {
                 _renameFrom = null;
+            }
+            // REST重新开始后面必须立即接传输命令
+            if (cmd.Code != "RETR" && cmd.Code != "STOR")
+            {
+                _transPosition = 0;
             }
 
             if (response == null)
@@ -93,7 +104,7 @@ namespace UniFTP.Server
                     case "DELE":    //删除文件
                         response = Delete(cmd.RawArguments);
                         break;
-                    case "RMD":     //删除文件家
+                    case "RMD":     //删除文件夹
                         response = RemoveDir(cmd.RawArguments);
                         break;
                     case "MKD":     //建立文件夹
@@ -150,8 +161,8 @@ namespace UniFTP.Server
                     case "SMNT":
                         response = GetResponse(FtpResponses.NOT_IMPLEMENTED);
                         break;
-                    case "REST":    //重新开始 //TODO:可能要实现以用于断点续传
-                        response = GetResponse(FtpResponses.NOT_IMPLEMENTED);
+                    case "REST":    //重新开始 //ADDED:尝试断点续传
+                        response = Restart(cmd.RawArguments);
                         break;
                     case "ABOR":
                         response = GetResponse(FtpResponses.NOT_IMPLEMENTED);
@@ -159,7 +170,7 @@ namespace UniFTP.Server
 
                     // Extensions defined by rfc 2228
                     case "AUTH":    //权限验证 AUTH <验证方法>
-                        response = Auth(cmd.Arguments.FirstOrDefault());
+                        response = Auth(cmd.RawArguments);
                         break;
 
                     // Extensions defined by rfc 2389
@@ -172,7 +183,7 @@ namespace UniFTP.Server
 
                     // Extensions defined by rfc 3659
                     case "MDTM":
-                        response = FileModificationTime(cmd.RawArguments);//FIXED:只接受一个参数的 务必使用RawArg 醉了
+                        response = FileModificationTime(cmd.RawArguments);//FIXED:只接受一个参数的 务必使用RawArg
                         break;
                     case "SIZE":
                         response = FileSize(cmd.RawArguments);
@@ -205,6 +216,8 @@ namespace UniFTP.Server
 
             _log.Info(logEntry);
 
+            _lastCommand = cmd;
+
             return response;
         }
 
@@ -217,7 +230,7 @@ namespace UniFTP.Server
         /// <returns></returns>
         private Response User(string username)
         {
-            FtpPerformanceCounters.IncrementTotalLogonAttempts();
+            _performanceCounter.IncrementTotalLogonAttempts();
 
             _username = username;
             return GetResponse(FtpResponses.USER_OK);
@@ -230,7 +243,7 @@ namespace UniFTP.Server
         /// <returns></returns>
         private Response Password(string password)
         {
-            FtpUser user = FtpUser.Validate((FtpServer)CurrentServer, _username.ToLower(), password);
+            FtpUser user = FtpUser.Validate((FtpServer)CurrentServer, _username, password);
 
             if (user != null)
             {
@@ -248,10 +261,18 @@ namespace UniFTP.Server
                 //TODO:引入新的虚拟文件系统
                 
                 if (_currentUser.IsAnonymous)
-                    FtpPerformanceCounters.IncrementAnonymousUsers();
+                    _performanceCounter.IncrementAnonymousUsers();
                 else
-                    FtpPerformanceCounters.IncrementNonAnonymousUsers();
+                    _performanceCounter.IncrementNonAnonymousUsers();
 
+                if (((FtpServer)CurrentServer).Config.LogInWelcome != null)
+                {
+                    Write(new Response { Code = "230-", Text = "Logged In" });
+                    foreach (var welcome in ((FtpServer)CurrentServer).Config.LogInWelcome)
+                    {
+                        Write(new Response { Code = "", Text = welcome });
+                    }
+                }
                 return GetResponse(FtpResponses.LOGGED_IN);
                 //}
             }
@@ -265,30 +286,17 @@ namespace UniFTP.Server
         /// ACCT Command - RFC 959 - Section 4.1.1
         /// <para>注：RFC协议没有明确指定ACCT的具体功能，因此此处可以采取多种实现</para>
         /// </summary>
-        /// <param name="username"></param>
+        /// <param name="account"></param>
         /// <returns></returns>
-        private Response Account(string twoFactorCode)
+        private Response Account(string account)
         {
-            //_currentUser = FtpUserStore.Validate(_username, _password, twoFactorCode);
-
-            //if (_currentUser != null)
-            //{
-            //    _root = _currentUser.HomeDir;
-            //    _currentDirectory = _root;
-
-            //    return GetResponse(FtpResponses.LOGGED_IN);
-            //}
-            //else
-            //{
-            //    return GetResponse(FtpResponses.NOT_LOGGED_IN);
-            //}
             return GetResponse(FtpResponses.NOT_IMPLEMENTED);
         }
 
         /// <summary>
         /// CWD Command - RFC 959 - Section 4.1.1
         /// </summary>
-        /// <param name="username"></param>
+        /// <param name="pathname"></param>
         /// <returns></returns>
         private Response ChangeWorkingDirectory(string pathname)
         {
@@ -352,6 +360,11 @@ namespace UniFTP.Server
             return GetResponse(FtpResponses.OK);
         }
 
+        /// <summary>
+        /// EPRT Command - RFC 2428
+        /// </summary>
+        /// <param name="hostPort"></param>
+        /// <returns></returns>
         private Response EPort(string hostPort)
         {
             _dataConnectionType = DataConnectionType.Active;
@@ -374,7 +387,7 @@ namespace UniFTP.Server
         /// PASV Command - RFC 959 - Section 4.1.2
         /// <para>进入被动模式（请求服务器等待数据连接）</para>
         /// </summary>
-        /// <param name="username"></param>
+        /// 
         /// <returns></returns>
         private Response Passive()
         {
@@ -407,6 +420,10 @@ namespace UniFTP.Server
             return GetResponse(FtpResponses.ENTERING_PASSIVE_MODE.SetData(address[0], address[1], address[2], address[3], portArray[0], portArray[1]));
         }
 
+        /// <summary>
+        /// EPSV Command - RFC 2428
+        /// </summary>
+        /// <returns></returns>
         private Response EPassive()
         {
             _dataConnectionType = DataConnectionType.Passive;
@@ -529,6 +546,24 @@ namespace UniFTP.Server
             }
 
             return GetResponse(FtpResponses.FILE_NOT_FOUND);
+        }
+
+        ///ADDED:重启传输命令
+        /// <summary>
+        /// REST Command - RFC 959 - Section 4.1.3
+        /// <para>重启传输</para>
+        /// </summary>
+        /// <param name="position">无符号整型数，表示传输重启位置</param>
+        /// <returns></returns>
+        private Response Restart(string position)
+        {
+            long pos = 0;
+            if (!long.TryParse(position,out pos))
+            {
+                return GetResponse(FtpResponses.PARAMETER_NOT_RECOGNIZED.SetData(position));
+            }
+            _transPosition = pos;
+            return GetResponse(FtpResponses.RESTART_FROM.SetData(pos));
         }
 
         /// <summary>
@@ -752,6 +787,10 @@ namespace UniFTP.Server
 
         private Response NameList(string pathname)
         {
+            if (_dataEndpoint == null && _dataConnectionType == DataConnectionType.Active)
+            {
+                return GetResponse(FtpResponses.UNABLE_TO_OPEN_DATA_CONNECTION);
+            }
 
             if (_virtualFileSystem.ExistsDirectory(pathname))
             {
@@ -769,10 +808,14 @@ namespace UniFTP.Server
         /// <summary>
         /// LIST Command - RFC 959 - Section 4.1.3
         /// </summary>
-        /// <param name="username"></param>
+        /// <param name="pathname"></param>
         /// <returns></returns>
         private Response List(string pathname)
         {
+            if (pathname.Trim().ToLower() == "-l")  //客户端尝试使用UNIX参数强制详细信息显示,事实上我们提供的本来就是详细信息
+            {
+                pathname = "";
+            }
             if (_dataEndpoint == null && _dataConnectionType == DataConnectionType.Active)
             {
                 return GetResponse(FtpResponses.UNABLE_TO_OPEN_DATA_CONNECTION);

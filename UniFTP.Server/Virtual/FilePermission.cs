@@ -37,7 +37,7 @@ namespace UniFTP.Server.Virtual
                 }
                 else
                 {
-                    _attributes[1] = '-';
+                    _attributes[0] = '-';
                 }
             }
         }

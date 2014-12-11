@@ -111,7 +111,8 @@ namespace SharpServer
         }
 
         /// <summary>
-        /// Sets up the class to handle the communication to the given TcpClient.
+        /// 初始化Connection，专用于服务一个成功连接的TcpClient
+        /// <para>Sets up the class to handle the communication to the given TcpClient.</para>
         /// </summary>
         /// <param name="client">The TcpClient to communicate with.</param>
         public override void HandleClient(object obj)

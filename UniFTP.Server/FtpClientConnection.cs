@@ -15,6 +15,9 @@ namespace UniFTP.Server
 {
     public partial class FtpClientConnection : ClientConnection
     {
+        /// <summary>
+        /// 数据流操作
+        /// </summary>
         private class DataConnectionOperation
         {
             public Func<NetworkStream, string, Response> Operation { get; set; }
@@ -34,17 +37,27 @@ namespace UniFTP.Server
             Image,
             Local,
         }
-
+        /// <summary>
+        /// 格式控制
+        /// </summary>
         public enum FormatControlType
         {
             NonPrint,
             Telnet,
             CarriageControl,
         }
-
+        /// <summary>
+        /// 数据传输模式
+        /// </summary>
         public enum DataConnectionType
         {
+            /// <summary>
+            /// 被动模式(推荐)
+            /// </summary>
             Passive,
+            /// <summary>
+            /// 主动模式(不推荐)
+            /// </summary>
             Active,
         }
         /// <summary>
@@ -60,7 +73,7 @@ namespace UniFTP.Server
         #endregion
         VirtualFileSystem _virtualFileSystem;
 
-        private const int BUFFER_SIZE = 8096;
+        private const int BUFFER_SIZE = 8096;   //8096
 
         private TcpListener _passiveListener;
         private TcpClient _dataClient;
@@ -84,11 +97,10 @@ namespace UniFTP.Server
         private FtpUser _currentUser;
         private List<string> _validCommands;
 
-
-        private string _renameFrom;
-
-        private Encoding _currentEncoding = Encoding.Default;
+        private Encoding _currentEncoding = Encoding.UTF8;
         private CultureInfo _currentCulture = CultureInfo.InvariantCulture;
+
+        private FtpPerformanceCounter _performanceCounter;
 
         public FtpClientConnection()
             : base()
@@ -102,10 +114,20 @@ namespace UniFTP.Server
 
         protected override void OnConnected()
         {
+            _performanceCounter = ((FtpServer)CurrentServer).ServerPerformanceCounter;
 
-            FtpPerformanceCounters.IncrementCurrentConnections();
+            _performanceCounter.IncrementCurrentConnections();
 
             _connected = true;
+
+            if (((FtpServer)CurrentServer).Config.Welcome != null)
+            {
+                Write(new Response { Code = "220-", Text = "Connected" });
+                foreach (var welcome in ((FtpServer)CurrentServer).Config.Welcome)
+                {
+                    Write(new Response { Code = "", Text = welcome });
+                }
+            }
 
             Write(GetResponse(FtpResponses.SERVICE_READY));
 
@@ -127,7 +149,7 @@ namespace UniFTP.Server
                 _sslStream.AuthenticateAsServer(_cert);
             }
 
-            FtpPerformanceCounters.IncrementCommandsExecuted();
+            _performanceCounter.IncrementCommandsExecuted();
         }
 
         protected override void Dispose(bool disposing)
@@ -140,12 +162,12 @@ namespace UniFTP.Server
 
                     if (_currentUser != null)
                         if (_currentUser.IsAnonymous)
-                            FtpPerformanceCounters.DecrementAnonymousUsers();
+                            _performanceCounter.DecrementAnonymousUsers();
                         else
-                            FtpPerformanceCounters.DecrementNonAnonymousUsers();
+                            _performanceCounter.DecrementNonAnonymousUsers();
 
                     if (_connected)
-                        FtpPerformanceCounters.DecrementCurrentConnections();
+                        _performanceCounter.DecrementCurrentConnections();
 
                     if (disposing)
                     {
@@ -280,7 +302,19 @@ namespace UniFTP.Server
         {
             if (_dataConnectionType == DataConnectionType.Active)
             {
-                _dataClient.EndConnect(result);
+                if (_dataClient == null)
+                {
+                    return;
+                }
+                try
+                {
+                    _dataClient.EndConnect(result); //BUG:
+                }
+                catch (Exception e)
+                {
+                    
+                }
+
             }
             else
             {
@@ -303,8 +337,8 @@ namespace UniFTP.Server
 
         private void DoDataConnectionOperation(IAsyncResult result)
         {
-            FtpPerformanceCounters.IncrementTotalConnectionAttempts();
-            FtpPerformanceCounters.IncrementCurrentConnections();
+            _performanceCounter.IncrementTotalConnectionAttempts();
+            _performanceCounter.IncrementCurrentConnections();
 
             HandleAsyncResult(result);
 
@@ -314,6 +348,10 @@ namespace UniFTP.Server
 
             try
             {
+                if (_dataClient == null)
+                {
+                    throw new SocketException();
+                }
                 using (NetworkStream dataStream = _dataClient.GetStream())
                 {
                     response = op.Operation(dataStream, op.Arguments);
@@ -331,7 +369,7 @@ namespace UniFTP.Server
                 _dataClient = null;
             }
 
-            FtpPerformanceCounters.DecrementCurrentConnections();
+            _performanceCounter.DecrementCurrentConnections();
 
             if (_dataConnectionType == DataConnectionType.Passive)
                 PassiveListenerPool.FreeListener(_passiveListener);
@@ -343,10 +381,12 @@ namespace UniFTP.Server
         {
             using (FileStream fs = new FileStream(pathname, FileMode.Open, FileAccess.Read))
             {
-                CopyStream(fs, dataStream, FtpPerformanceCounters.IncrementBytesSent);
+                fs.Seek(_transPosition, SeekOrigin.Begin);
+
+                CopyStream(fs, dataStream, _performanceCounter.IncrementBytesSent);
             }
 
-            FtpPerformanceCounters.IncrementFilesSent();
+            _performanceCounter.IncrementFilesSent();
 
             return GetResponse(FtpResponses.TRANSFER_SUCCESSFUL);
         }
@@ -355,11 +395,6 @@ namespace UniFTP.Server
         {
             long bytes = 0;
 
-            using (FileStream fs = new FileStream(pathname, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None, BUFFER_SIZE, FileOptions.SequentialScan))
-            {
-                bytes = CopyStream(dataStream, fs, FtpPerformanceCounters.IncrementBytesReceived);
-            }
-
             FtpLogEntry logEntry = new FtpLogEntry
             {
                 Date = DateTime.Now,
@@ -367,12 +402,23 @@ namespace UniFTP.Server
                 CSMethod = "STOR",
                 CSUsername = _username,
                 SCStatus = "226",
-                CSBytes = bytes.ToString(CultureInfo.InvariantCulture)
             };
+
+            using (FileStream fs = new FileStream(pathname, FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read, BUFFER_SIZE, FileOptions.SequentialScan))
+            {
+                //if (_lastCommand.Code == "REST")
+                //{
+                //    fs.Seek(_transPosition, SeekOrigin.Begin);
+                //}
+                fs.Seek(_transPosition, SeekOrigin.Begin);
+                bytes = CopyStream(dataStream, fs, _performanceCounter.IncrementBytesReceived);
+            }
+
+            logEntry.CSBytes = bytes.ToString(CultureInfo.InvariantCulture);
 
             _log.Info(logEntry);
 
-            FtpPerformanceCounters.IncrementFilesReceived();
+            _performanceCounter.IncrementFilesReceived();
 
             return GetResponse(FtpResponses.TRANSFER_SUCCESSFUL);
         }
@@ -380,11 +426,6 @@ namespace UniFTP.Server
         private Response AppendOperation(NetworkStream dataStream, string pathname)
         {
             long bytes = 0;
-
-            using (FileStream fs = new FileStream(pathname, FileMode.Append, FileAccess.Write, FileShare.None, BUFFER_SIZE, FileOptions.SequentialScan))
-            {
-                bytes = CopyStream(dataStream, fs, FtpPerformanceCounters.IncrementBytesReceived);
-            }
 
             FtpLogEntry logEntry = new FtpLogEntry
             {
@@ -396,9 +437,17 @@ namespace UniFTP.Server
                 CSBytes = bytes.ToString(CultureInfo.InvariantCulture)
             };
 
+            using (FileStream fs = new FileStream(pathname, FileMode.Append, FileAccess.Write, FileShare.Read, BUFFER_SIZE, FileOptions.SequentialScan))
+            {
+                bytes = CopyStream(dataStream, fs, _performanceCounter.IncrementBytesReceived);
+            }
+
+
+            logEntry.CSBytes = bytes.ToString(CultureInfo.InvariantCulture);
+
             _log.Info(logEntry);
 
-            FtpPerformanceCounters.IncrementFilesReceived();
+            _performanceCounter.IncrementFilesReceived();
 
             return GetResponse(FtpResponses.TRANSFER_SUCCESSFUL);
         }
@@ -411,26 +460,34 @@ namespace UniFTP.Server
         /// <returns></returns>
         private Response ListOperation(NetworkStream dataStream, string pathname)
         {
-
             DateTime now = DateTime.Now;
 
+            FtpLogEntry logEntry = new FtpLogEntry
+            {
+                Date = now,
+                CIP = ClientIP,
+                CSMethod = "LIST",
+                CSUsername = _username,
+                SCStatus = "226"
+            };
+
             StreamWriter dataWriter = new StreamWriter(dataStream, _currentEncoding);
-
-            dataWriter.WriteLine(); //FIXED:必须加一空行 否则FileZilla会吃掉第一个文件
-
+            
             var dirList = _virtualFileSystem.ListFiles(pathname);
+            dataWriter.WriteLine(dirList.Count);    //MARK:第一行表示数目
             foreach (var dir in dirList)
             {
                 dataWriter.WriteLine(dir);
                 dataWriter.Flush();
             }
+            //dataWriter.WriteLine();
             #region Abandoned
             //IEnumerable<string> directories = Directory.EnumerateDirectories(pathname);
 
             //foreach (string dir in directories)
             //{
             //    DateTime editDate = Directory.GetLastWriteTime(dir);
-                
+
             //    string date = editDate < now.Subtract(TimeSpan.FromDays(180)) ?
             //        editDate.ToString("MMM dd  yyyy", CultureInfo.InvariantCulture) :
             //        editDate.ToString("MMM dd HH:mm", CultureInfo.InvariantCulture);
@@ -479,7 +536,7 @@ namespace UniFTP.Server
             //    dataWriter.WriteLine(f.Name);
 
             //    dataWriter.Flush();
-                
+
             //    Console.Write("-rw-r--r--   2 2003     2003     ");
             //    if (length.Length < 8)
             //    {
@@ -493,18 +550,11 @@ namespace UniFTP.Server
             //    Console.Write(date);
             //    Console.Write(' ');
             //    Console.WriteLine(f.Name);
-                
+
             //    f = null;
             //}
             #endregion
-            FtpLogEntry logEntry = new FtpLogEntry
-            {
-                Date = now,
-                CIP = ClientIP,
-                CSMethod = "LIST",
-                CSUsername = _username,
-                SCStatus = "226"
-            };
+
 
             _log.Info(logEntry);
 
@@ -519,8 +569,17 @@ namespace UniFTP.Server
         /// <returns></returns>
         private Response NameListOperation(NetworkStream dataStream, string pathname)
         {
+            FtpLogEntry logEntry = new FtpLogEntry
+            {
+                Date = DateTime.Now,
+                CIP = ClientIP,
+                CSMethod = "NLST",
+                CSUsername = _username,
+                SCStatus = "226"
+            };
+
             StreamWriter dataWriter = new StreamWriter(dataStream, _currentEncoding);
-            
+
             var nameList = _virtualFileSystem.ListFileNames(pathname);
             foreach (var name in nameList)
             {
@@ -544,14 +603,7 @@ namespace UniFTP.Server
             //    dataWriter.Flush();
             //}
 
-            FtpLogEntry logEntry = new FtpLogEntry
-            {
-                Date = DateTime.Now,
-                CIP = ClientIP,
-                CSMethod = "NLST",
-                CSUsername = _username,
-                SCStatus = "226"
-            };
+
 
             _log.Info(logEntry);
 

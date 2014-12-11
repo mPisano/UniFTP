@@ -4,7 +4,11 @@ using System.Diagnostics;
 namespace UniFTP.Server
 {
     // TODO: Fix to handle multiple instances.
-    public static class FtpPerformanceCounters
+
+    /// <summary>
+    /// FTP性能计数器
+    /// </summary>
+    public static class FtpStaticPerformanceCounters
     {
         private const string CATEGORY = "UniFTP";
 
@@ -39,14 +43,19 @@ namespace UniFTP.Server
         private static long _maxNonAnonymousUsersCount = 0;
         private static long _maxConnectionsCount = 0;
 
+        /// <summary>
+        /// 性能计数器初始化
+        /// <para>性能计数器按照端口作为不同实例的划分</para>
+        /// </summary>
+        /// <param name="port"></param>
         public static void Initialize(int port)
         {
-            if (PerformanceCounterCategory.Exists(CATEGORY))
-            {
-                //return;
-                //BUG:每次都要创建效率很低啊，而且还需要管理员权限
-                //PerformanceCounterCategory.Delete(CATEGORY);
-            }
+            //if (PerformanceCounterCategory.Exists(CATEGORY))
+            //{
+            //    //return;
+            //    //FIXED:每次都要创建效率很低啊，而且还需要管理员权限
+            //    //PerformanceCounterCategory.Delete(CATEGORY);
+            //}
 
             if (!PerformanceCounterCategory.Exists(CATEGORY))
             {

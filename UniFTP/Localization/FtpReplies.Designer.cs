@@ -241,6 +241,15 @@ namespace UniFTP.Common.Localization {
         }
         
         /// <summary>
+        ///   查找类似 Restarting at {0}. Send STORE or RETRIEVE. 的本地化字符串。
+        /// </summary>
+        public static string RESTART_FROM {
+            get {
+                return ResourceManager.GetString("RESTART_FROM", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 UniFTP Server Ready. (Ver.0.1) 的本地化字符串。
         /// </summary>
         public static string SERVICE_READY {

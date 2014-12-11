@@ -52,6 +52,15 @@ namespace UniFTP.Server
 
         public static FtpUser Validate(FtpServer server, string username, string password)
         {
+            if (username==null)
+            {
+                username = "anonymous";
+            }
+            username = username.ToLower();
+            if (password==null)
+            {
+                password = "";
+            }
             if (server.Users.ContainsKey(username))
             {
                 var user = server.Users[username];
