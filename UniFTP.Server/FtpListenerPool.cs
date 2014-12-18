@@ -9,7 +9,7 @@ using System.Threading;
 namespace UniFTP.Server
 {
     /// <summary>
-    /// TCP Listener连接池
+    /// 被动模式Listener连接池
     /// </summary>
     public static class PassiveListenerPool
     {

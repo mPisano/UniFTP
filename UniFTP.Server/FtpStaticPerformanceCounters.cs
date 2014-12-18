@@ -3,8 +3,7 @@ using System.Diagnostics;
 
 namespace UniFTP.Server
 {
-    // TODO: Fix to handle multiple instances.
-
+    [Obsolete("Use the new non-static class to hanle multiple instances.")]
     /// <summary>
     /// FTP性能计数器
     /// </summary>

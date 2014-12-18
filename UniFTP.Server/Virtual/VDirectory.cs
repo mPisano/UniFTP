@@ -37,14 +37,23 @@ namespace UniFTP.Server.Virtual
             return true;
         }
 
+        /// <summary>
+        /// 父文件夹
+        /// </summary>
         public VDirectory ParentDirectory
         {
             get { return _parent ?? this; } //_parent为NULL则返回后面
             set { _parent = value; }
         }
 
+        /// <summary>
+        /// 真实目录
+        /// </summary>
         public DirectoryInfo RealDirectory { get; set; }
 
+        /// <summary>
+        /// 真实路径
+        /// </summary>
         public string RealPath
         {
             get
@@ -57,8 +66,14 @@ namespace UniFTP.Server.Virtual
             }
         }
 
+        /// <summary>
+        /// 虚拟路径
+        /// </summary>
         public string VirtualPath { get; set; }
 
+        /// <summary>
+        /// 名称
+        /// </summary>
         public string Name { get; set; }
 
         /// <summary>
@@ -103,6 +118,10 @@ namespace UniFTP.Server.Virtual
             return result;
         }
 
+        /// <summary>
+        /// 刷新子目录与子文件
+        /// TODO:改善刷新逻辑，减少新建对象次数
+        /// </summary>
         public void Refresh()
         {
             _realSub.Clear();

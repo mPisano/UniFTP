@@ -52,6 +52,7 @@ namespace SharpServer
 
         /// <summary>
         /// Begins an asynchronous read from the provided <paramref name="stream"/>.
+        /// <para>从提供的流<paramref name="stream"/>中开始异步读。</para>
         /// </summary>
         /// <param name="stream">The stream to read from.</param>
         protected virtual void Read(Stream stream)
@@ -252,6 +253,7 @@ namespace SharpServer
 
             _log.Debug(line);
 
+            // 信息没有以预定的结束符结尾，后面可能还有信息，继续读（_commandBuffer命令缓冲区保留）
             // We don't have the full message yet, so keep reading.
             if (!_commandBuffer.EndsWith(ExpectedTerminator))
             {
@@ -265,6 +267,7 @@ namespace SharpServer
 
             Command cmd = ParseCommandLine(command);
 
+            // 清除命令缓冲区（_commandBuffer），准备下次读取
             // Clear the command buffer, so we can keep listening for more commands.
             _commandBuffer.Clear();
             command = null;
@@ -273,7 +276,10 @@ namespace SharpServer
 
             if (ControlClient != null && ControlClient.Connected)
             {
-                Write(r);
+                if (r != null)  //FIXED:可以不响应
+                {
+                    Write(r);
+                }
 
                 if (r.ShouldQuit)
                 {

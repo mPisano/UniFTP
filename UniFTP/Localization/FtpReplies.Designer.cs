@@ -61,6 +61,15 @@ namespace UniFTP.Common.Localization {
         }
         
         /// <summary>
+        ///   查找类似 Bad sequence of commands. 的本地化字符串。
+        /// </summary>
+        public static string BAD_SEQUENCE {
+            get {
+                return ResourceManager.GetString("BAD_SEQUENCE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 &quot;{0}&quot; is the current directory 的本地化字符串。
         /// </summary>
         public static string CURRENT_DIRECTORY {
@@ -273,6 +282,24 @@ namespace UniFTP.Common.Localization {
         public static string SYSTEM {
             get {
                 return ResourceManager.GetString("SYSTEM", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 TLS Auth failed. 的本地化字符串。
+        /// </summary>
+        public static string TLS_AUTH_FAILED {
+            get {
+                return ResourceManager.GetString("TLS_AUTH_FAILED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 AUTH command is disabled. 的本地化字符串。
+        /// </summary>
+        public static string TLS_DISABLED {
+            get {
+                return ResourceManager.GetString("TLS_DISABLED", resourceCulture);
             }
         }
         

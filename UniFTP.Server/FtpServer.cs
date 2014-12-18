@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
+using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Timers;
 using SharpServer;
 using UniFTP.Server.Virtual;
@@ -19,16 +22,16 @@ namespace UniFTP.Server
         /// 用户组
         /// <para>键必须为小写</para>
         /// </summary>
-        internal Dictionary<string, FtpUserGroup> UserGroups = new Dictionary<string, FtpUserGroup>();
+        public Dictionary<string, FtpUserGroup> UserGroups = new Dictionary<string, FtpUserGroup>();
         /// <summary>
         /// 用户
         /// <para>键必须为小写</para>
         /// </summary>
-        internal Dictionary<string, FtpUser> Users = new Dictionary<string, FtpUser>(); 
+        public Dictionary<string, FtpUser> Users = new Dictionary<string, FtpUser>(); 
         private DateTime _startTime;
         private Timer _timer;
-        private bool _enableIPv6 = false;
-
+        //private bool _enableIPv6 = false;
+        internal X509Certificate2 ServerCertificate;
         public FtpPerformanceCounter ServerPerformanceCounter { get; set; }
 
         #region Public Methods
@@ -40,6 +43,10 @@ namespace UniFTP.Server
             try
             {
                 FtpStore.LoadConfig(this);
+                if (File.Exists(Config.CertificatePath))    //有X509证书
+                {
+                    ImportCertificate(Config.CertificatePath, Config.CertificatePassword);
+                }
                 FtpStore.LoadUserGroups(this);
                 FtpStore.LoadUsers(this);
             }
@@ -49,6 +56,32 @@ namespace UniFTP.Server
                 //throw;
             }
 
+        }
+
+        /// <summary>
+        /// 导入X509证书
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
+        public bool ImportCertificate(string path,string password)
+        {
+            if (!File.Exists(path))
+            {
+                return false;
+            }
+            try
+            {
+                ServerCertificate = string.IsNullOrEmpty(password)?new X509Certificate2(path) : new X509Certificate2(path,password);
+                Config.CertificatePath = path;
+                Config.CertificatePassword = password;
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+                //throw;
+            }
         }
 
         public void SaveConfigs()
@@ -97,38 +130,79 @@ namespace UniFTP.Server
             return true;
         }
 
-        public bool AddUserGroup(string groupname, AuthType auth,string homeDir = null)
+        public bool DeleteUserGroup(string groupname)
         {
-            if (UserGroups.ContainsKey(groupname.ToLower()))
+            FtpUser u = Users.Values.FirstOrDefault(user => String.Equals(user.GroupName, groupname, StringComparison.CurrentCultureIgnoreCase));
+            if (u != null)
             {
                 return false;
             }
-            FtpUserGroup g = new FtpUserGroup(groupname,auth,homeDir);
-
-            UserGroups.Add(groupname.ToLower(),g);
+            if (UserGroups.ContainsKey(groupname.ToLower()))
+            {
+                UserGroups.Remove(groupname.ToLower());
+            }
             return true;
         }
 
-        public bool AddUser(string username, string password, string groupname,int maxconn = 4096)
+        public void AddUserGroup(string groupname, AuthType auth,string homeDir = null,bool forbidden = false)
         {
-           
+            FtpUserGroup g = new FtpUserGroup(groupname, auth, homeDir);
+            g.Forbidden = forbidden;
+            
+            if (UserGroups.ContainsKey(groupname.ToLower()))
+            {
+                UserGroups[groupname.ToLower()] = g;
+            }
+            else
+            {
+                UserGroups.Add(groupname.ToLower(), g);
+            }
+            return;
+        }
+
+        public void DeleteUser(string username)
+        {
             if (Users.ContainsKey(username.ToLower()))
             {
-                return false;
+                Users.Remove(username.ToLower());
             }
+        }
 
+        public void AddUser(string username, string password, string groupname,int maxconn = 4096)
+        {
             FtpUser u;
 
             if (!UserGroups.ContainsKey(groupname.ToLower()))
             {
-                u = new FtpUser(username,"anonymous",maxconn,password);
+                u = new FtpUser(username, "anonymous", maxconn, password);
             }
             else
             {
-                u = new FtpUser(username,groupname.ToLower(),maxconn,password,password);
+                u = new FtpUser(username, groupname.ToLower(), maxconn, password, password);
             }
-            Users.Add(username.ToLower(),u);
-            return true;
+
+            if (Users.ContainsKey(username.ToLower()))
+            {
+                Users[username.ToLower()] = u;
+            }
+            else
+            {
+                Users.Add(username.ToLower(), u);
+            }
+            return;
+        }
+
+        public void DeleteLink(string groupname, string path)
+        {
+            path = path.Trim();
+            if (UserGroups.ContainsKey(groupname.ToLower()))
+            {
+                var group = UserGroups[groupname.ToLower()];
+                if (group.Links.ContainsKey(path))
+                {
+                    group.Links.Remove(path);
+                }
+            }
         }
 
         public bool AddLink(string groupname, string path, string vParentPath)
@@ -206,6 +280,7 @@ namespace UniFTP.Server
             {
                 Users.Add("anonymous", FtpUser.Anonymous);
             }
+
             //foreach (var endPoint in localEndPoints)
             //{
             //    //_performanceCounter.Initialize(endPoint.Port);

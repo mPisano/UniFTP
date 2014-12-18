@@ -80,7 +80,7 @@ namespace UniFTP.Server
                                 user.IsAnonymous = true;
                                 return user;
                                 break;
-                            case AuthType.UniZip:
+                            case AuthType.TwoFactor:
                             case AuthType.SSL:
                             case AuthType.Password:
                                 if (!String.IsNullOrEmpty(user.Password) && user.Password == password)

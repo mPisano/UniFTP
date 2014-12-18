@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Security;
 using System.Net.Sockets;
+using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using SharpServer;
@@ -13,6 +14,11 @@ using UniFTP.Server.Virtual;
 
 namespace UniFTP.Server
 {
+    //TODO:可能会加入限速
+
+    /// <summary>
+    /// FTP连接
+    /// </summary>
     public partial class FtpClientConnection : ClientConnection
     {
         /// <summary>
@@ -20,7 +26,7 @@ namespace UniFTP.Server
         /// </summary>
         private class DataConnectionOperation
         {
-            public Func<NetworkStream, string, Response> Operation { get; set; }
+            public Func<Stream, string, Response> Operation { get; set; }
             public string Arguments { get; set; }
         }
 
@@ -85,10 +91,14 @@ namespace UniFTP.Server
         private string _username;
         private string _password;
         private string _root;
-        //private string _currentDirectory;
+
         private IPEndPoint _dataEndpoint;
-        private X509Certificate _cert = null;
+        private X509Certificate2 _cert = null;
         private SslStream _sslStream;
+        /// <summary>
+        /// 是否启用了保护模式
+        /// </summary>
+        private bool _protected = false;
 
         private bool _disposed = false;
 
@@ -130,8 +140,8 @@ namespace UniFTP.Server
             }
 
             Write(GetResponse(FtpResponses.SERVICE_READY));
-
-            _validCommands.AddRange(new string[] { "AUTH", "USER", "PASS", "ACCT", "QUIT", "HELP", "NOOP" });
+            //FIXED:SSL指令可以在登陆前执行
+            _validCommands.AddRange(new string[] { "AUTH", "USER", "PASS", "ACCT", "QUIT", "HELP", "NOOP","PBSZ","PROT"});
 
             _dataClient = new TcpClient();
 
@@ -142,11 +152,30 @@ namespace UniFTP.Server
         {
             if (cmd.Code == "AUTH")
             {
-                _cert = new X509Certificate("server2.cer");
+                try
+                {
+                    //Write(GetResponse(FtpResponses.ENABLING_TLS));
+                    //MARK:建立TLS连接
+                    _cert = ((FtpServer)CurrentServer).ServerCertificate;
 
-                _sslStream = new SslStream(ControlStream);
+                    _sslStream = new SslStream(ControlStream);
 
-                _sslStream.AuthenticateAsServer(_cert);
+                    _sslStream.ReadTimeout = 5000;
+                    _sslStream.WriteTimeout = 5000;
+
+                    _sslStream.AuthenticateAsServer(_cert, false, SslProtocols.Tls, true);
+
+                    _sslEnabled = true;
+                }
+                catch (AuthenticationException exception)
+                {
+                    _sslEnabled = false;
+                    //throw;
+                }
+                catch (ArgumentNullException exception)
+                {
+                    _sslEnabled = false;
+                }
             }
 
             _performanceCounter.IncrementCommandsExecuted();
@@ -308,7 +337,11 @@ namespace UniFTP.Server
                 }
                 try
                 {
-                    _dataClient.EndConnect(result); //BUG:
+                    _dataClient.EndConnect(result); 
+                    /* MARK:异步操作Tip
+                     * 如果调用 End操作名称OperationName 时 IAsyncResult 对象表示的异步操作尚未完成，
+                     * 则 End操作名称OperationName 将在异步操作完成之前阻止调用线程。
+                     */
                 }
                 catch (Exception e)
                 {
@@ -327,6 +360,7 @@ namespace UniFTP.Server
             if (_dataConnectionType == DataConnectionType.Active)
             {
                 _dataClient = new TcpClient(_dataEndpoint.AddressFamily);
+                //开始异步连接，当连接成功后调用执行DoDataConnectionOperation，并把state与连接信息包装为IAsyncResult作为参数传给它
                 _dataClient.BeginConnect(_dataEndpoint.Address, _dataEndpoint.Port, DoDataConnectionOperation, state);
             }
             else
@@ -339,9 +373,9 @@ namespace UniFTP.Server
         {
             _performanceCounter.IncrementTotalConnectionAttempts();
             _performanceCounter.IncrementCurrentConnections();
-
+            //由BeginConnect异步调用，因此需要EndConnect，EndConnect需要使用【对应的】IAsyncResult作为参数
             HandleAsyncResult(result);
-
+            //取出我们传入的真正需要的DataConnectionOperation结构，内含本次要执行的方法与参数
             DataConnectionOperation op = result.AsyncState as DataConnectionOperation;
 
             Response response;
@@ -352,10 +386,33 @@ namespace UniFTP.Server
                 {
                     throw new SocketException();
                 }
-                using (NetworkStream dataStream = _dataClient.GetStream())
+                //通过上述异步过程，此时的_dataClient已经连接
+                if (_protected)
                 {
-                    response = op.Operation(dataStream, op.Arguments);
+                    using (SslStream dataStream = new SslStream(_dataClient.GetStream()))
+                    {
+                        try
+                        {
+                            dataStream.AuthenticateAsServer(_cert,false,SslProtocols.Tls, true);
+                            response = op.Operation(dataStream, op.Arguments);
+                        }
+                        catch (Exception)
+                        {
+                            response = GetResponse(FtpResponses.UNABLE_TO_OPEN_DATA_CONNECTION);
+                            //throw;
+                        }
+                        
+                        //response = op.Operation(dataStream, op.Arguments);
+                    }
                 }
+                else
+                {
+                    using (NetworkStream dataStream = _dataClient.GetStream())
+                    {
+                        response = op.Operation(dataStream, op.Arguments);
+                    }
+                }
+
             }
             catch (Exception ex)
             {
@@ -377,12 +434,12 @@ namespace UniFTP.Server
             Write(response.ToString());
         }
 
-        private Response RetrieveOperation(NetworkStream dataStream, string pathname)
+        private Response RetrieveOperation(Stream dataStream, string pathname)
         {
             using (FileStream fs = new FileStream(pathname, FileMode.Open, FileAccess.Read))
             {
                 fs.Seek(_transPosition, SeekOrigin.Begin);
-
+                //由于是异步调用的 因此不会阻塞
                 CopyStream(fs, dataStream, _performanceCounter.IncrementBytesSent);
             }
 
@@ -391,7 +448,7 @@ namespace UniFTP.Server
             return GetResponse(FtpResponses.TRANSFER_SUCCESSFUL);
         }
 
-        private Response StoreOperation(NetworkStream dataStream, string pathname)
+        private Response StoreOperation(Stream dataStream, string pathname)
         {
             long bytes = 0;
 
@@ -423,7 +480,7 @@ namespace UniFTP.Server
             return GetResponse(FtpResponses.TRANSFER_SUCCESSFUL);
         }
 
-        private Response AppendOperation(NetworkStream dataStream, string pathname)
+        private Response AppendOperation(Stream dataStream, string pathname)
         {
             long bytes = 0;
 
@@ -458,7 +515,7 @@ namespace UniFTP.Server
         /// <param name="dataStream"></param>
         /// <param name="pathname"></param>
         /// <returns></returns>
-        private Response ListOperation(NetworkStream dataStream, string pathname)
+        private Response ListOperation(Stream dataStream, string pathname)
         {
             DateTime now = DateTime.Now;
 
@@ -480,81 +537,6 @@ namespace UniFTP.Server
                 dataWriter.WriteLine(dir);
                 dataWriter.Flush();
             }
-            //dataWriter.WriteLine();
-            #region Abandoned
-            //IEnumerable<string> directories = Directory.EnumerateDirectories(pathname);
-
-            //foreach (string dir in directories)
-            //{
-            //    DateTime editDate = Directory.GetLastWriteTime(dir);
-
-            //    string date = editDate < now.Subtract(TimeSpan.FromDays(180)) ?
-            //        editDate.ToString("MMM dd  yyyy", CultureInfo.InvariantCulture) :
-            //        editDate.ToString("MMM dd HH:mm", CultureInfo.InvariantCulture);
-            //    //参考格式
-            //    //drwxrwxrwx   1 user     group           0 Nov 27 00:13 上传
-            //    dataWriter.Write("drwxrwxrwx   1 user     group           0 ");
-            //    dataWriter.Write(date);
-            //    dataWriter.Write(' ');
-            //    dataWriter.WriteLine(Path.GetFileName(dir));
-            //    dataWriter.Flush();
-            //    Console.Write("drwxrwxrwx   1 2003     2003         4096 ");
-            //    Console.Write(date);
-            //    Console.Write(' ');
-            //    Console.WriteLine(Path.GetFileName(dir));
-            //}
-
-            //IEnumerable<string> files = Directory.EnumerateFiles(pathname);
-
-            //foreach (string file in files)
-            //{
-            //    FileInfo f = new FileInfo(file);
-
-            //    string date = f.LastWriteTime < now.Subtract(TimeSpan.FromDays(180)) ?
-            //        f.LastWriteTime.ToString("MMM dd  yyyy", CultureInfo.InvariantCulture) :
-            //        f.LastWriteTime.ToString("MMM dd HH:mm", CultureInfo.InvariantCulture);
-
-            //    //参考格式
-            //    //-rw-rw-rw-   1 user     group     2339366 Aug 31  2013 音乐全表20130831.TXT
-            //    //权限 所有者 组
-            //    dataWriter.Write("-rw-r--r--   2 2003     2003     ");
-
-            //    string length = f.Length.ToString(CultureInfo.InvariantCulture);
-
-            //    if (length.Length < 8)
-            //    {
-            //        for (int i = 0; i < 8 - length.Length; i++)
-            //        {
-            //            dataWriter.Write(' ');
-            //        }
-            //    }
-
-            //    dataWriter.Write(length);
-            //    dataWriter.Write(' ');
-            //    dataWriter.Write(date);
-            //    dataWriter.Write(' ');
-            //    dataWriter.WriteLine(f.Name);
-
-            //    dataWriter.Flush();
-
-            //    Console.Write("-rw-r--r--   2 2003     2003     ");
-            //    if (length.Length < 8)
-            //    {
-            //        for (int i = 0; i < 8 - length.Length; i++)
-            //        {
-            //            Console.Write(' ');
-            //        }
-            //    }
-            //    Console.Write(length);
-            //    Console.Write(' ');
-            //    Console.Write(date);
-            //    Console.Write(' ');
-            //    Console.WriteLine(f.Name);
-
-            //    f = null;
-            //}
-            #endregion
-
 
             _log.Info(logEntry);
 
@@ -567,7 +549,7 @@ namespace UniFTP.Server
         /// <param name="dataStream"></param>
         /// <param name="pathname"></param>
         /// <returns></returns>
-        private Response NameListOperation(NetworkStream dataStream, string pathname)
+        private Response NameListOperation(Stream dataStream, string pathname)
         {
             FtpLogEntry logEntry = new FtpLogEntry
             {

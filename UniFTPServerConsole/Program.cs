@@ -11,12 +11,13 @@ namespace UniFTPServerTestConsole
             f.Config = new FtpConfig( "D:\\Temp",welcome:new string[]{"By Ulysses"});
             //如果有配置文件则可以读取
             f.LoadConfigs();
+            f.ImportCertificate("UniFTP.Server.pfx", "ULYSSES");
             //f.Config.LogInWelcome = new string[]{"Welcome back,Commander."};
             //如果没有则通过以下语句加入配置
             //f.AddUserGroup("test", AuthType.Password);
             //f.AddGroupRule("test", "/", "rwxrwxrwx");
             //f.AddUser("root", "test", "test");
-            f.AddLink("test", "K:\\剧场版-乐园追放(raw+Airota)", "/");
+            f.AddLink("test", "K:\\Predestination.2014.1080p.BluRay.x264.DTS-WiKi.mkv", "/");
 
             f.Start();
             Console.WriteLine("UniFTP Server Started!");

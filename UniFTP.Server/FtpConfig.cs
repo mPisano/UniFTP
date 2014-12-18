@@ -6,16 +6,13 @@ using System.Text;
 
 namespace UniFTP.Server
 {
-    //BUG:XML序列化有点辣鸡
-
     /// <summary>
     /// FTP配置
     /// </summary>
     [Serializable]
     public class FtpConfig
     {
-
-        public FtpConfig(string homeDir = null, string name = "UniFTP", bool allowAnonymous = true, string owner = "UniFTP",string ownerGroup="UniFTP",string[] welcome = null,string[] loginWelcome = null)
+        public FtpConfig(string homeDir = null, string name = "UniFTP", bool allowAnonymous = true, string owner = "UniFTP",string ownerGroup="UniFTP",string[] welcome = null,string[] loginWelcome = null,string[] logoutWelcome = null)
         {
             HomeDir = homeDir;
             if (homeDir == null)
@@ -30,7 +27,7 @@ namespace UniFTP.Server
             OwnerGroup = ownerGroup ?? "UniFTP";
             Welcome = welcome;
             LogInWelcome = loginWelcome;
-
+            LogOutWelcome = logoutWelcome;
         }
 
         /// <summary>
@@ -79,6 +76,14 @@ namespace UniFTP.Server
         /// </summary>
         public Dictionary<string, string> Rules { get; set; }
 
+        /// <summary>
+        /// SSL证书路径
+        /// </summary>
+        internal string CertificatePath { get; set; }
 
+        /// <summary>
+        /// SSL密码
+        /// </summary>
+        internal string CertificatePassword { get; set; }
     }
 }

@@ -5,6 +5,9 @@ using System.Linq;
 using System.Text;
 using System.IO;
 
+//Delete Rename Append需要组可写权限
+//Store CreateDirectory只需要可写权限
+
 namespace UniFTP.Server.Virtual
 {
     public enum FileError
@@ -176,7 +179,7 @@ namespace UniFTP.Server.Virtual
                     return FileError.AlreadyExist; //已有重名文件
                 }
             }
-            if (!src.Permission.CanWrite || !dst.Permission.CanWrite)
+            if (!src.Permission.GroupCanWrite || !dst.Permission.GroupCanWrite)
             {
                 return FileError.CannotWrite;  //权限不够
             }
@@ -257,7 +260,7 @@ namespace UniFTP.Server.Virtual
             {
                 f = Get(vPath);
             }
-            if (f == null || !f.Permission.CanWrite)
+            if (f == null || !f.Permission.GroupCanWrite)
             {
                 return false;
             }
@@ -327,8 +330,9 @@ namespace UniFTP.Server.Virtual
         /// </summary>
         /// <param name="vPath">虚拟路径</param>
         /// <param name="rename">重命名，null为不重命名</param>
+        /// <param name="modify">需要修改的权限</param>
         /// <returns></returns>
-        public string GetRealPathOfFile(string vPath, string rename = null)
+        public string GetRealPathOfFile(string vPath,bool modify = false, string rename = null)
         {
             string pre = VPath.NormalizeFilename(vPath);
             VDirectory dir;
@@ -353,7 +357,16 @@ namespace UniFTP.Server.Virtual
             {
                 pre = rename;
             }
-            return Path.Combine(dir.RealPath, VPath.GetFileName(pre));
+            string path = Path.Combine(dir.RealPath, VPath.GetFileName(pre));
+            if (modify) //需要修改权限
+            {
+                var file = Get(vPath);
+                if (file!=null && !file.Permission.GroupCanWrite)
+                {
+                    return null;
+                }
+            }
+            return path;
         }
 
         /// <summary>
@@ -408,8 +421,6 @@ namespace UniFTP.Server.Virtual
             List<string> fileList = new List<string>();
 
             DateTime now = DateTime.Now;
-
-            //dataWriter.WriteLine(); //MARK:必须加一空行 否则FileZilla会吃掉第一个文件
 
             foreach (var f in dir.SubFiles)
             {
@@ -474,12 +485,21 @@ namespace UniFTP.Server.Virtual
         /// 获取一个文件
         /// </summary>
         /// <param name="vdir">虚拟路径</param>
+        /// <param name="modify">需要修改的权限</param>
         /// <returns>文件信息，如不存在则为null</returns>
-        public FileInfo GetFile(string vdir)
+        public FileInfo GetFile(string vdir,bool modify = false)
         {
             string pre = VPath.NormalizeFilename(vdir);
             VFile file = Get(pre) as VFile;
-            return file == null ? null : file.RealFile;
+            if (file == null)
+            {
+                return null;
+            }
+            if (modify && !file.Permission.GroupCanWrite)
+            {
+                return null;
+            }
+            return file.RealFile;
         }
 
         /// <summary>

@@ -10,19 +10,9 @@ namespace UniFTP.Server.Virtual
     {
         private char[] _attributes = "---------".ToCharArray();
         
-        //public string UserPermission {
-        //    get { return _attributes.Substring(0, 3); }
-        //}
+        #region 权限位
 
-        //public string GroupPermission
-        //{
-        //    get { return _attributes.Substring(3, 3); }
-        //}
-
-        //public string OtherPermission
-        //{
-        //    get { return _attributes.Substring(6, 3); }
-        //}
+        //约定第一个w为可写(上传) 第二个w为可修改
 
         /// <summary>
         /// 可读
@@ -59,6 +49,83 @@ namespace UniFTP.Server.Virtual
             }
         }
 
+        /// <summary>
+        /// 组可读
+        /// </summary>
+        public bool GroupCanRead
+        {
+            get { return _attributes[3] == 'r'; }
+            set
+            {
+                if (value)
+                {
+                    _attributes[3] = 'r';
+                }
+                else
+                {
+                    _attributes[3] = '-';
+                }
+            }
+        }
+
+        /// <summary>
+        /// 组可写
+        /// </summary>
+        public bool GroupCanWrite
+        {
+            get { return _attributes[4] == 'w'; }
+            set
+            {
+                if (value)
+                {
+                    _attributes[4] = 'w';
+                }
+                else
+                {
+                    _attributes[4] = '-';
+                }
+            }
+        }
+
+        /// <summary>
+        /// 其他可读
+        /// </summary>
+        public bool OtherCanRead
+        {
+            get { return _attributes[6] == 'r'; }
+            set
+            {
+                if (value)
+                {
+                    _attributes[6] = 'r';
+                }
+                else
+                {
+                    _attributes[6] = '-';
+                }
+            }
+        }
+
+        /// <summary>
+        /// 其他可写
+        /// </summary>
+        public bool OtherCanWrite
+        {
+            get { return _attributes[7] == 'w'; }
+            set
+            {
+                if (value)
+                {
+                    _attributes[7] = 'w';
+                }
+                else
+                {
+                    _attributes[7] = '-';
+                }
+            }
+        }
+
+        #endregion
         /// <summary>
         /// 文件权限
         /// </summary>

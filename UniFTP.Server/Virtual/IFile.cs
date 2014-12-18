@@ -16,6 +16,9 @@ namespace UniFTP.Server.Virtual
         /// 已经设置权限
         /// </summary>
         bool PermissionSetted { get; set; }
+        /// <summary>
+        /// 真实路径
+        /// </summary>
         string RealPath { get; }
         /// <summary>
         /// 虚拟路径

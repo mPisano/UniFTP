@@ -3,7 +3,8 @@ using System.Diagnostics;
 
 namespace UniFTP.Server
 {
-    // TODO: Fix to handle multiple instances.
+    // FIXED:已经按实例划分性能计数器
+    // TODO:加入删除计数器的方法
 
     /// <summary>
     /// FTP性能计数器

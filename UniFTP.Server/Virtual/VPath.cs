@@ -12,7 +12,7 @@ namespace UniFTP.Server.Virtual
     /// 虚拟路径
     /// <para>提供处理虚拟路径的静态方法.</para>
     /// </summary>
-    static class VPath
+    public static class VPath
     {
         private static readonly Regex InvalidPathChars = new Regex(string.Join("|", Path.GetInvalidPathChars().Select(c => string.Format(CultureInfo.InvariantCulture, "\\u{0:X4}", (int)c))), RegexOptions.Compiled);
 

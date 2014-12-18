@@ -65,7 +65,7 @@ namespace SharpServer
 
                     throw new Exception("The current local end point is currently in use. Please specify another IP or port to listen on.");
                 }
-
+                //开始异步等待连接
                 listener.BeginAcceptTcpClient(HandleAcceptTcpClient, listener);
 
                 _listeners.Add(listener);
@@ -105,6 +105,7 @@ namespace SharpServer
 
         private void HandleAcceptTcpClient(IAsyncResult result)
         {
+            //一个客户成功连接
             OnConnectAttempt();
 
             TcpListener listener = result.AsyncState as TcpListener;
@@ -114,8 +115,9 @@ namespace SharpServer
                 TcpClient client;
                 try
                 {
+                    //立即再次新开监听
                     listener.BeginAcceptTcpClient(HandleAcceptTcpClient, listener);
-
+                    //对本次的连接结果创建TcpClient处理
                     client = listener.EndAcceptTcpClient(result);
 
                     var connection = new T { CurrentServer = this };

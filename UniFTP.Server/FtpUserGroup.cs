@@ -13,7 +13,7 @@ namespace UniFTP.Server
         Password = 1,
         MD5 = 2,
         SSL = 4,
-        UniZip = 8
+        TwoFactor = 8
     }
 
     [Serializable]
@@ -49,10 +49,6 @@ namespace UniFTP.Server
         /// </summary>
         public AuthType Auth  { get; set; }
 
-        //BUG:规则如何引入？Dictionary x 2?以/结尾的认定为目录权限？
-        //BUG:匿名权限认为是最低权限
-        //BUG:root权限限定最高权限
-
         /// <summary>
         /// 权限规则
         /// </summary>
@@ -62,5 +58,10 @@ namespace UniFTP.Server
         /// 文件链接
         /// </summary>
         public Dictionary<string, string> Links { get; set; }
+
+        /// <summary>
+        /// 超时
+        /// </summary>
+        public long TimeOut { get; set; }
     }
 }
