@@ -91,7 +91,6 @@ namespace UniFTP.Server
         /// 234 启用TLS
         /// </summary>
         public static readonly Response ENABLING_TLS = new Response { Code = "234", ResourceManager = FtpReplies.ResourceManager, Text = "ENABLING_TLS" };
-
         /// <summary>
         /// 534 TLS已禁用
         /// </summary>
@@ -101,7 +100,10 @@ namespace UniFTP.Server
         /// <para>参见RFC 2228 Line:535</para>
         /// </summary>
         public static readonly Response TLS_AUTH_FAILED = new Response { Code = "535", ResourceManager = FtpReplies.ResourceManager, Text = "TLS_AUTH_FAILED" };
-
+        /// <summary>
+        /// 150 开启加密数据传输
+        /// </summary>
+        //public static readonly Response OPENING_SAFE_DATA_TRANSFER = new Response { Code = "150", ResourceManager = FtpReplies.ResourceManager, Text = "OPENING_SAFE_DATA_TRANSFER" };
 
         /// <summary>
         /// 426 传输中断
@@ -143,10 +145,12 @@ namespace UniFTP.Server
             .Append(" MDTM").AppendLine()
             .Append(" SIZE").AppendLine()
             .Append(" UTF8").AppendLine()
-            .Append(" REST").AppendLine()
+            .Append(" REST STREAM").AppendLine() //FIXED:按照RFC文档要求修改
             .Append(" AUTH TLS").AppendLine()   //TLS认证
             .Append(" PBSZ").AppendLine()   //保护缓冲区设置
             .Append(" PROT").AppendLine()   //保护级别
+            .Append(" MLSD").AppendLine()
+            .Append(" MLST").AppendLine() 
             .Append("211 End").ToString();
 
         /// <summary>
@@ -165,5 +169,6 @@ namespace UniFTP.Server
         /// 503 命令顺序错误
         /// </summary>
         public static readonly Response BAD_SEQUENCE = new Response { Code = "503", ResourceManager = FtpReplies.ResourceManager, Text = "BAD_SEQUENCE" };
+       
     }
 }

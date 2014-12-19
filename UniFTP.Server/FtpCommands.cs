@@ -22,6 +22,7 @@ namespace UniFTP.Server
         private Command _lastCommand = null;
         private bool _sslEnabled = false;
         private int _protectBufferSize = 0;
+        private readonly string withSsl = " with TLS/SSL";
 
         protected override Response HandleCommand(Command cmd)
         {
@@ -33,7 +34,7 @@ namespace UniFTP.Server
             {
                 Date = DateTime.Now,
                 CIP = ClientIP,
-                CSUriStem = cmd.RawArguments
+                CSArgs = cmd.RawArguments
             };
             //请求的命令需要权限
             if (!_validCommands.Contains(cmd.Code))
@@ -61,7 +62,7 @@ namespace UniFTP.Server
                         break;
                     case "PASS":    //密码
                         response = Password(cmd.Arguments.FirstOrDefault());
-                        logEntry.CSUriStem = "******";
+                        logEntry.CSArgs = "******";
                         break;
                     case "CWD":     //切换目录
                         response = ChangeWorkingDirectory(cmd.RawArguments);
@@ -188,7 +189,7 @@ namespace UniFTP.Server
                         response = ProtectBufferSize(cmd.RawArguments);
                         break;
                     case "PROT":    //保护级别
-                        response = ProtectionLevel(cmd.RawArguments);
+                        response = ProtectionLevel(cmd.Arguments.FirstOrDefault());
                         break;
 
                     // Extensions defined by rfc 2389
@@ -207,6 +208,10 @@ namespace UniFTP.Server
                         response = FileSize(cmd.RawArguments);
                         break;
                     case "MLSD":    //标准格式列目录
+                        response = MachineListDirectory(cmd.RawArguments);
+                        break;
+                    case "MLST":    //标准格式列文件信息
+                        response = MachineListTime(cmd.RawArguments);
                         break;
 
                     // Extensions defined by rfc 2428
@@ -233,8 +238,9 @@ namespace UniFTP.Server
             logEntry.CSMethod = cmd.Code;
             logEntry.CSUsername = _username;
             logEntry.SCStatus = response.Code;
-
+            
             _log.Info(logEntry);
+            OnLog(logEntry);
 
             _lastCommand = cmd;
 
@@ -264,7 +270,10 @@ namespace UniFTP.Server
         private Response Password(string password)
         {
             FtpUser user = FtpUser.Validate((FtpServer)CurrentServer, _username, password);
-
+            if (user.UserGroup.Auth == AuthType.SSL && _sslEnabled == false)    //只能通过SSL加密登录
+            {
+                user = null;
+            }
             if (user != null)
             {
                 //if (!string.IsNullOrEmpty(user.TwoFactorSecret))
@@ -532,7 +541,7 @@ namespace UniFTP.Server
                 //建立一个异步过程
                 SetupDataConnectionOperation(state);
 
-                return GetResponse(FtpResponses.OPENING_DATA_TRANSFER.SetData(_dataConnectionType, "RETR"));
+                return GetResponse(FtpResponses.OPENING_DATA_TRANSFER.SetData(_dataConnectionType, "RETR" + (_protected ? withSsl : "")));
             }
 
             return GetResponse(FtpResponses.FILE_NOT_FOUND);
@@ -571,7 +580,7 @@ namespace UniFTP.Server
 
                 SetupDataConnectionOperation(state);
 
-                return GetResponse(FtpResponses.OPENING_DATA_TRANSFER.SetData(_dataConnectionType, "STOR"));
+                return GetResponse(FtpResponses.OPENING_DATA_TRANSFER.SetData(_dataConnectionType, "STOR" + (_protected ? withSsl : "")));
             }
 
             return GetResponse(FtpResponses.FILE_ACTION_NOT_TAKEN);
@@ -591,7 +600,7 @@ namespace UniFTP.Server
 
             SetupDataConnectionOperation(state);
 
-            return GetResponse(FtpResponses.OPENING_DATA_TRANSFER.SetData(_dataConnectionType, "STOU"));
+            return GetResponse(FtpResponses.OPENING_DATA_TRANSFER.SetData(_dataConnectionType, "STOU" + (_protected ? withSsl : "")));
         }
 
         /// <summary>
@@ -609,7 +618,8 @@ namespace UniFTP.Server
 
                 SetupDataConnectionOperation(state);
 
-                return GetResponse(FtpResponses.OPENING_DATA_TRANSFER.SetData(_dataConnectionType, "APPE"));
+                return
+                    GetResponse(FtpResponses.OPENING_DATA_TRANSFER.SetData(_dataConnectionType,"APPE" + (_protected ? withSsl : "")));
             }
 
             return GetResponse(FtpResponses.FILE_ACTION_NOT_TAKEN);
@@ -635,6 +645,7 @@ namespace UniFTP.Server
             }
             else
             {
+                _virtualFileSystem.RefreshCurrentDirectory();
                 return GetResponse(FtpResponses.FILE_ACTION_COMPLETE);
             }
 
@@ -648,10 +659,11 @@ namespace UniFTP.Server
         /// <returns></returns>
         private Response Delete(string pathname)
         {
-            bool result = _virtualFileSystem.Delete(pathname);
+            FileError result = _virtualFileSystem.Delete(pathname);
 
-            if (result)
+            if (result == FileError.None)
             {
+                _virtualFileSystem.RefreshCurrentDirectory();
                 return GetResponse(FtpResponses.FILE_ACTION_COMPLETE);
             }
 
@@ -665,10 +677,11 @@ namespace UniFTP.Server
         /// <returns></returns>
         private Response RemoveDir(string pathname)
         {
-            bool result = _virtualFileSystem.Delete(pathname, true);
+            FileError result = _virtualFileSystem.Delete(pathname, true);
 
-            if (result)
+            if (result == FileError.None)
             {
+                _virtualFileSystem.RefreshCurrentDirectory();
                 return GetResponse(FtpResponses.FILE_ACTION_COMPLETE);
             }
 
@@ -692,6 +705,7 @@ namespace UniFTP.Server
             {
                 return GetResponse(FtpResponses.DIRECTORY_NOT_FOUND);
             }
+            _virtualFileSystem.RefreshCurrentDirectory();
             return GetResponse(FtpResponses.FILE_ACTION_COMPLETE);
 
         }
@@ -723,7 +737,7 @@ namespace UniFTP.Server
 
                 SetupDataConnectionOperation(state);
 
-                return GetResponse(FtpResponses.OPENING_DATA_TRANSFER.SetData(_dataConnectionType, "NLST"));
+                return GetResponse(FtpResponses.OPENING_DATA_TRANSFER.SetData(_dataConnectionType, "NLST" + (_protected ? withSsl : "")));
             }
 
             return GetResponse(FtpResponses.FILE_ACTION_NOT_TAKEN);
@@ -752,7 +766,7 @@ namespace UniFTP.Server
 
                 SetupDataConnectionOperation(state);
 
-                return GetResponse(FtpResponses.OPENING_DATA_TRANSFER.SetData(_dataConnectionType, "LIST"));
+                return GetResponse(FtpResponses.OPENING_DATA_TRANSFER.SetData(_dataConnectionType, "LIST" + (_protected ? withSsl : "")));
             }
 
             return GetResponse(FtpResponses.FILE_ACTION_NOT_TAKEN);
@@ -873,6 +887,48 @@ namespace UniFTP.Server
                 return new Response { Code = "213", Text = "0" };
             }
             return GetResponse(FtpResponses.FILE_NOT_FOUND);
+        }
+
+        /// <summary>
+        /// MLST Command - RFC 3659 - Section 7
+        /// <para>标准化显示文件属性</para>
+        /// </summary>
+        /// <param name="pathname"></param>
+        /// <returns></returns>
+        private Response MachineListTime(string pathname)
+        {
+            if (!_virtualFileSystem.ExistsDirectory(pathname) && !_virtualFileSystem.ExistsFile(pathname))
+            {
+                return GetResponse(FtpResponses.FILE_NOT_FOUND);
+            }
+            Write("250-Listing " + pathname);
+            Write(_virtualFileSystem.MachineFileInfo(pathname));
+            return new Response(){Code = "250",Text = "End"};
+        }
+
+        /// <summary>
+        /// MLSD Command - RFC 3659 - Section 7
+        /// <para>标准化列目录</para>
+        /// </summary>
+        /// <param name="pathname"></param>
+        /// <returns></returns>
+        private Response MachineListDirectory(string pathname)
+        {
+            if (_dataEndpoint == null && _dataConnectionType == DataConnectionType.Active)
+            {
+                return GetResponse(FtpResponses.BAD_SEQUENCE);
+            }
+
+            if (_virtualFileSystem.ExistsDirectory(pathname))
+            {
+                var state = new DataConnectionOperation { Arguments = pathname, Operation = MachineListOperation };
+
+                SetupDataConnectionOperation(state);
+
+                return GetResponse(FtpResponses.OPENING_DATA_TRANSFER.SetData(_dataConnectionType, "MLSD" + (_protected ? withSsl : "")));
+            }
+
+            return GetResponse(FtpResponses.FILE_ACTION_NOT_TAKEN);
         }
 
         /// <summary>

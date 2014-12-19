@@ -59,7 +59,7 @@ namespace UniFTP.Server.Virtual
             int pos = pre.LastIndexOfAny(new char[] {'/', '\\'});
             if (pos < 0)
             {
-                return path;
+                return RemoveInvalidPathChars(pre); //FIXED:逻辑修正
             }
             return RemoveInvalidPathChars(pre.Remove(0, pos + 1));
         }

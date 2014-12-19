@@ -3,9 +3,17 @@ using System.Globalization;
 
 namespace UniFTP.Server
 {
-    // Fields: date time c-ip c-port cs-username cs-method cs-uri-stem sc-status sc-bytes cs-bytes s-name s-port
+    internal enum LogInfo
+    {
+        ServerStart,
+        ServerStop,
+        ConnectionEstablished,
+        ConnectionTerminated,
+    }
 
-    internal class FtpLogEntry
+    // Fields: date time c-ip c-port cs-username cs-method cs-args sc-status sc-bytes cs-bytes s-name s-port
+    
+    public class FtpLogEntry
     {
         /// <summary>
         /// 日期
@@ -19,14 +27,35 @@ namespace UniFTP.Server
         /// 客户端端口
         /// </summary>
         public string CPort { get; set; }
+        /// <summary>
+        /// 登录用户名
+        /// </summary>
         public string CSUsername { get; set; }
+        /// <summary>
+        /// 操作
+        /// </summary>
         public string CSMethod { get; set; }
-        public string CSUriStem { get; set; }
+        /// <summary>
+        /// 参数
+        /// </summary>
+        public string CSArgs { get; set; }
+        /// <summary>
+        /// 传输响应
+        /// </summary>
         public string SCStatus { get; set; }
         public string SCBytes { get; set; }
+        /// <summary>
+        /// 传输字节数
+        /// </summary>
         public string CSBytes { get; set; }
-        public string SName { get; set; }
+        /// <summary>
+        /// 服务端端口
+        /// </summary>
         public string SPort { get; set; }
+        /// <summary>
+        /// 其他信息
+        /// </summary>
+        public string Info { get; set; }
 
         public override string ToString()
         {
@@ -36,12 +65,12 @@ namespace UniFTP.Server
                 CPort ?? "-",
                 CSUsername,
                 CSMethod,
-                CSUriStem ?? "-",
+                CSArgs ?? "-",
                 SCStatus,
                 SCBytes ?? "-",
                 CSBytes ?? "-",
-                SName ?? "-",
-                SPort ?? "-"
+                SPort ?? "-",
+                Info ?? "-"
                 );
         }
     }

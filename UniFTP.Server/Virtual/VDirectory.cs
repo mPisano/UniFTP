@@ -124,7 +124,7 @@ namespace UniFTP.Server.Virtual
         /// </summary>
         public void Refresh()
         {
-            _realSub.Clear();
+            //_realSub.Clear();
             if (!RealDirectory.Exists)
             {
                 return;
@@ -132,6 +132,11 @@ namespace UniFTP.Server.Virtual
             var infos = RealDirectory.GetFileSystemInfos();
             foreach (var fileSystemInfo in infos)
             {
+                var exist = _realSub.FirstOrDefault(t => t.RealPath == fileSystemInfo.FullName);
+                if (exist != null)
+                {
+                    continue;
+                }
                 if ((fileSystemInfo.Attributes & FileAttributes.Directory) == FileAttributes.Directory) //文件夹
                 {
                     _realSub.Add(new VDirectory(this, this.Permission, fileSystemInfo.FullName, fileSystemInfo.Name));
@@ -141,6 +146,8 @@ namespace UniFTP.Server.Virtual
                     _realSub.Add(new VFile(this, this.Permission, fileSystemInfo.FullName, fileSystemInfo.Name));
                 }
             }
+            //ADDED:Linq搜索已被消灭的文件
+            _realSub.RemoveAll(s => infos.FirstOrDefault(t => t.FullName == s.RealPath) == null);
         }
 
         public bool IsDirectory

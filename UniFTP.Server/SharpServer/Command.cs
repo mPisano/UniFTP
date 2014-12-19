@@ -11,7 +11,7 @@ namespace SharpServer
     public class Command
     {
         /// <summary>
-        /// 代号
+        /// 操作指令
         /// </summary>
         public string Code { get; set; }
         /// <summary>

@@ -16,7 +16,8 @@ namespace UniFTP.Server.Virtual
         NotFound = 1,
         AlreadyExist = 2,
         CannotRead = 4,
-        CannotWrite = 8
+        CannotWrite = 8,
+        ContainsSubFiles = 16
     }
 
     /// <summary>
@@ -126,6 +127,10 @@ namespace UniFTP.Server.Virtual
         public bool ExistsDirectory(string vPath)
         {
             if (string.IsNullOrEmpty(vPath))
+            {
+                return true;
+            }
+            if (vPath.Trim() == "/")
             {
                 return true;
             }
@@ -248,21 +253,25 @@ namespace UniFTP.Server.Virtual
         /// <param name="vPath">虚拟路径</param>
         /// <param name="delDir">删除文件夹,true为只删除文件夹,false为只删除文件</param>
         /// <returns>删除是否成功</returns>
-        public bool Delete(string vPath, bool delDir = false)
+        public FileError Delete(string vPath, bool delDir = false)
         {
             string pre = VPath.NormalizeFilename(vPath);
             IFile f;
             if (delDir)
             {
-                f = Get(vPath, true);
+                f = Get(vPath, true) as VDirectory;
             }
             else
             {
-                f = Get(vPath);
+                f = Get(vPath) as VFile;
             }
-            if (f == null || !f.Permission.GroupCanWrite)
+            if (f == null)
             {
-                return false;
+                return FileError.NotFound;
+            }
+            if (!f.Permission.GroupCanWrite)
+            {
+                return FileError.CannotWrite;
             }
             try
             {
@@ -271,7 +280,7 @@ namespace UniFTP.Server.Virtual
                     var vf = (VDirectory) f;
                     if (vf.RealDirectory.GetFileSystemInfos().Length > 0)
                     {
-                        return false;
+                        return FileError.ContainsSubFiles;
                     }
                     Directory.Delete(vf.RealPath);
                     vf.ParentDirectory.SubFiles.Remove(vf); //FIXED:删除文件更新相应虚拟目录
@@ -286,14 +295,14 @@ namespace UniFTP.Server.Virtual
                 }
                 else
                 {
-                    return false;
+                    return FileError.NotFound;
                 }
             }
             catch (Exception)
             {
-                return false;
+                return FileError.NotFound;
             }
-            return true;
+            return FileError.None;
         }
 
         /// <summary>
@@ -330,10 +339,22 @@ namespace UniFTP.Server.Virtual
         /// </summary>
         /// <param name="vPath">虚拟路径</param>
         /// <param name="rename">重命名，null为不重命名</param>
-        /// <param name="modify">需要修改的权限</param>
+        /// <param name="overwrite">是否可以覆盖</param>
         /// <returns></returns>
-        public string GetRealPathOfFile(string vPath,bool modify = false, string rename = null)
+        public string GetRealPathOfFile(string vPath, bool overwrite = false, string rename = null)
         {
+            var file = Get(vPath);
+            if (file != null)
+            {
+                if (!overwrite) //不能覆盖，直接返回空
+                {
+                    return null;
+                }
+                else if (!file.Permission.GroupCanWrite) //权限不足以覆盖
+                {
+                    return null;
+                }
+            }
             string pre = VPath.NormalizeFilename(vPath);
             VDirectory dir;
             if (!pre.StartsWith("/"))
@@ -343,7 +364,7 @@ namespace UniFTP.Server.Virtual
             }
             else
             {
-                dir = Get(VPath.GetParentPath(vPath), true) as VDirectory;
+                dir = Get(VPath.GetParentPath(pre), true) as VDirectory;
                 if (dir == null)
                 {
                     return null;
@@ -358,14 +379,7 @@ namespace UniFTP.Server.Virtual
                 pre = rename;
             }
             string path = Path.Combine(dir.RealPath, VPath.GetFileName(pre));
-            if (modify) //需要修改权限
-            {
-                var file = Get(vPath);
-                if (file!=null && !file.Permission.GroupCanWrite)
-                {
-                    return null;
-                }
-            }
+
             return path;
         }
 
@@ -394,6 +408,194 @@ namespace UniFTP.Server.Virtual
                     continue;
                 }
                 fileList.Add(f.Name);
+            }
+            return fileList;
+        }
+        /// <summary>
+        /// 取得格式化的文件信息
+        /// <para>MLST in RFC 3659</para>
+        /// </summary>
+        /// <param name="vPath"></param>
+        /// <returns></returns>
+        public string MachineFileInfo(string vPath = null)
+        {
+            IFile f;
+            bool isDir = false;
+            StringBuilder sb = new StringBuilder();
+            DateTime editDate;
+            if (string.IsNullOrEmpty(vPath))
+            {
+                f = _currentDirectory;
+                isDir = true;
+            }
+            else
+            {
+                if (ExistsFile(vPath))
+                {
+                    f = Get(vPath) as VFile;
+                    isDir = false;
+                }
+                else if(ExistsDirectory(vPath))
+                {
+                    f = Get(vPath, true) as VDirectory;
+                    isDir = true;
+                }
+                else
+                {
+                    return "";
+                }
+            }
+            if (f == null)
+            {
+                return "";
+            }
+            if (isDir)
+            {
+                var vf = (VDirectory) f;
+                editDate = vf.RealDirectory.LastWriteTime;
+
+                sb.Append("type=dir;");     //type类型
+                sb.Append("modify=").Append(editDate.ToString("yyyyMMddHHmmss")).Append(';');   //modify修改时间
+                sb.Append("perm=el");   //perm权限
+                if (vf.Permission.CanWrite)
+                {
+                    sb.Append("cm");
+                }
+                if (vf.Permission.GroupCanWrite)
+                {
+                    sb.Append("dfp");
+                }
+                sb.Append("; ");
+                if (vf == _rootDirectory)
+                {
+                    sb.Append("/");
+                }
+                else
+                {
+                    sb.Append(f.Name);
+                }
+            }
+            else
+            {
+                VFile vf = (VFile)f;
+                editDate = vf.RealFile.LastWriteTime.ToUniversalTime(); //FIXED:需要使用UTC时间
+
+                //参考格式
+                //type=file;modify=20140628041312;size=761344; Server.exe
+                sb.Append("type=file;");     //type类型
+                sb.Append("modify=").Append(editDate.ToString("yyyyMMddHHmmss")).Append(';');   //modify修改时间
+                sb.Append("size=").Append(vf.RealFile.Length).Append(';');   //size大小
+                sb.Append("perm=r");   //perm权限
+                if (vf.Permission.CanWrite)
+                {
+                    //sb.Append("cm");
+                }
+                if (vf.Permission.GroupCanWrite)
+                {
+                    sb.Append("adfw");
+                }
+                sb.Append("; ");
+                sb.Append(f.Name);
+            }
+            return sb.ToString();
+        }
+
+        /*  perm权限设置
+            perm="a" / "c" / "d" / "e" / "f" / "l" / "m" / "p" / "r" / "w"
+            a:文件，APPE追加许可
+            c:文件夹，STOR STOU APPE存储许可（不能已存在）
+            d:全部，RMD DELE删除许可
+            e:文件夹，CWD PWD CDUP目录切换许可
+            f:全部，RNFR重命名许可
+            l:文件夹，列目录许可
+            m:文件夹，MKD建目录许可
+            p:文件夹，文件夹内容删除许可
+            r:文件，RTER取得许可
+            w:文件，STOR存储许可
+        */
+
+        /// <summary>
+        /// 取得格式化的文件列表
+        /// <para>MLSD in RFC 3659</para>
+        /// </summary>
+        /// <param name="vPath"></param>
+        /// <returns></returns>
+        public List<string> MachineListFiles(string vPath = null)
+        {
+            VDirectory dir;
+            if (string.IsNullOrEmpty(vPath))
+            {
+                dir = _currentDirectory;
+                SetPermission(dir, true);
+            }
+            else
+            {
+                dir = Get(VPath.NormalizeFilename(vPath), true) as VDirectory ?? _currentDirectory;
+            }
+
+            dir.Refresh();  //FIXED:目录及时更新
+
+            List<string> fileList = new List<string>();
+
+            DateTime now = DateTime.Now;
+
+            foreach (var f in dir.SubFiles)
+            {
+                if (!f.Permission.CanRead)
+                {
+                    continue;
+                }
+                //参考格式
+                //type=dir;modify=20141218151753;perm=el; 新建文件夹
+                DateTime editDate;
+                StringBuilder sb = new StringBuilder();
+
+                if (f.IsDirectory)
+                {
+                    VDirectory vf = (VDirectory)f;
+                    editDate = vf.RealDirectory.LastWriteTime.ToUniversalTime();
+
+                    sb.Append("type=dir;");     //type类型
+                    sb.Append("modify=").Append(editDate.ToString("yyyyMMddHHmmss")).Append(';');   //modify修改时间
+                    //sb.Append("size=").Append("0");   //文件夹没有size
+                    //-RFC 3659- -7.5.5- Its value is always an unordered sequence of alphabetic characters. 意味着权限字母不用排序
+                    sb.Append("perm=el");   //perm权限，具体见上
+                    if (vf.Permission.CanWrite)
+                    {
+                        sb.Append("cm");
+                    }
+                    if (vf.Permission.GroupCanWrite)
+                    {
+                        sb.Append("dfp");
+                    }
+                    sb.Append("; ");
+                    sb.Append(f.Name);
+                }
+                else
+                {
+                    VFile vf = (VFile)f;
+                    editDate = vf.RealFile.LastWriteTime.ToUniversalTime();
+
+                    //参考格式
+                    //type=file;modify=20140628041312;size=761344; Server.exe
+
+                    sb.Append("type=file;");     //type类型
+                    sb.Append("modify=").Append(editDate.ToString("yyyyMMddHHmmss")).Append(';');   //modify修改时间
+                    sb.Append("size=").Append(vf.RealFile.Length).Append(';');   //size大小
+                    //-RFC 3659- -7.5.5- Its value is always an unordered sequence of alphabetic characters. 意味着权限字母不用排序
+                    sb.Append("perm=r");   //perm权限，具体见上
+                    if (vf.Permission.CanWrite)
+                    {
+                        //sb.Append("cm");
+                    }
+                    if (vf.Permission.GroupCanWrite)
+                    {
+                        sb.Append("adfw");
+                    }
+                    sb.Append("; ");
+                    sb.Append(f.Name);
+                }
+                fileList.Add(sb.ToString());
             }
             return fileList;
         }
@@ -513,7 +715,18 @@ namespace UniFTP.Server.Virtual
             VDirectory dir = Get(pre, true) as VDirectory;
             return dir == null ? null : dir.RealDirectory;
         }
+
+        /// <summary>
+        /// 执行文件操作后，刷新当前目录
+        /// </summary>
+        public void RefreshCurrentDirectory()
+        {
+            _currentDirectory.Refresh();
+            SetPermission(_currentDirectory,true);
+        }
+
         #endregion
+
         #region Private Methods
         /// <summary>
         /// 获取一个虚拟文件实体

@@ -34,7 +34,7 @@ namespace UniFTP.Server
         public string PasswordMD5 { get; set; }
 
         /// <summary>
-        /// GroupName
+        /// 用户组名
         /// </summary>
         public string GroupName { get; internal set; }
 

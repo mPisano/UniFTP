@@ -223,6 +223,15 @@ namespace UniFTP.Common.Localization {
         }
         
         /// <summary>
+        ///   查找类似 Opening {0} mode data transfer for {1} with SSL/TLS 的本地化字符串。
+        /// </summary>
+        public static string OPENING_SAFE_DATA_TRANSFER {
+            get {
+                return ResourceManager.GetString("OPENING_SAFE_DATA_TRANSFER", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Parameter {0} not recogonized 的本地化字符串。
         /// </summary>
         public static string PARAMETER_NOT_RECOGNIZED {
@@ -259,7 +268,7 @@ namespace UniFTP.Common.Localization {
         }
         
         /// <summary>
-        ///   查找类似 UniFTP Server Ready. (Ver.0.1) 的本地化字符串。
+        ///   查找类似 UniFTP Server Ready. (Ver.0.5) 的本地化字符串。
         /// </summary>
         public static string SERVICE_READY {
             get {

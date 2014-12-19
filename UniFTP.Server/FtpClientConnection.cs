@@ -94,7 +94,7 @@ namespace UniFTP.Server
 
         private IPEndPoint _dataEndpoint;
         private X509Certificate2 _cert = null;
-        private SslStream _sslStream;
+        private GnuSslStream _sslStream;
         /// <summary>
         /// 是否启用了保护模式
         /// </summary>
@@ -111,7 +111,8 @@ namespace UniFTP.Server
         private CultureInfo _currentCulture = CultureInfo.InvariantCulture;
 
         private FtpPerformanceCounter _performanceCounter;
-
+        //protected event LogEventHandler OnLog;
+        private LogEventHandler OnLog;
         public FtpClientConnection()
             : base()
         {
@@ -127,6 +128,16 @@ namespace UniFTP.Server
             _performanceCounter = ((FtpServer)CurrentServer).ServerPerformanceCounter;
 
             _performanceCounter.IncrementCurrentConnections();
+
+            OnLog = ((FtpServer)CurrentServer).SendLog;
+
+            FtpLogEntry logEntry = new FtpLogEntry()
+            {
+                Date = DateTime.Now,
+                Info = LogInfo.ConnectionEstablished.ToString()
+            };
+
+            OnLog(logEntry);
 
             _connected = true;
 
@@ -144,7 +155,7 @@ namespace UniFTP.Server
             _validCommands.AddRange(new string[] { "AUTH", "USER", "PASS", "ACCT", "QUIT", "HELP", "NOOP","PBSZ","PROT"});
 
             _dataClient = new TcpClient();
-
+            
             Read();
         }
 
@@ -158,7 +169,7 @@ namespace UniFTP.Server
                     //MARK:建立TLS连接
                     _cert = ((FtpServer)CurrentServer).ServerCertificate;
 
-                    _sslStream = new SslStream(ControlStream);
+                    _sslStream = new GnuSslStream(ControlStream);
 
                     _sslStream.ReadTimeout = 5000;
                     _sslStream.WriteTimeout = 5000;
@@ -216,6 +227,13 @@ namespace UniFTP.Server
             }
             finally
             {
+                FtpLogEntry logEntry = new FtpLogEntry()
+                {
+                    Date = DateTime.Now,
+                    Info = LogInfo.ConnectionTerminated.ToString()
+                };
+                OnLog(logEntry);
+
                 base.Dispose(disposing);
             }
         }
@@ -255,42 +273,6 @@ namespace UniFTP.Server
         {
             return path.StartsWith(_root, StringComparison.OrdinalIgnoreCase);
         }
-
-        //private string NormalizeFilename(string path)
-        //{
-        //    if (path == null)
-        //    {
-        //        path = string.Empty;
-        //    }
-
-        //    //if (_invalidPathChars.IsMatch(path))
-        //    //{
-        //    //    return null;
-        //    //}
-        //    try
-        //    {
-        //        if (path == "/")
-        //        {
-        //            return _root;
-        //        }
-        //        else if (path.StartsWith("/", StringComparison.OrdinalIgnoreCase))
-        //        {
-        //            path = new FileInfo(Path.Combine(_root, path.Substring(1))).FullName;
-        //        }
-        //        else
-        //        {
-        //            path = new FileInfo(Path.Combine(_currentDirectory, path)).FullName;
-        //        }
-        //    }
-        //    catch (Exception)
-        //    {
-
-        //        return null;
-        //    }
-
-
-        //    return IsPathValid(path) ? path : null;
-        //}
 
         private Response CheckUser()
         {
@@ -345,7 +327,7 @@ namespace UniFTP.Server
                 }
                 catch (Exception e)
                 {
-                    
+                    _log.Error(e);
                 }
 
             }
@@ -389,7 +371,7 @@ namespace UniFTP.Server
                 //通过上述异步过程，此时的_dataClient已经连接
                 if (_protected)
                 {
-                    using (SslStream dataStream = new SslStream(_dataClient.GetStream()))
+                    using (GnuSslStream dataStream = new GnuSslStream(_dataClient.GetStream(), false))
                     {
                         try
                         {
@@ -401,7 +383,7 @@ namespace UniFTP.Server
                             response = GetResponse(FtpResponses.UNABLE_TO_OPEN_DATA_CONNECTION);
                             //throw;
                         }
-                        
+                        dataStream.Close();
                         //response = op.Operation(dataStream, op.Arguments);
                     }
                 }
@@ -434,20 +416,49 @@ namespace UniFTP.Server
             Write(response.ToString());
         }
 
+        /// <summary>
+        /// 下载操作
+        /// </summary>
+        /// <param name="dataStream"></param>
+        /// <param name="pathname"></param>
+        /// <returns></returns>
         private Response RetrieveOperation(Stream dataStream, string pathname)
         {
+            long bytes = 0;
+            FtpLogEntry logEntry = new FtpLogEntry
+            {
+                Date = DateTime.Now,
+                CIP = ClientIP,
+                CSMethod = "RETR",
+                CSUsername = _username,
+                SCStatus = "226",
+            };
+
             using (FileStream fs = new FileStream(pathname, FileMode.Open, FileAccess.Read))
             {
                 fs.Seek(_transPosition, SeekOrigin.Begin);
                 //由于是异步调用的 因此不会阻塞
-                CopyStream(fs, dataStream, _performanceCounter.IncrementBytesSent);
+                bytes = CopyStream(fs, dataStream, _performanceCounter.IncrementBytesSent);
             }
+
+            logEntry.SCBytes = bytes.ToString(CultureInfo.InvariantCulture);
+
+            _log.Info(logEntry);
+            OnLog(logEntry);
 
             _performanceCounter.IncrementFilesSent();
 
+            _virtualFileSystem.RefreshCurrentDirectory();
+            
             return GetResponse(FtpResponses.TRANSFER_SUCCESSFUL);
         }
 
+        /// <summary>
+        /// 上传操作
+        /// </summary>
+        /// <param name="dataStream"></param>
+        /// <param name="pathname"></param>
+        /// <returns></returns>
         private Response StoreOperation(Stream dataStream, string pathname)
         {
             long bytes = 0;
@@ -474,12 +485,21 @@ namespace UniFTP.Server
             logEntry.CSBytes = bytes.ToString(CultureInfo.InvariantCulture);
 
             _log.Info(logEntry);
+            OnLog(logEntry);
 
             _performanceCounter.IncrementFilesReceived();
+
+            _virtualFileSystem.RefreshCurrentDirectory();
 
             return GetResponse(FtpResponses.TRANSFER_SUCCESSFUL);
         }
 
+        /// <summary>
+        /// 文件追加操作
+        /// </summary>
+        /// <param name="dataStream"></param>
+        /// <param name="pathname"></param>
+        /// <returns></returns>
         private Response AppendOperation(Stream dataStream, string pathname)
         {
             long bytes = 0;
@@ -491,7 +511,7 @@ namespace UniFTP.Server
                 CSMethod = "APPE",
                 CSUsername = _username,
                 SCStatus = "226",
-                CSBytes = bytes.ToString(CultureInfo.InvariantCulture)
+                //CSBytes = bytes.ToString(CultureInfo.InvariantCulture)
             };
 
             using (FileStream fs = new FileStream(pathname, FileMode.Append, FileAccess.Write, FileShare.Read, BUFFER_SIZE, FileOptions.SequentialScan))
@@ -503,8 +523,11 @@ namespace UniFTP.Server
             logEntry.CSBytes = bytes.ToString(CultureInfo.InvariantCulture);
 
             _log.Info(logEntry);
+            OnLog(logEntry);
 
             _performanceCounter.IncrementFilesReceived();
+            
+            _virtualFileSystem.RefreshCurrentDirectory();
 
             return GetResponse(FtpResponses.TRANSFER_SUCCESSFUL);
         }
@@ -539,7 +562,41 @@ namespace UniFTP.Server
             }
 
             _log.Info(logEntry);
+            OnLog(logEntry);
+            return GetResponse(FtpResponses.TRANSFER_SUCCESSFUL);
+        }
 
+        /// <summary>
+        /// 标准化列目录操作
+        /// </summary>
+        /// <param name="dataStream"></param>
+        /// <param name="pathname"></param>
+        /// <returns></returns>
+        private Response MachineListOperation(Stream dataStream, string pathname)
+        {
+            DateTime now = DateTime.Now;
+
+            FtpLogEntry logEntry = new FtpLogEntry
+            {
+                Date = now,
+                CIP = ClientIP,
+                CSMethod = "MLSD",
+                CSUsername = _username,
+                SCStatus = "226"
+            };
+
+            StreamWriter dataWriter = new StreamWriter(dataStream, _currentEncoding);
+
+            var dirList = _virtualFileSystem.MachineListFiles(pathname);
+           
+            foreach (var dir in dirList)
+            {
+                dataWriter.WriteLine(dir);
+                dataWriter.Flush();
+            }
+
+            _log.Info(logEntry);
+            OnLog(logEntry);
             return GetResponse(FtpResponses.TRANSFER_SUCCESSFUL);
         }
 
@@ -569,26 +626,8 @@ namespace UniFTP.Server
                 dataWriter.Flush();
             }
 
-            //IEnumerable<string> dirs = Directory.EnumerateDirectories(pathname);
-
-            //IEnumerable<string> files = Directory.EnumerateFiles(pathname);
-
-            //foreach (string dir in dirs)
-            //{
-            //    dataWriter.WriteLine(Path.GetFileName(dir));
-            //    dataWriter.Flush();
-            //}
-
-            //foreach (string file in files)
-            //{
-            //    dataWriter.WriteLine(Path.GetFileName(file));
-            //    dataWriter.Flush();
-            //}
-
-
-
             _log.Info(logEntry);
-
+            OnLog(logEntry);
             return GetResponse(FtpResponses.TRANSFER_SUCCESSFUL);
         }
 

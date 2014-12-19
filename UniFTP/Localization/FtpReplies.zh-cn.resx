@@ -130,22 +130,22 @@
     <value>启用 TLS 加密传输</value>
   </data>
   <data name="ENTERING_EXTENDED_PASSIVE_MODE" xml:space="preserve">
-    <value>Entering Extended Passive Mode (|||{0}|)</value>
+    <value>进入扩展Passive传输模式 (|||{0}|)</value>
   </data>
   <data name="ENTERING_PASSIVE_MODE" xml:space="preserve">
     <value>进入Passive传输模式 ({0},{1},{2},{3},{4},{5})</value>
   </data>
   <data name="EXTENSIONS_SUPPORTED" xml:space="preserve">
-    <value>Extensions supported</value>
+    <value>支持的扩展指令</value>
   </data>
   <data name="FILE_ACTION_COMPLETE" xml:space="preserve">
-    <value>Requested file action okay, completed</value>
+    <value>文件操作已完成</value>
   </data>
   <data name="FILE_ACTION_NOT_TAKEN" xml:space="preserve">
-    <value>Requested file action not taken</value>
+    <value>文件操作没有执行</value>
   </data>
   <data name="FILE_NOT_FOUND" xml:space="preserve">
-    <value>File not found</value>
+    <value>文件未找到或无权限</value>
   </data>
   <data name="LOGGED_IN" xml:space="preserve">
     <value>用户已登录</value>
@@ -154,10 +154,10 @@
     <value>Need more verification</value>
   </data>
   <data name="NOT_IMPLEMENTED" xml:space="preserve">
-    <value>Command not implemented</value>
+    <value>命令未实现</value>
   </data>
   <data name="NOT_IMPLEMENTED_FOR_PARAMETER" xml:space="preserve">
-    <value>Command not implemented for that parameter</value>
+    <value>命令的这个参数未实现</value>
   </data>
   <data name="NOT_LOGGED_IN" xml:space="preserve">
     <value>Not logged in</value>
@@ -166,22 +166,22 @@
     <value>成功</value>
   </data>
   <data name="OPENING_DATA_TRANSFER" xml:space="preserve">
-    <value>Opening {0} mode data transfer for {1}.</value>
+    <value>正在为 {1} 开启 {0} 模式传输 .</value>
   </data>
   <data name="PARAMETER_NOT_RECOGNIZED" xml:space="preserve">
-    <value>Parameter {0} not recogonized</value>
+    <value>参数 {0} 未能识别</value>
   </data>
   <data name="QUIT" xml:space="preserve">
     <value>Service closing control connection</value>
   </data>
   <data name="RENAME_FROM" xml:space="preserve">
-    <value>Requested file action pending further information</value>
+    <value>等待下一个重命名命令</value>
   </data>
   <data name="RESTART_FROM" xml:space="preserve">
-    <value>Restarting at {0}. Send STORE or RETRIEVE.</value>
+    <value>传输重启位置 {0}. 请发送 STORE 或 RETRIEVE</value>
   </data>
   <data name="SERVICE_READY" xml:space="preserve">
-    <value>UniFTP Server Ready. (Ver.0.1)</value>
+    <value>UniFTP Server Ready. (Ver.0.5)</value>
   </data>
   <data name="SYNTAX_ERROR" xml:space="preserve">
     <value>语法错误，命令未能识别</value>
@@ -203,6 +203,6 @@
     <comment>这里不必更改语言，因为登录前通常不会指定编码</comment>
   </data>
   <data name="UTF8_ENCODING_ON" xml:space="preserve">
-    <value>UTF8 Encoding turned on</value>
+    <value>UTF8 编码开启</value>
   </data>
 </root>

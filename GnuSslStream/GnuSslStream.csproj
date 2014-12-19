@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{73191499-85CD-4275-9237-0C838078832E}</ProjectGuid>
+    <ProjectGuid>{E8975487-6509-4663-BB61-14326E1AD464}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>UniFTP.Server</RootNamespace>
-    <AssemblyName>UniFTP.Server</AssemblyName>
+    <RootNamespace>System.Net.Security</RootNamespace>
+    <AssemblyName>GnuSslStream</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -20,6 +20,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -28,11 +29,9 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="log4net">
-      <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -42,50 +41,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FtpClientConnection.cs" />
-    <Compile Include="FtpCommands.cs" />
-    <Compile Include="FtpConfig.cs" />
-    <Compile Include="FtpListenerPool.cs" />
-    <Compile Include="FtpLogEntry.cs" />
-    <Compile Include="FtpPerformanceCounter.cs" />
-    <Compile Include="FtpStaticPerformanceCounters.cs" />
-    <Compile Include="FtpResponses.cs" />
-    <Compile Include="FtpServer.cs" />
-    <Compile Include="FtpStore.cs" />
-    <Compile Include="FtpUser.cs" />
-    <Compile Include="FtpUserGroup.cs" />
+    <Compile Include="GnuSslStream.cs" />
+    <Compile Include="NativeApi.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SharpServer\ClientConnection.cs" />
-    <Compile Include="SharpServer\ClientConnectionBase.cs" />
-    <Compile Include="SharpServer\Command.cs" />
-    <Compile Include="SharpServer\Helper.cs" />
-    <Compile Include="SharpServer\Response.cs" />
-    <Compile Include="SharpServer\Server.cs" />
-    <Compile Include="Virtual\FilePermission.cs" />
-    <Compile Include="Virtual\IFile.cs" />
-    <Compile Include="Virtual\VDirectory.cs" />
-    <Compile Include="Virtual\VFile.cs" />
-    <Compile Include="Virtual\VirtualFileSystem.cs" />
-    <Compile Include="Virtual\VPath.cs" />
+    <Compile Include="ReflectUtil.cs" />
+    <Compile Include="SslDirectCall.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\GnuSslStream\GnuSslStream.csproj">
-      <Project>{e8975487-6509-4663-bb61-14326e1ad464}</Project>
-      <Name>GnuSslStream</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\UniFTP\UniFTP.Common.csproj">
-      <Project>{4ab45e2b-1096-454b-a02b-ac89d10d06d4}</Project>
-      <Name>UniFTP.Common</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-    <None Include="packages.config" />
-    <None Include="UniFTP.Server.log4net">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

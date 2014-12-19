@@ -127,7 +127,7 @@ namespace SharpServer
             ClientIP = RemoteEndPoint.Address.ToString();
 
             ControlStream = ControlClient.GetStream();
-
+            
             OnConnected();
         }
 

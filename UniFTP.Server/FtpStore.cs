@@ -9,14 +9,70 @@ using UniFTP.Server.Virtual;
 
 namespace UniFTP.Server
 {
-    //[Obsolete("This is not a real user store. It is just a stand-in for testing. DO NOT USE IN PRODUCTION CODE.")]
 
-    //FIXED:已经修了一周，不知效果如何
     public static class FtpStore
     {
         private static BinaryFormatter serializer = new BinaryFormatter();
-        //private static XmlSerializer userSerializer = new XmlSerializer(typeof(Dictionary<string, FtpUser>), new XmlRootAttribute("Users"));
-        //private static XmlSerializer groupSerializer = new XmlSerializer(typeof(Dictionary<string, FtpUserGroup>), new XmlRootAttribute("UserGroups"));
+
+        public static FtpConfig LoadConfig(string file)
+        {
+            if (!File.Exists(file))
+            {
+                return null;
+            }
+            try
+            {
+                using (FileStream fs = new FileStream(file, FileMode.Open))
+                {
+                    return serializer.Deserialize(fs) as FtpConfig ?? null;
+                }
+            }
+            catch (Exception)
+            {
+                return null;
+                //throw;
+            }
+        }
+
+        public static Dictionary<string, FtpUser> LoadUsers(string file)
+        {
+            if (!File.Exists(file))
+            {
+                return null;
+            }
+            try
+            {
+                using (FileStream fs = new FileStream(file, FileMode.Open))
+                {
+                    return serializer.Deserialize(fs) as Dictionary<string, FtpUser> ?? null;
+                }
+            }
+            catch (Exception)
+            {
+                return null;
+                //throw;
+            }
+        }
+
+        public static Dictionary<string, FtpUserGroup> LoadUserGroups(string file)
+        {
+            if (!File.Exists(file))
+            {
+                return null;
+            }
+            try
+            {
+                using (FileStream fs = new FileStream(file, FileMode.Open))
+                {
+                    return serializer.Deserialize(fs) as Dictionary<string, FtpUserGroup> ?? null;
+                }
+            }
+            catch (Exception)
+            {
+                return null;
+                //throw;
+            }
+        }
 
         private static bool Load(FtpServer server, string file)
         {

@@ -11,6 +11,15 @@ using UniFTP.Server.Virtual;
 
 namespace UniFTP.Server
 {
+    /// <summary>
+    /// 日志事件
+    /// </summary>
+    /// <param name="sender">日志实体</param>
+    public delegate void LogEventHandler(object sender);
+
+    /// <summary>
+    /// FTP服务器
+    /// </summary>
     public class FtpServer : Server<FtpClientConnection>
     {
         private FtpConfig _config = new FtpConfig();
@@ -33,6 +42,8 @@ namespace UniFTP.Server
         //private bool _enableIPv6 = false;
         internal X509Certificate2 ServerCertificate;
         public FtpPerformanceCounter ServerPerformanceCounter { get; set; }
+        
+        public event LogEventHandler OnLog;
 
         #region Public Methods
         /// <summary>
@@ -104,6 +115,13 @@ namespace UniFTP.Server
             }
         }
 
+        /// <summary>
+        /// 添加组权限规则
+        /// </summary>
+        /// <param name="groupname">组名</param>
+        /// <param name="vPath">虚拟路径</param>
+        /// <param name="permission">权限，9位UNIX权限</param>
+        /// <returns></returns>
         public bool AddGroupRule(string groupname,string vPath, string permission)
         {
             FilePermission f;
@@ -130,13 +148,23 @@ namespace UniFTP.Server
             return true;
         }
 
+        /// <summary>
+        /// 删除用户组
+        /// <para>只有</para>
+        /// </summary>
+        /// <param name="groupname"></param>
+        /// <returns></returns>
         public bool DeleteUserGroup(string groupname)
         {
-            FtpUser u = Users.Values.FirstOrDefault(user => String.Equals(user.GroupName, groupname, StringComparison.CurrentCultureIgnoreCase));
-            if (u != null)
-            {
-                return false;
-            }
+            List<FtpUser> u =
+                new List<FtpUser>(
+                    Users.Values.Where(
+                        user => String.Equals(user.GroupName, groupname, StringComparison.CurrentCultureIgnoreCase)));
+            u.ForEach(t => { t.GroupName = "anonymous"; });
+            //if (u != null)
+            //{
+            //    return false;
+            //}
             if (UserGroups.ContainsKey(groupname.ToLower()))
             {
                 UserGroups.Remove(groupname.ToLower());
@@ -280,7 +308,7 @@ namespace UniFTP.Server
             {
                 Users.Add("anonymous", FtpUser.Anonymous);
             }
-
+            OnLog += sender => {};
             //foreach (var endPoint in localEndPoints)
             //{
             //    //_performanceCounter.Initialize(endPoint.Port);
@@ -291,6 +319,7 @@ namespace UniFTP.Server
             }
             ServerPerformanceCounter = new FtpPerformanceCounter(logHeader);
         }
+
 
         protected override void OnConnectAttempt()
         {
@@ -308,12 +337,28 @@ namespace UniFTP.Server
             _timer.Elapsed += new ElapsedEventHandler(_timer_Elapsed);
 
             _timer.Start();
+
+            FtpLogEntry logEntry = new FtpLogEntry()
+            {
+                Date = DateTime.Now,
+                Info = LogInfo.ServerStart.ToString()
+            };
+            
+            OnLog(logEntry);
         }
 
         protected override void OnStop()
         {
             if (_timer != null)
                 _timer.Stop();
+
+            FtpLogEntry logEntry = new FtpLogEntry()
+            {
+                Date = DateTime.Now,
+                Info = LogInfo.ServerStop.ToString()
+            };
+
+            OnLog(logEntry);
         }
 
         protected override void Dispose(bool disposing)
@@ -329,6 +374,11 @@ namespace UniFTP.Server
         private void _timer_Elapsed(object sender, ElapsedEventArgs e)
         {
             ServerPerformanceCounter.SetFtpServiceUptime(DateTime.Now - _startTime);
+        }
+
+        internal void SendLog(object sender)
+        {
+            OnLog(sender);
         }
     }
 }
