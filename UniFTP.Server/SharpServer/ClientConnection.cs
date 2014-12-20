@@ -101,7 +101,7 @@ namespace SharpServer
             try
             {
                 byte[] response = ControlStreamEncoding.GetBytes(string.Concat(content, "\r\n"));
-
+                
                 stream.BeginWrite(response, 0, response.Length, WriteCallback, stream);
             }
             catch (Exception ex)

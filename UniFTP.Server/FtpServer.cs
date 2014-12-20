@@ -274,9 +274,10 @@ namespace UniFTP.Server
         /// <param name="port">监听端口号</param>
         /// <param name="config">FTP配置（可为空）</param>
         /// <param name="enableIPv6">启用IPv6</param>
+        /// <param name="ipv6Port">IPv6端口</param>   //MARK:Linux中无法将一个Socket绑定到IPv4和IPv6的同一个端口
         /// <param name="logHeader">日志头，也用作性能计数器的实例划分，请传入服务器名</param>
-        public FtpServer(int port = 21, FtpConfig config = null,bool enableIPv6 = false, string logHeader = null)
-            : this(IPAddress.Any, port, enableIPv6, logHeader)
+        public FtpServer(int port = 21, FtpConfig config = null,bool enableIPv6 = false,int ipv6Port = -1, string logHeader = null)
+            : this(IPAddress.Any, port, enableIPv6,ipv6Port, logHeader)
         {
             Config = config;
             if (logHeader == null && config != null)
@@ -290,8 +291,8 @@ namespace UniFTP.Server
         {
         }
 
-        public FtpServer(IPAddress ipAddress, int port,bool enableIPv6, string logHeader = null)
-            : this(new IPEndPoint[] { new IPEndPoint(ipAddress, port),enableIPv6?new IPEndPoint(IPAddress.IPv6Any,port) : null }, logHeader)
+        public FtpServer(IPAddress ipAddress, int port,bool enableIPv6,int ipv6Port = -1, string logHeader = null)
+            : this(new IPEndPoint[] { new IPEndPoint(ipAddress, port),enableIPv6?new IPEndPoint(IPAddress.IPv6Any,(ipv6Port>0?ipv6Port:port)) : null }, logHeader)
         {
         }
 
@@ -313,6 +314,7 @@ namespace UniFTP.Server
             //{
             //    //_performanceCounter.Initialize(endPoint.Port);
             //}
+            
             if (logHeader == null)
             {
                 logHeader = "UniFTP";
@@ -337,14 +339,18 @@ namespace UniFTP.Server
             _timer.Elapsed += new ElapsedEventHandler(_timer_Elapsed);
 
             _timer.Start();
-
-            FtpLogEntry logEntry = new FtpLogEntry()
+            foreach (var tcpListener in base.Listeners)
             {
-                Date = DateTime.Now,
-                Info = LogInfo.ServerStart.ToString()
-            };
-            
-            OnLog(logEntry);
+                FtpLogEntry logEntry = new FtpLogEntry()
+                {
+                    Date = DateTime.Now,
+                    Info = LogInfo.ServerStart.ToString(),
+                    SPort = tcpListener.LocalEndpoint.ToString()
+                };
+
+                OnLog(logEntry);
+            }
+
         }
 
         protected override void OnStop()

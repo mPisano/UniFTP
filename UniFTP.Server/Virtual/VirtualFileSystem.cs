@@ -555,7 +555,7 @@ namespace UniFTP.Server.Virtual
                     VDirectory vf = (VDirectory)f;
                     editDate = vf.RealDirectory.LastWriteTime.ToUniversalTime();
 
-                    sb.Append("type=dir;");     //type类型
+                    sb.Append("Type=dir;");     //type类型
                     sb.Append("modify=").Append(editDate.ToString("yyyyMMddHHmmss")).Append(';');   //modify修改时间
                     //sb.Append("size=").Append("0");   //文件夹没有size
                     //-RFC 3659- -7.5.5- Its value is always an unordered sequence of alphabetic characters. 意味着权限字母不用排序

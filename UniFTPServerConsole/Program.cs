@@ -15,7 +15,8 @@ namespace UniFTPServerTestConsole
             f.ImportCertificate("UniFTP.Server.pfx", "ULYSSES");
             //绑定LOG事件，可以记录LOG
             f.OnLog += sender => Console.WriteLine(((FtpLogEntry)sender).ToString());
-            //f.Config.LogInWelcome = new string[]{"Welcome back,Commander."};
+
+            f.Config.LogInWelcome = new string[]{"Welcome back,Commander."};
             //如果没有则通过以下语句加入配置
             //f.AddUserGroup("test", AuthType.Password);
             //f.AddGroupRule("test", "/", "rwxrwxrwx");

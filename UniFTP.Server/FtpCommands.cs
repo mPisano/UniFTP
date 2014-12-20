@@ -251,6 +251,7 @@ namespace UniFTP.Server
 
         /// <summary>
         /// USER Command - RFC 959 - Section 4.1.1
+        /// <para>账号</para>
         /// </summary>
         /// <param name="username"></param>
         /// <returns></returns>
@@ -264,6 +265,7 @@ namespace UniFTP.Server
 
         /// <summary>
         /// PASS Command - RFC 959 - Section 4.1.1
+        /// <para>密码</para>
         /// </summary>
         /// <param name="password"></param>
         /// <returns></returns>
@@ -294,12 +296,12 @@ namespace UniFTP.Server
                 else
                     _performanceCounter.IncrementNonAnonymousUsers();
 
-                if (((FtpServer)CurrentServer).Config.LogInWelcome != null)
+                if (((FtpServer)CurrentServer).Config.LogInWelcome != null && !_sslEnabled)
                 {
                     Write(new Response { Code = "230-", Text = "Logged In" });
                     foreach (var welcome in ((FtpServer)CurrentServer).Config.LogInWelcome)
                     {
-                        Write(new Response { Code = "", Text = welcome });
+                        Write(new Response { Code = "", Text = welcome ?? "" });
                     }
                 }
                 return GetResponse(FtpResponses.LOGGED_IN);
@@ -324,6 +326,7 @@ namespace UniFTP.Server
 
         /// <summary>
         /// CWD Command - RFC 959 - Section 4.1.1
+        /// <para>切换当前目录</para>
         /// </summary>
         /// <param name="pathname"></param>
         /// <returns></returns>
@@ -384,8 +387,7 @@ namespace UniFTP.Server
         /// <summary>
         /// PASV Command - RFC 959 - Section 4.1.2
         /// <para>进入被动模式（请求服务器等待数据连接）</para>
-        /// </summary>
-        /// 
+        /// </summary> 
         /// <returns></returns>
         private Response Passive()
         {
@@ -448,6 +450,7 @@ namespace UniFTP.Server
 
         /// <summary>
         /// TYPE Command - RFC 959 - Section 4.1.2
+        /// <para>设置传输类型</para>
         /// </summary>
         /// <param name="typeCode"></param>
         /// <returns></returns>
@@ -488,6 +491,7 @@ namespace UniFTP.Server
 
         /// <summary>
         /// STRU Command - RFC 959 - Section 4.1.2
+        /// <para>设置文件结构</para>
         /// </summary>
         /// <param name="username"></param>
         /// <returns></returns>
@@ -511,8 +515,9 @@ namespace UniFTP.Server
 
         /// <summary>
         /// MODE Command - RFC 959 - Section 4.1.2
+        /// <para>设置传输模式</para>
         /// </summary>
-        /// <param name="mode"></param>
+        /// <param name="mode">S:流 B:块 C:压缩</param>
         /// <returns></returns>
         private Response Mode(string mode)
         {
@@ -528,6 +533,7 @@ namespace UniFTP.Server
 
         /// <summary>
         /// RETR Command - RFC 959 - Section 4.1.3
+        /// <para>下载</para>
         /// </summary>
         /// <param name="pathname"></param>
         /// <returns></returns>
@@ -567,6 +573,7 @@ namespace UniFTP.Server
 
         /// <summary>
         /// STOR Command - RFC 959 - Section 4.1.3
+        /// <para>上传</para>
         /// </summary>
         /// <param name="pathname"></param>
         /// <returns></returns>
@@ -588,6 +595,7 @@ namespace UniFTP.Server
 
         /// <summary>
         /// STOU Command - RFC 959 - Section 4.1.3
+        /// <para>（禁止覆盖）上传</para>
         /// </summary>
         /// <param name="pathname"></param>
         /// <returns></returns>
@@ -605,6 +613,7 @@ namespace UniFTP.Server
 
         /// <summary>
         /// APPE Command - RFC 959 - Section 4.1.3
+        /// <para>追加</para>
         /// </summary>
         /// <param name="pathname"></param>
         /// <returns></returns>
@@ -627,6 +636,7 @@ namespace UniFTP.Server
 
         /// <summary>
         /// RNFR - RNTO - RFC 959 - Seciton 4.1.3
+        /// <para>重命名</para>
         /// </summary>
         /// <param name="renameFrom"></param>
         /// <param name="renameTo"></param>
@@ -654,6 +664,7 @@ namespace UniFTP.Server
 
         /// <summary>
         /// DELE Command - RFC 959 - Section 4.1.3
+        /// <para>删除</para>
         /// </summary>
         /// <param name="pathname"></param>
         /// <returns></returns>
@@ -672,6 +683,7 @@ namespace UniFTP.Server
 
         /// <summary>
         /// RMD Command - RFC 959 - Section 4.1.3
+        /// <para>删除文件夹</para>
         /// </summary>
         /// <param name="pathname"></param>
         /// <returns></returns>
@@ -690,6 +702,7 @@ namespace UniFTP.Server
 
         /// <summary>
         /// MKD Command - RFC 959 - Section 4.1.3
+        /// <para>创建文件夹</para>
         /// </summary>
         /// <param name="pathname"></param>
         /// <returns></returns>
@@ -712,6 +725,7 @@ namespace UniFTP.Server
 
         /// <summary>
         /// PWD Command - RFC 959 - Section 4.1.3
+        /// <para>显示当前目录</para>
         /// </summary>
         /// <returns></returns>
         private Response PrintWorkingDirectory()
@@ -721,6 +735,7 @@ namespace UniFTP.Server
 
         /// <summary>
         /// NLST Command - RFC 959 - Section 4.1.3
+        /// <para>列出当前目录下的文件名</para>
         /// </summary>
         /// <param name="pathname"></param>
         /// <returns></returns>
@@ -746,6 +761,7 @@ namespace UniFTP.Server
 
         /// <summary>
         /// LIST Command - RFC 959 - Section 4.1.3
+        /// <para>列出当前目录下的文件详细信息</para>
         /// </summary>
         /// <param name="pathname"></param>
         /// <returns></returns>
@@ -812,6 +828,12 @@ namespace UniFTP.Server
             }
         }
 
+        /// <summary>
+        /// PROT Command - RFC 2228
+        /// <para>设置保护级别</para>
+        /// </summary>
+        /// <param name="level">C：无保护 P：完全保护</param>
+        /// <returns></returns>
         private Response ProtectionLevel(string level)
         {
             level = level.Trim().ToUpper();
@@ -834,6 +856,7 @@ namespace UniFTP.Server
 
         /// <summary>
         /// OPTS Command - RFC 2389 - Section 4
+        /// <para>参数设置</para>
         /// </summary>
         /// <param name="arguments">command-name [ SP command-options ]</param>
         /// <returns></returns>
@@ -852,6 +875,7 @@ namespace UniFTP.Server
 
         /// <summary>
         /// MDTM Command - RFC 3659 - Section 3
+        /// <para>文件最后修改时间，用于校准时间</para>
         /// </summary>
         /// <param name="pathname"></param>
         /// <returns></returns>
@@ -861,7 +885,7 @@ namespace UniFTP.Server
 
             if (f != null)
             {
-                //FIXED:观察到FileZilla校准时间偏移了8小时，将返回的时间改为UTC时间，是否有效待验证
+                //FIXED:返回的时间为UTC时间
                 return new Response { Code = "213", Text = f.LastWriteTimeUtc.ToString("yyyyMMddHHmmss.fff", CultureInfo.InvariantCulture) };
 
             }
@@ -871,6 +895,7 @@ namespace UniFTP.Server
 
         /// <summary>
         /// SIZE Command - RFC 3659 - Section 4
+        /// <para>返回文件大小</para>
         /// </summary>
         /// <param name="pathname"></param>
         /// <returns></returns>

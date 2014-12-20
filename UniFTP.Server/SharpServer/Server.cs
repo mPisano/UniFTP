@@ -18,7 +18,7 @@ namespace SharpServer
 
         private List<T> _state;
 
-        private List<TcpListener> _listeners;
+        protected List<TcpListener> Listeners;
 
         private bool _disposed = false;
         private bool _disposing = false;
@@ -50,15 +50,20 @@ namespace SharpServer
             _log.Info("#" + _logHeader);
             _log.Info("date time c-ip c-port cs-username cs-method cs-args sc-status sc-bytes cs-bytes s-name s-port");
             _state = new List<T>();
-            _listeners = new List<TcpListener>();
+            Listeners = new List<TcpListener>();
 
             foreach (var localEndPoint in _localEndPoints)
             {
+                if (localEndPoint == null)
+                {
+                    continue;   //ADDED:BUG found in Mono
+                }
                 TcpListener listener = new TcpListener(localEndPoint);
 
                 try
                 {
                     listener.Start();
+                    _log.Info("Listening "+ listener.LocalEndpoint);
                 }
                 catch (SocketException ex)
                 {
@@ -69,7 +74,7 @@ namespace SharpServer
                 //开始异步等待连接
                 listener.BeginAcceptTcpClient(HandleAcceptTcpClient, listener);
 
-                _listeners.Add(listener);
+                Listeners.Add(listener);
             }
 
             _listening = true;
@@ -82,12 +87,12 @@ namespace SharpServer
             _log.Info("# Stopping Server");
             _listening = false;
 
-            foreach (var listener in _listeners)
+            foreach (var listener in Listeners)
             {
                 listener.Stop();
             }
 
-            _listeners.Clear();
+            Listeners.Clear();
 
             OnStop();
         }

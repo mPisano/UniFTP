@@ -586,7 +586,7 @@ namespace UniFTP.Server
             };
 
             StreamWriter dataWriter = new StreamWriter(dataStream, _currentEncoding);
-
+            dataWriter.WriteLine();
             var dirList = _virtualFileSystem.MachineListFiles(pathname);
            
             foreach (var dir in dirList)

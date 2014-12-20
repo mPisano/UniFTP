@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using SharpServer;
@@ -145,18 +146,22 @@ namespace UniFTP.Server
             .Append(" MDTM").AppendLine()
             .Append(" SIZE").AppendLine()
             .Append(" UTF8").AppendLine()
+            .Append(" EPRT").AppendLine()
+            .Append(" EPSV").AppendLine()
             .Append(" REST STREAM").AppendLine() //FIXED:按照RFC文档要求修改
             .Append(" AUTH TLS").AppendLine()   //TLS认证
             .Append(" PBSZ").AppendLine()   //保护缓冲区设置
             .Append(" PROT").AppendLine()   //保护级别
             .Append(" MLSD").AppendLine()
-            .Append(" MLST").AppendLine() 
-            .Append("211 End").ToString();
+            .Append(" MLST").AppendLine()
+            .Append("211 End").ToString().ToString(CultureInfo.InvariantCulture);
+
+        //FIXED:未指定ResourcesManager，错误显示中文
 
         /// <summary>
         /// 211 支持的扩展命令
         /// </summary>
-        public static readonly Response FEATURES = new Response { Code = "211-", Text = string.Format(ExFeatures, FtpReplies.EXTENSIONS_SUPPORTED)};
+        public static readonly Response FEATURES = new Response { Code = "211-", Text = string.Format(ExFeatures, FtpReplies.ResourceManager.GetString("EXTENSIONS_SUPPORTED",CultureInfo.InvariantCulture))};
         //string.Format("{0}:\r\n MDTM\r\n SIZE\r\n UTF8\r\n211 End"
 
 
