@@ -91,7 +91,6 @@ namespace UniFTP.Server.Virtual
             try
             {
                 Name = name ?? VPath.GetFileName(realPath);
-                RealDirectory = new DirectoryInfo(realPath);
                 if (ParentDirectory == null || ParentDirectory == this)
                 {
                     VirtualPath = "/";
@@ -100,6 +99,7 @@ namespace UniFTP.Server.Virtual
                 {
                     VirtualPath = VPath.Combine(ParentDirectory.VirtualPath, Name);
                 }
+                RealDirectory = new DirectoryInfo(realPath);
             }
             catch (Exception e)
             {
@@ -120,7 +120,7 @@ namespace UniFTP.Server.Virtual
 
         /// <summary>
         /// 刷新子目录与子文件
-        /// TODO:改善刷新逻辑，减少新建对象次数
+        /// MARK:改善刷新逻辑，减少新建对象次数
         /// </summary>
         public void Refresh()
         {

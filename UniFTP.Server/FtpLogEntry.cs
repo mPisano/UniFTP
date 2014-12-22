@@ -11,8 +11,25 @@ namespace UniFTP.Server
         ConnectionTerminated,
     }
 
+
+    /// <summary>
+    /// 连接信息
+    /// </summary>
+    public class FtpConnectionInfo
+    {
+        public ulong ID { get; set; }
+        public string User { get; set; }
+        public string UserGroup { get; set; }
+        public string IP { get; set; }
+        public string CurrentPosition { get; set; }
+        public string CurrentFile { get; set; }
+        public string LastCommand { get; set; }
+
+    }
+
     // Fields: date time c-ip c-port cs-username cs-method cs-args sc-status sc-bytes cs-bytes s-name s-port
-    
+
+
     public class FtpLogEntry
     {
         /// <summary>
@@ -60,7 +77,7 @@ namespace UniFTP.Server
         public override string ToString()
         {
             return string.Join(" ",
-                Date.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture),
+                Date.ToString("MM-dd HH:mm:ss", CultureInfo.InvariantCulture),
                 CIP,
                 CPort ?? "-",
                 CSUsername,

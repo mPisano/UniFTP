@@ -71,6 +71,10 @@ namespace UniFTP.Server
                     if (group.UserGroupName == "anonymous")
                     {
                         user.IsAnonymous = true;
+                        if (!server.Config.AllowAnonymous)
+                        {
+                            return null;    //ADDED:禁用匿名
+                        }
                     }
                     if (!@group.Forbidden)
                     {

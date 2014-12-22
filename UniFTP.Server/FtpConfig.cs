@@ -15,12 +15,12 @@ namespace UniFTP.Server
         public FtpConfig(string homeDir = null, string name = "UniFTP", bool allowAnonymous = true, string owner = "UniFTP",string ownerGroup="UniFTP",string[] welcome = null,string[] loginWelcome = null,string[] logoutWelcome = null)
         {
             HomeDir = homeDir;
-            if (homeDir == null)
-            {
-                string workDir = Path.Combine(Environment.CurrentDirectory, name, "Root");
-                Directory.CreateDirectory(workDir);
-                HomeDir = workDir;
-            }
+            //if (homeDir == null)
+            //{
+            //    string workDir = Path.Combine(Environment.CurrentDirectory, name, "Root");
+            //    Directory.CreateDirectory(workDir);
+            //    HomeDir = workDir;
+            //}
             ServerName = name;
             AllowAnonymous = allowAnonymous;
             Owner = owner??"UniFTP";
@@ -79,7 +79,7 @@ namespace UniFTP.Server
         /// <summary>
         /// SSL证书路径
         /// </summary>
-        internal string CertificatePath { get; set; }
+        public string CertificatePath { get; set; }
 
         /// <summary>
         /// SSL密码

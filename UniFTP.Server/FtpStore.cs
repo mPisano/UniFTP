@@ -12,7 +12,7 @@ namespace UniFTP.Server
 
     public static class FtpStore
     {
-        private static BinaryFormatter serializer = new BinaryFormatter();
+        private static readonly BinaryFormatter serializer = new BinaryFormatter();
 
         public static FtpConfig LoadConfig(string file)
         {
@@ -74,12 +74,37 @@ namespace UniFTP.Server
             }
         }
 
-        private static bool Load(FtpServer server, string file)
+        /// <summary>
+        /// 保存为
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="file"></param>
+        /// <returns></returns>
+        public static bool SaveAs(object obj, string file)
+        {
+            try
+            {
+                using (FileStream fs = new FileStream(file, FileMode.Create))
+                {
+                    serializer.Serialize(fs, obj);
+                    fs.Close();
+                }
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+                //throw;
+            }
+        }
+
+        private static bool Load(FtpServer server, string file,string directory = null)
         {
             string sname = VPath.RemoveInvalidPathChars(server.Config.ServerName);
-            if (File.Exists(Path.Combine(sname, "Config", file)))
+            string p = directory == null ? Path.Combine(sname, "Config", file) : Path.Combine(VPath.RemoveInvalidPathChars(directory), sname, "Config", file);
+            if (File.Exists(p))
             {
-                using (FileStream fs = new FileStream(Path.Combine(sname, "Config", file), FileMode.Open))
+                using (FileStream fs = new FileStream(p, FileMode.Open))
                 {
                     try
                     {
@@ -112,15 +137,15 @@ namespace UniFTP.Server
             return false;
         }
 
-        private static bool Save(FtpServer server, string file)
+        private static bool Save(FtpServer server, string file,string directory = null)
         {
             string sname = VPath.RemoveInvalidPathChars(server.Config.ServerName);
-            string dir = Path.Combine(sname, "Config");
+            string dir = directory == null ? Path.Combine(sname, "Config") : Path.Combine(VPath.RemoveInvalidPathChars(directory), sname, "Config");
             if (!Directory.Exists(dir))
             {
                 Directory.CreateDirectory(dir);
             }
-            using (FileStream fs = new FileStream(Path.Combine(sname, "Config", file), FileMode.Create))
+            using (FileStream fs = new FileStream(Path.Combine(dir,file), FileMode.Create))
             {
                 switch (file)
                 {
@@ -145,11 +170,11 @@ namespace UniFTP.Server
 
 
 
-        public static void Delete(FtpServer server, string file)
+        public static void Delete(FtpServer server, string file=null ,string directory=null)
         {
             string sname = VPath.RemoveInvalidPathChars(server.Config.ServerName);
-            string dir = Path.Combine(sname, "Config");
-
+            //string dir = Path.Combine(sname, "Config");
+            string dir = directory == null ? Path.Combine(sname, "Config") : Path.Combine(VPath.RemoveInvalidPathChars(directory), sname, "Config");
             if (!Directory.Exists(dir))
             {
                 return;
@@ -170,34 +195,34 @@ namespace UniFTP.Server
             return;
         }
 
-        public static bool LoadUsers(FtpServer server)
+        public static bool LoadUsers(FtpServer server,string dir = null)
         {
-            return Load(server, "users.cfg");
+            return Load(server, "users.cfg",dir);
         }
 
-        public static void SaveUsers(FtpServer server)
+        public static void SaveUsers(FtpServer server, string dir = null)
         {
-            Save(server, "users.cfg");
+            Save(server, "users.cfg",dir);
         }
 
-        public static bool LoadUserGroups(FtpServer server)
+        public static bool LoadUserGroups(FtpServer server, string dir = null)
         {
-            return Load(server, "usergroups.cfg");
+            return Load(server, "usergroups.cfg",dir);
         }
 
-        public static void SaveUserGroups(FtpServer server)
+        public static void SaveUserGroups(FtpServer server, string dir = null)
         {
-            Save(server, "usergroups.cfg");
+            Save(server, "usergroups.cfg",dir);
         }
 
-        public static bool LoadConfig(FtpServer server)
+        public static bool LoadConfig(FtpServer server, string dir = null)
         {
-            return Load(server, "config.cfg");
+            return Load(server, "config.cfg",dir);
         }
 
-        public static void SaveConfig(FtpServer server)
+        public static void SaveConfig(FtpServer server, string dir = null)
         {
-            Save(server, "config.cfg");
+            Save(server, "config.cfg",dir);
         }
     }
 }

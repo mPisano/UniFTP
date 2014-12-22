@@ -19,12 +19,16 @@ namespace SharpServer
         private List<T> _state;
 
         protected List<TcpListener> Listeners;
+        protected List<T> Connections {
+            get { return _state; }
+        }
 
         private bool _disposed = false;
         private bool _disposing = false;
         private bool _listening = false;
         private List<IPEndPoint> _localEndPoints;
         private string _logHeader;
+        private ulong _connectId = 0;
 
         public Server(int port, string logHeader = null)
             : this(IPAddress.Any, port, logHeader)
@@ -42,6 +46,10 @@ namespace SharpServer
             _logHeader = logHeader??"";
         }
 
+        /// <summary>
+        /// 启动服务器
+        /// <exception cref="Exception">端口无法使用</exception>
+        /// </summary>
         public void Start()
         {
             if (_disposed)
@@ -93,6 +101,7 @@ namespace SharpServer
             }
 
             Listeners.Clear();
+            Connections.ForEach(t => t.Dispose());
 
             OnStop();
         }
@@ -126,7 +135,9 @@ namespace SharpServer
                     //对本次的连接结果创建TcpClient处理
                     client = listener.EndAcceptTcpClient(result);
 
-                    var connection = new T { CurrentServer = this };
+                    _connectId+=1;
+
+                    var connection = new T { CurrentServer = this,ID = _connectId };
 
                     connection.Disposed += new EventHandler<EventArgs>(AsyncClientConnection_Disposed);
 

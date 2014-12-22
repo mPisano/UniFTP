@@ -30,6 +30,7 @@ namespace UniFTP.Server
             public string Arguments { get; set; }
         }
 
+        
         #region 枚举
 
         /// <summary>
@@ -76,6 +77,8 @@ namespace UniFTP.Server
             Page,
         }
 
+        public FtpConnectionInfo ConnectionInfo { get; private set; }
+
         #endregion
         VirtualFileSystem _virtualFileSystem;
 
@@ -118,16 +121,32 @@ namespace UniFTP.Server
         {
             _validCommands = new List<string>();
             _renameFrom = null;
+            ConnectionInfo = new FtpConnectionInfo();
+            ConnectionInfo.ID = ID;
+        }
+
+        private void RegisterToServer()
+        {
+            try
+            {
+                ((FtpServer)CurrentServer).ConnectionInfos.Add(this.ConnectionInfo);
+            }
+            catch (Exception)
+            {
+                return;
+                //throw;
+            }
         }
 
         #region 重载
-
-
+        
         protected override void OnConnected()
         {
             _performanceCounter = ((FtpServer)CurrentServer).ServerPerformanceCounter;
 
             _performanceCounter.IncrementCurrentConnections();
+
+            RegisterToServer();
 
             OnLog = ((FtpServer)CurrentServer).SendLog;
 
@@ -138,6 +157,8 @@ namespace UniFTP.Server
             };
 
             OnLog(logEntry);
+
+            ConnectionInfo.IP = ClientIP;
 
             _connected = true;
 
@@ -233,6 +254,13 @@ namespace UniFTP.Server
                     Info = LogInfo.ConnectionTerminated.ToString()
                 };
                 OnLog(logEntry);
+
+                var serverConnInfos = ((FtpServer) CurrentServer).ConnectionInfos;
+                if (serverConnInfos.Contains(ConnectionInfo))
+                {
+                    serverConnInfos.Remove(ConnectionInfo);
+                }
+                serverConnInfos.RemoveAll(t => t.ID == this.ID);
 
                 base.Dispose(disposing);
             }
@@ -433,7 +461,7 @@ namespace UniFTP.Server
                 CSUsername = _username,
                 SCStatus = "226",
             };
-
+            
             using (FileStream fs = new FileStream(pathname, FileMode.Open, FileAccess.Read))
             {
                 fs.Seek(_transPosition, SeekOrigin.Begin);

@@ -26,7 +26,7 @@ namespace UniFTP.Server
 
         protected override Response HandleCommand(Command cmd)
         {
-            Console.WriteLine(cmd.Raw);
+            //Console.WriteLine(cmd.Raw);
 
             Response response = null;
 
@@ -36,6 +36,10 @@ namespace UniFTP.Server
                 CIP = ClientIP,
                 CSArgs = cmd.RawArguments
             };
+
+            ConnectionInfo.LastCommand = cmd.Code;
+            
+
             //请求的命令需要权限
             if (!_validCommands.Contains(cmd.Code))
             {
@@ -288,6 +292,9 @@ namespace UniFTP.Server
                 //{
                 _currentUser = user;
 
+                ConnectionInfo.User = user.UserName;
+                ConnectionInfo.UserGroup = user.GroupName;
+
                 _virtualFileSystem = new VirtualFileSystem(((FtpServer)CurrentServer).Config, user.UserGroup);
                 //TODO:引入新的虚拟文件系统
 
@@ -333,7 +340,7 @@ namespace UniFTP.Server
         private Response ChangeWorkingDirectory(string pathname)
         {
             _virtualFileSystem.ChangeCurrentDirectory(pathname);
-
+            ConnectionInfo.CurrentPosition = _virtualFileSystem.CurrentDirectory.VirtualPath;
             return GetResponse(FtpResponses.OK);
         }
 
@@ -543,6 +550,8 @@ namespace UniFTP.Server
 
             if (f != null)
             {
+                ConnectionInfo.CurrentFile = pathname;
+
                 var state = new DataConnectionOperation { Arguments = f.FullName, Operation = RetrieveOperation };
                 //建立一个异步过程
                 SetupDataConnectionOperation(state);
@@ -583,6 +592,7 @@ namespace UniFTP.Server
 
             if (pre != null)
             {
+                ConnectionInfo.CurrentFile = pathname;
                 var state = new DataConnectionOperation { Arguments = pre, Operation = StoreOperation };
 
                 SetupDataConnectionOperation(state);
@@ -604,6 +614,8 @@ namespace UniFTP.Server
             string pre = _virtualFileSystem.GetRealPathOfFile(pathname, false, new Guid().ToString());
             //string pathname = NormalizeFilename(new Guid().ToString());
 
+            ConnectionInfo.CurrentFile = pathname;
+
             var state = new DataConnectionOperation { Arguments = pathname, Operation = StoreOperation };
 
             SetupDataConnectionOperation(state);
@@ -623,6 +635,8 @@ namespace UniFTP.Server
 
             if (f != null)
             {
+                ConnectionInfo.CurrentFile = pathname;
+
                 var state = new DataConnectionOperation { Arguments = f.FullName, Operation = AppendOperation };
 
                 SetupDataConnectionOperation(state);
@@ -718,6 +732,7 @@ namespace UniFTP.Server
             {
                 return GetResponse(FtpResponses.DIRECTORY_NOT_FOUND);
             }
+            
             _virtualFileSystem.RefreshCurrentDirectory();
             return GetResponse(FtpResponses.FILE_ACTION_COMPLETE);
 

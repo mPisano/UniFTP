@@ -4,15 +4,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{73191499-85CD-4275-9237-0C838078832E}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <ProjectGuid>{8C3556E6-9C55-4EFA-B5F1-1E93C7E5B9C7}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>UniFTP.Server</RootNamespace>
-    <AssemblyName>UniFTP.Server</AssemblyName>
+    <RootNamespace>UniFTPServer</RootNamespace>
+    <AssemblyName>UniFTPServer</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -22,6 +23,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -33,62 +35,70 @@
     <ApplicationIcon>UniFTP-Icon-compat.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="log4net">
-      <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FtpClientConnection.cs" />
-    <Compile Include="FtpCommands.cs" />
-    <Compile Include="FtpConfig.cs" />
-    <Compile Include="FtpListenerPool.cs" />
-    <Compile Include="FtpLogEntry.cs" />
-    <Compile Include="FtpPerformanceCounter.cs" />
-    <Compile Include="FtpStaticPerformanceCounters.cs" />
-    <Compile Include="FtpResponses.cs" />
-    <Compile Include="FtpServer.cs" />
-    <Compile Include="FtpStore.cs" />
-    <Compile Include="FtpUser.cs" />
-    <Compile Include="FtpUserGroup.cs" />
+    <Compile Include="Core.cs" />
+    <Compile Include="FormMain.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormMain.Designer.cs">
+      <DependentUpon>FormMain.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormServer.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormServer.Designer.cs">
+      <DependentUpon>FormServer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SharpServer\ClientConnection.cs" />
-    <Compile Include="SharpServer\ClientConnectionBase.cs" />
-    <Compile Include="SharpServer\Command.cs" />
-    <Compile Include="SharpServer\Helper.cs" />
-    <Compile Include="SharpServer\Response.cs" />
-    <Compile Include="SharpServer\Server.cs" />
-    <Compile Include="Virtual\FilePermission.cs" />
-    <Compile Include="Virtual\IFile.cs" />
-    <Compile Include="Virtual\VDirectory.cs" />
-    <Compile Include="Virtual\VFile.cs" />
-    <Compile Include="Virtual\VirtualFileSystem.cs" />
-    <Compile Include="Virtual\VPath.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\GnuSslStream\GnuSslStream.csproj">
-      <Project>{e8975487-6509-4663-bb61-14326e1ad464}</Project>
-      <Name>GnuSslStream</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\UniFTP\UniFTP.Common.csproj">
-      <Project>{4ab45e2b-1096-454b-a02b-ac89d10d06d4}</Project>
-      <Name>UniFTP.Common</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-    <None Include="packages.config" />
-    <None Include="UniFTP.Server.log4net">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <Compile Include="ServerUnit.cs" />
+    <Compile Include="TabData.cs" />
+    <Compile Include="Util.cs" />
+    <EmbeddedResource Include="FormMain.resx">
+      <DependentUpon>FormMain.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormServer.resx">
+      <DependentUpon>FormServer.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\UniFTP.Server\UniFTP.Server.csproj">
+      <Project>{73191499-85cd-4275-9237-0c838078832e}</Project>
+      <Name>UniFTP.Server</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Pause.png" />
     <Content Include="UniFTP-Icon-compat.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

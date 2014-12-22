@@ -13,8 +13,11 @@ namespace SharpServer
         /// <summary>
         /// 所属服务器
         /// </summary>
-        public object CurrentServer { get; set; } /// MARK:尝试建立Connection与Server的联系
-                                                  
+        public object CurrentServer { get; set; } // MARK:尝试建立Connection与Server的联系
+        /// <summary>
+        /// 编号
+        /// </summary>
+        public ulong ID = 0;
         private bool _disposed = false;
 
         #region Private Fields

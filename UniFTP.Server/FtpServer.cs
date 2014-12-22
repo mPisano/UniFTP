@@ -39,13 +39,40 @@ namespace UniFTP.Server
         public Dictionary<string, FtpUser> Users = new Dictionary<string, FtpUser>(); 
         private DateTime _startTime;
         private Timer _timer;
-        //private bool _enableIPv6 = false;
+        public List<FtpConnectionInfo> ConnectionInfos { get; set; }
+
         internal X509Certificate2 ServerCertificate;
         public FtpPerformanceCounter ServerPerformanceCounter { get; set; }
         
         public event LogEventHandler OnLog;
+        public bool Active { get; set; }
 
         #region Public Methods
+
+        /// <summary>
+        /// 加载日志配置设置
+        /// <para>配置应为一个标准的log4net XML文档</para>
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public bool LoadLogConfigs(string path)
+        {
+            if (File.Exists(path))
+            {
+                try
+                {
+                    log4net.Config.XmlConfigurator.ConfigureAndWatch(new FileInfo(path));
+                    return true;
+                }
+                catch (Exception)
+                {
+                    return false;
+                    //throw;
+                }
+            }
+            return false;
+        }
+
         /// <summary>
         /// 读取配置信息
         /// </summary>
@@ -156,6 +183,10 @@ namespace UniFTP.Server
         /// <returns></returns>
         public bool DeleteUserGroup(string groupname)
         {
+            if (groupname.ToLower() == "anonymous")
+            {
+                return false;
+            }
             List<FtpUser> u =
                 new List<FtpUser>(
                     Users.Values.Where(
@@ -299,6 +330,7 @@ namespace UniFTP.Server
         public FtpServer(IPEndPoint[] localEndPoints,string logHeader = null)
             : base(localEndPoints, logHeader)
         {
+            Active = false;
             if (File.Exists("UniFTP.Server.log4net"))
             {
                 log4net.Config.XmlConfigurator.ConfigureAndWatch(new FileInfo("UniFTP.Server.log4net"));
@@ -310,6 +342,7 @@ namespace UniFTP.Server
                 Users.Add("anonymous", FtpUser.Anonymous);
             }
             OnLog += sender => {};
+            ConnectionInfos = new List<FtpConnectionInfo>();
             //foreach (var endPoint in localEndPoints)
             //{
             //    //_performanceCounter.Initialize(endPoint.Port);
@@ -350,7 +383,7 @@ namespace UniFTP.Server
 
                 OnLog(logEntry);
             }
-
+            Active = true;
         }
 
         protected override void OnStop()
@@ -365,6 +398,7 @@ namespace UniFTP.Server
             };
 
             OnLog(logEntry);
+            Active = false;
         }
 
         protected override void Dispose(bool disposing)
