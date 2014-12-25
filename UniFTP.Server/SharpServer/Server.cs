@@ -151,7 +151,7 @@ namespace SharpServer
                     //对本次的连接结果创建TcpClient处理
                     client = listener.EndAcceptTcpClient(result);
 
-                    _connectId+=1;
+                    _connectId++;
 
                     var connection = new T { CurrentServer = this,ID = _connectId };
 

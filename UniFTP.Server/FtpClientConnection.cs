@@ -122,7 +122,7 @@ namespace UniFTP.Server
             _validCommands = new List<string>();
             _renameFrom = null;
             ConnectionInfo = new FtpConnectionInfo();
-            ConnectionInfo.ID = ID;
+            ConnectionInfo.ID = 0;
         }
 
         private void RegisterToServer()
@@ -145,6 +145,8 @@ namespace UniFTP.Server
             _performanceCounter = ((FtpServer)CurrentServer).ServerPerformanceCounter;
 
             _performanceCounter.IncrementCurrentConnections();
+
+            ConnectionInfo.ID = ID;//FIXED:注意与下一句的先后顺序
 
             RegisterToServer();
 
@@ -361,7 +363,14 @@ namespace UniFTP.Server
             }
             else
             {
-                _dataClient = _passiveListener.EndAcceptTcpClient(result);
+                try
+                {
+                    _dataClient = _passiveListener.EndAcceptTcpClient(result);
+                }
+                catch (Exception)
+                {
+                    //throw;
+                }
             }
         }
 
