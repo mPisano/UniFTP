@@ -76,8 +76,9 @@ namespace SharpServer
                 catch (SocketException ex)
                 {
                     Dispose();
-
-                    throw new Exception("The current local end point is currently in use. Please specify another IP or port to listen on.");
+                    var exp = new Exception("The current local end point is currently in use. Please specify another IP or port to listen on.");
+                    _log.Error(exp);
+                    throw exp;
                 }
                 //开始异步等待连接
                 listener.BeginAcceptTcpClient(HandleAcceptTcpClient, listener);
@@ -94,14 +95,29 @@ namespace SharpServer
         {
             _log.Info("# Stopping Server");
             _listening = false;
-
-            foreach (var listener in Listeners)
+            try
             {
-                listener.Stop();
+                foreach (var listener in Listeners)
+                {
+                    listener.Stop();
+                }
+            }
+            catch (Exception)
+            {
+                //throw;
             }
 
-            Listeners.Clear();
-            Connections.ForEach(t => t.Dispose());
+            try
+            {
+                Listeners.Clear();
+                Connections.ForEach(t => t.Dispose());
+            }
+            catch (Exception)
+            {
+                
+                //throw;
+            }
+
 
             OnStop();
         }

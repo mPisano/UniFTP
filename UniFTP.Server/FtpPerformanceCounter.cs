@@ -11,9 +11,20 @@ namespace UniFTP.Server
     /// </summary>
     public class FtpPerformanceCounter
     {
-        private const string CATEGORY = "UniFTP";
-        public string ServerName { get; private set; }
+        #region Public Counters
 
+        public PerformanceCounter CounterBytesSentPerSec { get { return _bytesSentPerSec; }}
+        public PerformanceCounter CounterBytesReceivedPerSec { get { return _bytesReceivedPerSec; } }
+        public PerformanceCounter CounterCurrentConnections { get { return _currentConnections; } }
+        public PerformanceCounter CounterCurrentAnonymousUsers { get { return _currentAnonymousUsers; } }
+        public PerformanceCounter CounterCurrentNonAnonymousUsers { get { return _currentNonAnonymousUsers; } }
+        
+
+        #endregion
+
+        private const string CATEGORY = "UniFTP";
+        public string InstanceName { get; private set; }
+        
         private  object _anonUsersLock = new object();
         private  object _nonAnonUsersLock = new object();
         private  object _currentConnectionsLock = new object();
@@ -58,7 +69,7 @@ namespace UniFTP.Server
             //    //FIXED:每次都要创建效率很低啊，而且还需要管理员权限
             //    //PerformanceCounterCategory.Delete(CATEGORY);
             //}
-            ServerName = serverName;
+            InstanceName = serverName + Guid.NewGuid().ToString("N");   //FIXED:为了防止计数器冲突，加入GUID确保其唯一
             if (!PerformanceCounterCategory.Exists(CATEGORY))
             {
                 var counters = new CounterCreationDataCollection();
@@ -232,7 +243,7 @@ namespace UniFTP.Server
             }
 
             //string instanceName = string.Concat("Port: ", port);
-            string instanceName = serverName;
+            string instanceName = InstanceName;
 
             _bytesSentPerSec = new PerformanceCounter(CATEGORY, "Bytes Sent/sec", instanceName, false);
             _bytesReceivedPerSec = new PerformanceCounter(CATEGORY, "Bytes Received/sec", instanceName, false);

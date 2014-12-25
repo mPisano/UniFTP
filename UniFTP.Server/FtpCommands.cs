@@ -276,7 +276,11 @@ namespace UniFTP.Server
         private Response Password(string password)
         {
             FtpUser user = FtpUser.Validate((FtpServer)CurrentServer, _username, password);
-            if (user.UserGroup.Auth == AuthType.SSL && _sslEnabled == false)    //只能通过SSL加密登录
+            if (user!=null && user.UserGroup == null)
+            {
+                user.UserGroup = ((FtpServer) CurrentServer).UserGroups["anonymous"];
+            }
+            if (user!=null && user.UserGroup!=null && user.UserGroup.Auth == AuthType.SSL && _sslEnabled == false)    //只能通过SSL加密登录
             {
                 user = null;
             }
@@ -611,7 +615,7 @@ namespace UniFTP.Server
         /// <returns></returns>
         private Response StoreUnique(string pathname)
         {
-            string pre = _virtualFileSystem.GetRealPathOfFile(pathname, false, new Guid().ToString());
+            string pre = _virtualFileSystem.GetRealPathOfFile(pathname, false, Guid.NewGuid().ToString());
             //string pathname = NormalizeFilename(new Guid().ToString());
 
             ConnectionInfo.CurrentFile = pathname;
@@ -782,7 +786,7 @@ namespace UniFTP.Server
         /// <returns></returns>
         private Response List(string pathname)
         {
-            if (pathname.Trim().ToLower() == "-l")  //客户端尝试使用UNIX参数强制详细信息显示,事实上我们提供的本来就是详细信息
+            if (pathname.Trim().ToLower() == "-l" || pathname.Trim().ToLower() == "-a")  //客户端尝试使用UNIX参数强制详细信息显示,事实上我们提供的本来就是详细信息
             {
                 pathname = "";
             }

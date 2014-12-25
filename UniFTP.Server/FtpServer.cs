@@ -6,6 +6,7 @@ using System.Net;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Timers;
+using System.Xml;
 using SharpServer;
 using UniFTP.Server.Virtual;
 
@@ -23,7 +24,8 @@ namespace UniFTP.Server
     public class FtpServer : Server<FtpClientConnection>
     {
         private FtpConfig _config = new FtpConfig();
-        public FtpConfig Config {
+        public FtpConfig Config
+        {
             get { return _config; }
             set { _config = value; }
         }
@@ -36,18 +38,73 @@ namespace UniFTP.Server
         /// 用户
         /// <para>键必须为小写</para>
         /// </summary>
-        public Dictionary<string, FtpUser> Users = new Dictionary<string, FtpUser>(); 
+        public Dictionary<string, FtpUser> Users = new Dictionary<string, FtpUser>();
         private DateTime _startTime;
         private Timer _timer;
         public List<FtpConnectionInfo> ConnectionInfos { get; set; }
 
         internal X509Certificate2 ServerCertificate;
         public FtpPerformanceCounter ServerPerformanceCounter { get; set; }
-        
+
         public event LogEventHandler OnLog;
         public bool Active { get; set; }
 
         #region Public Methods
+
+        /// <summary>
+        /// 强行断开一个Connection
+        /// </summary>
+        /// <param name="id">Connection编号</param>
+        /// <returns></returns>
+        public bool Disconnect(string id)
+        {
+            ulong num;
+            if (!ulong.TryParse(id,out num))
+            {
+                return false;
+            }
+            var cons = Connections.FindAll(t => t.ID == num);
+            if (cons.Count < 1)
+            {
+                return false;
+            }
+            else
+            {
+                try
+                {
+                    cons.ForEach(t => t.Dispose());
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+                
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// 加载日志配置设置
+        /// <para>配置应为一个表示XML的字符串</para>
+        /// </summary>
+        /// <param name="xml">表示XML的字符串，xml根元素为log4net</param>
+        /// <returns></returns>
+        public bool LoadLogConfigs(string xml)
+        {
+            try
+            {
+                XmlDocument x = new XmlDocument();
+                x.LoadXml(xml);
+                log4net.Config.XmlConfigurator.Configure(x["log4net"]);
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+                //throw;
+            }
+            return false;
+        }
 
         /// <summary>
         /// 加载日志配置设置
@@ -55,7 +112,7 @@ namespace UniFTP.Server
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
-        public bool LoadLogConfigs(string path)
+        public bool LoadLogConfigsFromFile(string path)
         {
             if (File.Exists(path))
             {
@@ -102,7 +159,7 @@ namespace UniFTP.Server
         /// <param name="path"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        public bool ImportCertificate(string path,string password)
+        public bool ImportCertificate(string path, string password)
         {
             if (!File.Exists(path))
             {
@@ -110,7 +167,7 @@ namespace UniFTP.Server
             }
             try
             {
-                ServerCertificate = string.IsNullOrEmpty(password)?new X509Certificate2(path) : new X509Certificate2(path,password);
+                ServerCertificate = string.IsNullOrEmpty(password) ? new X509Certificate2(path) : new X509Certificate2(path, password);
                 Config.CertificatePath = path;
                 Config.CertificatePassword = password;
                 return true;
@@ -149,7 +206,7 @@ namespace UniFTP.Server
         /// <param name="vPath">虚拟路径</param>
         /// <param name="permission">权限，9位UNIX权限</param>
         /// <returns></returns>
-        public bool AddGroupRule(string groupname,string vPath, string permission)
+        public bool AddGroupRule(string groupname, string vPath, string permission)
         {
             FilePermission f;
             try
@@ -203,11 +260,11 @@ namespace UniFTP.Server
             return true;
         }
 
-        public void AddUserGroup(string groupname, AuthType auth,string homeDir = null,bool forbidden = false)
+        public void AddUserGroup(string groupname, AuthType auth, string homeDir = null, bool forbidden = false)
         {
             FtpUserGroup g = new FtpUserGroup(groupname, auth, homeDir);
             g.Forbidden = forbidden;
-            
+
             if (UserGroups.ContainsKey(groupname.ToLower()))
             {
                 UserGroups[groupname.ToLower()] = g;
@@ -227,7 +284,7 @@ namespace UniFTP.Server
             }
         }
 
-        public void AddUser(string username, string password, string groupname,int maxconn = 4096)
+        public void AddUser(string username, string password, string groupname, int maxconn = 4096)
         {
             FtpUser u;
 
@@ -275,7 +332,7 @@ namespace UniFTP.Server
 
                     if (!group.Links.ContainsKey(path))
                     {
-                        group.Links.Add(path,vParentPath);
+                        group.Links.Add(path, vParentPath);
                     }
                     else
                     {
@@ -307,8 +364,8 @@ namespace UniFTP.Server
         /// <param name="enableIPv6">启用IPv6</param>
         /// <param name="ipv6Port">IPv6端口</param>   //MARK:Linux中无法将一个Socket绑定到IPv4和IPv6的同一个端口
         /// <param name="logHeader">日志头，也用作性能计数器的实例划分，请传入服务器名</param>
-        public FtpServer(int port = 21, FtpConfig config = null,bool enableIPv6 = false,int ipv6Port = -1, string logHeader = null)
-            : this(IPAddress.Any, port, enableIPv6,ipv6Port, logHeader)
+        public FtpServer(int port = 21, FtpConfig config = null, bool enableIPv6 = false, int ipv6Port = -1, string logHeader = null)
+            : this(IPAddress.Any, port, enableIPv6, ipv6Port, logHeader)
         {
             Config = config;
             if (logHeader == null && config != null)
@@ -317,17 +374,17 @@ namespace UniFTP.Server
             }
         }
 
-        public FtpServer(IPAddress ipAddress, int port,string logHeader = null)
+        public FtpServer(IPAddress ipAddress, int port, string logHeader = null)
             : this(new IPEndPoint[] { new IPEndPoint(ipAddress, port) }, logHeader)
         {
         }
 
-        public FtpServer(IPAddress ipAddress, int port,bool enableIPv6,int ipv6Port = -1, string logHeader = null)
-            : this(new IPEndPoint[] { new IPEndPoint(ipAddress, port),enableIPv6?new IPEndPoint(IPAddress.IPv6Any,(ipv6Port>0?ipv6Port:port)) : null }, logHeader)
+        public FtpServer(IPAddress ipAddress, int port, bool enableIPv6, int ipv6Port = -1, string logHeader = null)
+            : this(new IPEndPoint[] { new IPEndPoint(ipAddress, port), enableIPv6 ? new IPEndPoint(IPAddress.IPv6Any, (ipv6Port > 0 ? ipv6Port : port)) : null }, logHeader)
         {
         }
 
-        public FtpServer(IPEndPoint[] localEndPoints,string logHeader = null)
+        public FtpServer(IPEndPoint[] localEndPoints, string logHeader = null)
             : base(localEndPoints, logHeader)
         {
             Active = false;
@@ -336,18 +393,18 @@ namespace UniFTP.Server
                 log4net.Config.XmlConfigurator.ConfigureAndWatch(new FileInfo("UniFTP.Server.log4net"));
             }
             UserGroups.Clear();
-            UserGroups.Add("anonymous",FtpUserGroup.Anonymous);
+            UserGroups.Add("anonymous", FtpUserGroup.Anonymous);
             if (Config.AllowAnonymous)
             {
                 Users.Add("anonymous", FtpUser.Anonymous);
             }
-            OnLog += sender => {};
+            OnLog += sender => { };
             ConnectionInfos = new List<FtpConnectionInfo>();
             //foreach (var endPoint in localEndPoints)
             //{
             //    //_performanceCounter.Initialize(endPoint.Port);
             //}
-            
+
             if (logHeader == null)
             {
                 logHeader = "UniFTP";

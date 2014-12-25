@@ -8,7 +8,7 @@ namespace UniFTP.Server
     [Serializable]
     public class FtpUser
     {
-        internal static FtpUser Anonymous = new FtpUser("anonymous");
+        public static FtpUser Anonymous = new FtpUser("anonymous");
         public FtpUser(string name, string groupName = null, int conn = 4096, string pass = "", string md5 = "")
         {
             UserName = name;
@@ -36,7 +36,7 @@ namespace UniFTP.Server
         /// <summary>
         /// 用户组名
         /// </summary>
-        public string GroupName { get; internal set; }
+        public string GroupName { get; set; }
 
         /// <summary>
         /// 最大连接数
@@ -102,6 +102,14 @@ namespace UniFTP.Server
                                 break;
                         }
                     }
+                }
+            }
+            else
+            {
+                if (server.Config.AllowAnonymous)
+                {
+                    Anonymous.UserGroup = server.UserGroups["anonymous"];
+                    return Anonymous;
                 }
             }
             return null;

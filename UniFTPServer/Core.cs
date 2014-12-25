@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -11,19 +12,28 @@ namespace UniFTPServer
 {
     static class Core
     {
-        public static List<FtpServer> Servers = new List<FtpServer>();
 
         private static FormMain _mainForm;
 
         public static List<TabData> Tabs = new List<TabData>();
         public static TabData LastTabData;
-
+        public static TabData CurrentTabData;
         public static TabControl TabContainer;
         public static RichTextBox LogTextBox;
         public static SplitContainer MainSpiltContainer;
 
         private static Dictionary<string, FtpUserGroup> _groups;
         private static Dictionary<string, FtpUser> _users;
+        public static readonly string LogDirectory = "Logs";
+        internal static Dictionary<string, FtpUserGroup> UserGroups {
+            get { return _groups; }
+            set { _groups = value; }
+        }
+        internal static Dictionary<string, FtpUser> Users
+        {
+            get { return _users; }
+            set { _users = value; }
+        }
 
         public static void Init(FormMain main)
         {
@@ -31,14 +41,27 @@ namespace UniFTPServer
             TabContainer = _mainForm.tabInstance;
             LogTextBox = _mainForm.txtLog;
             MainSpiltContainer = _mainForm.splitContainerMain;
+            if (!Directory.Exists(LogDirectory))
+            {
+                Directory.CreateDirectory(LogDirectory);
+            }
             if (File.Exists("UserGroups.cfg"))
             {
                 _groups = FtpStore.LoadUserGroups("UserGroups.cfg");
             }
-
+            else
+            {
+                _groups = new Dictionary<string, FtpUserGroup>();
+                _groups.Add("anonymous",FtpUserGroup.Anonymous);
+            }
             if (File.Exists("Users.cfg"))
             {
                 _users = FtpStore.LoadUsers("Users.cfg");
+            }
+            else
+            {
+                _users = new Dictionary<string, FtpUser>();
+                _users.Add("anonymous",FtpUser.Anonymous);
             }
         }
 
@@ -60,6 +83,8 @@ namespace UniFTPServer
                 _mainForm.tabInstance.TabPages.Add(tabPage);
                 _mainForm.tabInstance.SelectedTab = tabPage;
             }));
+            Core.CurrentTabData = tab;
+            _mainForm.Invoke(new MethodInvoker(() => _mainForm.toolStart.Enabled = true));
             //_mainForm
         }
 
@@ -136,5 +161,15 @@ namespace UniFTPServer
             var tab = Tabs.FirstOrDefault(t => t.Active);
             return tab;
         }
+
+        public static void UpdateServerUsers()
+        {
+            foreach (var tab in Tabs)
+            {
+                tab.Server.UserGroups = UserGroups;
+                tab.Server.Users = Users;
+            }
+        }
+
     }
 }

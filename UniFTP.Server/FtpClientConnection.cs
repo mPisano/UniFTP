@@ -110,7 +110,7 @@ namespace UniFTP.Server
         private FtpUser _currentUser;
         private List<string> _validCommands;
 
-        private Encoding _currentEncoding = Encoding.UTF8;
+        private Encoding _currentEncoding = Encoding.UTF8;//FIXED:全部使用UTF8
         private CultureInfo _currentCulture = CultureInfo.InvariantCulture;
 
         private FtpPerformanceCounter _performanceCounter;

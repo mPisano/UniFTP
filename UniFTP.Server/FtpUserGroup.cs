@@ -9,17 +9,17 @@ namespace UniFTP.Server
     [Serializable]
     public enum AuthType
     {
-        None = 0,
-        Password = 1,
-        MD5 = 2,
-        SSL = 4,
-        TwoFactor = 8
+        None = 1,
+        Password = 2,
+        MD5 = 4,
+        SSL = 8,
+        TwoFactor = 16
     }
 
     [Serializable]
     public class FtpUserGroup
     {
-        internal static readonly FtpUserGroup Anonymous = new FtpUserGroup("anonymous",AuthType.None);
+        public static readonly FtpUserGroup Anonymous = new FtpUserGroup("anonymous",AuthType.None);
         public FtpUserGroup(string name, AuthType auth, string dir = null)
         {
             UserGroupName = name;
@@ -37,7 +37,7 @@ namespace UniFTP.Server
         /// <summary>
         /// 主目录
         /// </summary>
-        public string HomeDir { get; internal set; }
+        public string HomeDir { get;  set; }
 
         /// <summary>
         /// 禁用

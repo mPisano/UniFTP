@@ -61,6 +61,27 @@ namespace UniFTPServer.Properties {
         }
         
         /// <summary>
+        ///   查找类似 &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;
+        ///&lt;log4net&gt;
+        ///  &lt;appender name=&quot;BufferingForwardingAppender&quot; type=&quot;log4net.Appender.BufferingForwardingAppender&quot; &gt;
+        ///    &lt;bufferSize value=&quot;2&quot;/&gt;
+        ///    &lt;appender-ref ref=&quot;Console&quot; /&gt;
+        ///    &lt;appender-ref ref=&quot;RollingFileAppender&quot; /&gt;
+        ///    &lt;appender-ref ref=&quot;ErrorFileAppender&quot; /&gt;
+        ///  &lt;/appender&gt;
+        ///
+        ///  &lt;appender name=&quot;Console&quot; type=&quot;log4net.Appender.ConsoleAppender&quot;&gt;
+        ///    &lt;filter type=&quot;log4net.Filter.LevelRangeFilter&quot;&gt;
+        ///      &lt;levelMin value=&quot;FATAL&quot; /&gt;
+        ///      &lt;levelMax value=&quot;FAT [字符串的其余部分被截断]&quot;; 的本地化字符串。
+        /// </summary>
+        internal static string LogConfig {
+            get {
+                return ResourceManager.GetString("LogConfig", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
         internal static System.Drawing.Bitmap Pause {

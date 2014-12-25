@@ -31,7 +31,7 @@ namespace UniFTPServer
 
         public ServerUnit()
         {
-            UID = new Guid().ToString("N");
+            UID = Guid.NewGuid().ToString("N");
             Name = "UniFTP新站点";
             RootDir = "";
             Port = 21;

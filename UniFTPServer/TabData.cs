@@ -119,7 +119,7 @@ namespace UniFTPServer
             ConnectionList.Clear();
             Server.ConnectionInfos.ForEach((c) =>
             {
-                ListViewItem item = new ListViewItem(new []{c.ID.ToString(),c.IP,c.User,c.UserGroup,c.CurrentPosition,c.CurrentFile,c.LastCommand});
+                ListViewItem item = new ListViewItem(new []{c.ID.ToString(),c.User,c.UserGroup,c.IP,c.CurrentPosition,c.CurrentFile,c.LastCommand});
                 ConnectionList.Add(item);
             });
         }

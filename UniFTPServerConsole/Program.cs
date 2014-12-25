@@ -12,7 +12,7 @@ namespace UniFTPServerTestConsole
             //如果有配置文件则可以读取
             f.LoadConfigs();
             //导入SSL证书
-            f.ImportCertificate("UniFTP.Server.pfx", "ULYSSES");
+            f.ImportCertificate("UniFTP.Open.pfx",null);
             //绑定LOG事件，可以记录LOG
             f.OnLog += sender => Console.WriteLine(((FtpLogEntry)sender).ToString());
 

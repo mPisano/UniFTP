@@ -43,12 +43,25 @@ namespace UniFTP.Server.Virtual
         {
             _config = config;
             _group = group;
-            _rootPath = rootpath ?? group.HomeDir?? config.HomeDir;
+            if (!string.IsNullOrEmpty(rootpath))
+            {
+                _rootPath = rootpath;
+            }
+            else if (!string.IsNullOrEmpty(group.HomeDir))
+            {
+                _rootPath = group.HomeDir;
+            }
+            else
+            {
+                _rootPath = config.HomeDir;
+            }
             _rootDirectory = new VDirectory(null, new FilePermission("r-xr-xr-x"), _rootPath, "");
 
-            AddGroupLinks();
+            
 
             _currentDirectory = _rootDirectory;
+            _currentDirectory.Refresh();
+            AddGroupLinks();    //FIXED:应在刷新后加入链接
             _currentDirectory.Refresh();
             SetPermission(_currentDirectory,true);
         }

@@ -24,11 +24,14 @@ namespace SharpServer
         
         private byte[] _buffer = new byte[128];
         private StringBuilder _commandBuffer = new StringBuilder();
-        private Encoding _controlStreamEncoding = Encoding.Default;
+        private Encoding _controlStreamEncoding = Encoding.UTF8;//FIXED:全部使用UTF8
         private string _expectedTerminator = "\r\n";
 
         #endregion
 
+        /// <summary>
+        /// 控制流编码
+        /// </summary>
         protected Encoding ControlStreamEncoding
         {
             get { return _controlStreamEncoding; }

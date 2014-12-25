@@ -11,6 +11,7 @@ using System.Windows.Forms;
 using System.Runtime.Serialization.Formatters.Binary;
 using UniFTP.Server;
 using UniFTP.Server.Virtual;
+using UniFTPServer.Properties;
 
 namespace UniFTPServer
 {
@@ -28,7 +29,7 @@ namespace UniFTPServer
         private Dictionary<string, ServerUnit> _serverUnits = new Dictionary<string, ServerUnit>();
         private bool _modified = false;
         private BinaryFormatter  _configSerializer;
-
+        private static readonly ServerUnit DefaultServerUnit = new ServerUnit(){AllowAnonymous = true,Name = "UniFTP默认站点",Port = 21,V6Port = 2121,RootDir = Application.StartupPath};
 
         private void FormServer_Load(object sender, EventArgs e)
         {
@@ -43,6 +44,10 @@ namespace UniFTPServer
                     _serverUnits;
                 }
                 
+            }
+            if (_serverUnits.Count == 0)
+            {
+                _serverUnits.Add(DefaultServerUnit.UID,DefaultServerUnit);
             }
             foreach (var serverUnit in _serverUnits)
             {
@@ -184,6 +189,7 @@ namespace UniFTPServer
                     var dr = MessageBox.Show("真的要删除此服务器吗？", "警告", MessageBoxButtons.YesNo);
                     if (dr == DialogResult.Yes)
                     {
+                        listServers.Items.Remove(listServers.SelectedItems[0]);
                         _serverUnits.Remove(_selected);
                         _modified = true;
                     }
@@ -219,7 +225,9 @@ namespace UniFTPServer
                 FtpConfig config = new FtpConfig(txtDir.Text, txtName.Text, chkAnonymous.Checked,"UniFTP" ,"UniFTP" ,
                     txtWelcome.Text.ToArrayStrings(), txtLogIn.Text.ToArrayStrings(), txtLogOut.Text.ToArrayStrings());
                 FtpServer f = new FtpServer(int.Parse(txtPort.Text),config,chkV6.Checked,chkV6.Checked?int.Parse(txtV6Port.Text):-1);
-
+                f.LoadLogConfigs(string.Format(Resources.LogConfig,
+                    Path.Combine(Core.LogDirectory, VPath.RemoveInvalidPathChars(txtName.Text)) + ".log",
+                    Path.Combine(Core.LogDirectory, VPath.RemoveInvalidPathChars(txtName.Text)) + ".error.log"));
                 if (!f.ImportCertificate(txtCer.Text,txtCerPwd.Text))
                 {
                     var result = MessageBox.Show("未能加载TLS证书，可能是您输入的密码有误。\n点击“确定”不加载证书（不启用TLS），或点击“取消”重新输入密码", "TLS证书未导入",
@@ -261,6 +269,11 @@ namespace UniFTPServer
             {
                 txtV6Port.Enabled = true;
             }
+        }
+
+        private void btnCancel_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }
     }
 }

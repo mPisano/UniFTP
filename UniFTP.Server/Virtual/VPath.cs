@@ -39,7 +39,7 @@ namespace UniFTP.Server.Virtual
             }
             if (str.Trim() == "")
             {
-                str = new Guid().ToString();    //MARK:非要捣乱全用非法字符，只能给你换成GUID了
+                str = Guid.NewGuid().ToString();    //MARK:非要捣乱全用非法字符，只能给你换成GUID了
             }
             return str;
         }
