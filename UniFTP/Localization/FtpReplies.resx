@@ -187,7 +187,7 @@
     <value>Restarting at {0}. Send STORE or RETRIEVE.</value>
   </data>
   <data name="SERVICE_READY" xml:space="preserve">
-    <value>UniFTP Server Ready. (Ver.0.5)</value>
+    <value>UniFTP Server Ready. (Ver.1.0)</value>
   </data>
   <data name="SYNTAX_ERROR" xml:space="preserve">
     <value>Syntax error, command unrecognized.</value>

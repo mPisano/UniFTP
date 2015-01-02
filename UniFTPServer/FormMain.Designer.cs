@@ -66,6 +66,7 @@
             this.断开连接ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.timerRefresh = new System.Windows.Forms.Timer(this.components);
             this.bgWorkerCounter = new System.ComponentModel.BackgroundWorker();
+            this.toolServer = new System.Windows.Forms.ToolStripButton();
             this.toolStripContainer1.ContentPanel.SuspendLayout();
             this.toolStripContainer1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -101,6 +102,7 @@
             // 
             this.toolStrip1.Dock = System.Windows.Forms.DockStyle.None;
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolServer,
             this.toolStart,
             this.toolsStop,
             this.toolStripSeparator2,
@@ -109,7 +111,7 @@
             this.toolAutoRefresh});
             this.toolStrip1.Location = new System.Drawing.Point(9, 28);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(367, 27);
+            this.toolStrip1.Size = new System.Drawing.Size(500, 27);
             this.toolStrip1.TabIndex = 1;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -395,6 +397,15 @@
             // 
             this.bgWorkerCounter.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgWorkerCounter_DoWork);
             // 
+            // toolServer
+            // 
+            this.toolServer.Image = ((System.Drawing.Image)(resources.GetObject("toolServer.Image")));
+            this.toolServer.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolServer.Name = "toolServer";
+            this.toolServer.Size = new System.Drawing.Size(99, 24);
+            this.toolServer.Text = "站点管理器";
+            this.toolServer.Click += new System.EventHandler(this.toolServer_Click);
+            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 13F);
@@ -467,6 +478,7 @@
         private System.Windows.Forms.ContextMenuStrip menuCon;
         private System.Windows.Forms.ToolStripMenuItem 断开连接ToolStripMenuItem;
         private System.ComponentModel.BackgroundWorker bgWorkerCounter;
+        private System.Windows.Forms.ToolStripButton toolServer;
 
     }
 }

@@ -47,6 +47,10 @@ namespace UniFTPServer
                         bgWorkerCounter.RunWorkerAsync();
                     }
                 }
+                else
+                {
+                    MessageBox.Show("服务器启动失败，可能是端口已经被占用！", "ERROR");
+                }
             }
         }
 
@@ -258,6 +262,12 @@ namespace UniFTPServer
                 }
                 Thread.Sleep(1000);
             }
+        }
+
+        private void toolServer_Click(object sender, EventArgs e)
+        {
+            FormServer fs = new FormServer();
+            fs.ShowDialog();
         }
     }
 }

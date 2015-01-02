@@ -181,7 +181,7 @@
     <value>传输重启位置 {0}. 请发送 STORE 或 RETRIEVE</value>
   </data>
   <data name="SERVICE_READY" xml:space="preserve">
-    <value>UniFTP Server Ready. (Ver.0.5)</value>
+    <value>UniFTP Server Ready. (Ver.1.0)</value>
   </data>
   <data name="SYNTAX_ERROR" xml:space="preserve">
     <value>语法错误，命令未能识别</value>

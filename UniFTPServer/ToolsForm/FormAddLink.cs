@@ -56,7 +56,7 @@ namespace UniFTPServer
             if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
             {
                 txtDir.Text = folderBrowserDialog1.SelectedPath;
-                _fileName = Path.GetDirectoryName(folderBrowserDialog1.SelectedPath);
+                _fileName = Path.GetFileName(folderBrowserDialog1.SelectedPath);
             }
 
         }
@@ -124,7 +124,7 @@ namespace UniFTPServer
                             this.Close();
                             return;
                         }
-                        string vdir = VPath.Combine(txtVirtual.Text, _fileName);
+                        string vdir = VPath.Combine(txtVirtual.Text, _fileName); //BUG:有待考证
                         if (!group.Rules.ContainsKey(vdir))
                         {
                             group.Rules.Add(vdir, f);

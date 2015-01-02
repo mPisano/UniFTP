@@ -135,7 +135,7 @@ namespace UniFTPServer
             {
                 foreach (ToolStripItem item in menuLink.Items)
                 {
-                    item.Enabled = false;
+                    item.Enabled = true;
                 }
             }
         }

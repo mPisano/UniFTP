@@ -520,9 +520,9 @@ namespace UniFTP.Server.Virtual
             d:全部，RMD DELE删除许可
             e:文件夹，CWD PWD CDUP目录切换许可
             f:全部，RNFR重命名许可
-            l:文件夹，列目录许可
+            l:文件夹，LIST NLST MLSD列目录许可
             m:文件夹，MKD建目录许可
-            p:文件夹，文件夹内容删除许可
+            p:文件夹，DELE文件夹内容删除许可
             r:文件，RTER取得许可
             w:文件，STOR存储许可
         */

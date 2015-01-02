@@ -268,7 +268,7 @@ namespace UniFTP.Common.Localization {
         }
         
         /// <summary>
-        ///   查找类似 UniFTP Server Ready. (Ver.0.5) 的本地化字符串。
+        ///   查找类似 UniFTP Server Ready. (Ver.1.0) 的本地化字符串。
         /// </summary>
         public static string SERVICE_READY {
             get {

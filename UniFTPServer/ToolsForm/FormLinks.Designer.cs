@@ -64,7 +64,9 @@
             this.columnHeader1,
             this.columnHeader2});
             this.listLink.ContextMenuStrip = this.menuLink;
+            this.listLink.FullRowSelect = true;
             this.listLink.Location = new System.Drawing.Point(12, 52);
+            this.listLink.MultiSelect = false;
             this.listLink.Name = "listLink";
             this.listLink.Size = new System.Drawing.Size(584, 253);
             this.listLink.TabIndex = 0;
@@ -87,20 +89,20 @@
             this.menuLinkDel,
             this.menuLinkEdit});
             this.menuLink.Name = "menuLink";
-            this.menuLink.Size = new System.Drawing.Size(107, 52);
+            this.menuLink.Size = new System.Drawing.Size(163, 76);
             this.menuLink.Opening += new System.ComponentModel.CancelEventHandler(this.menuLink_Opening);
             // 
             // menuLinkDel
             // 
             this.menuLinkDel.Name = "menuLinkDel";
-            this.menuLinkDel.Size = new System.Drawing.Size(106, 24);
+            this.menuLinkDel.Size = new System.Drawing.Size(162, 24);
             this.menuLinkDel.Text = "删除";
             this.menuLinkDel.Click += new System.EventHandler(this.menuLinkDel_Click);
             // 
             // menuLinkEdit
             // 
             this.menuLinkEdit.Name = "menuLinkEdit";
-            this.menuLinkEdit.Size = new System.Drawing.Size(106, 24);
+            this.menuLinkEdit.Size = new System.Drawing.Size(162, 24);
             this.menuLinkEdit.Text = "修改";
             this.menuLinkEdit.Click += new System.EventHandler(this.menuLinkEdit_Click);
             // 

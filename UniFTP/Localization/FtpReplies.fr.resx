@@ -177,9 +177,6 @@
   <data name="RENAME_FROM" xml:space="preserve">
     <value>Action du fichier requise en attendant de plus amples informations</value>
   </data>
-  <data name="SERVICE_READY" xml:space="preserve">
-    <value>Service de prêt pour un nouvel utilisateur</value>
-  </data>
   <data name="SYNTAX_ERROR" xml:space="preserve">
     <value>Syntax error, command unrecognized.</value>
   </data>
