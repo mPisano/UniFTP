@@ -272,7 +272,7 @@ namespace UniFTPServer
 
         private void menuUser_Opening(object sender, CancelEventArgs e)
         {
-            if (listGroups.SelectedItems.Count < 1)
+            if (listUsers.SelectedItems.Count < 1)
             {
                 foreach (ToolStripItem item in menuUser.Items)
                 {

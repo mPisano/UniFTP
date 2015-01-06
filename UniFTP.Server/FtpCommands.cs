@@ -786,16 +786,17 @@ namespace UniFTP.Server
         /// <returns></returns>
         private Response List(string pathname)
         {
-            if (pathname.Trim().ToLower() == "-l" || pathname.Trim().ToLower() == "-a")  //客户端尝试使用UNIX参数强制详细信息显示,事实上我们提供的本来就是详细信息
-            {
-                pathname = "";
-            }
+            //if (pathname.Trim().ToLower().StartsWith("-a") || pathname.Trim().ToLower().StartsWith("-l"))
+            //{
+            //    pathname = pathname.Trim().Remove(0, 2).Trim();
+            //}
+
             if (_dataEndpoint == null && _dataConnectionType == DataConnectionType.Active)
             {
                 return GetResponse(FtpResponses.BAD_SEQUENCE);
             }
 
-            if (_virtualFileSystem.ExistsDirectory(pathname))
+            if (_virtualFileSystem.ExistsDirectory(pathname) || _virtualFileSystem.ExistsEntity(pathname))
             {
                 var state = new DataConnectionOperation { Arguments = pathname, Operation = ListOperation };
 

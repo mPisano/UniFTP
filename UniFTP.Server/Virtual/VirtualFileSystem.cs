@@ -7,6 +7,7 @@ using System.IO;
 
 //Delete Rename Append需要组可写权限
 //Store CreateDirectory只需要可写权限
+using UniFTP.Server.Virtual;
 
 namespace UniFTP.Server.Virtual
 {
@@ -133,17 +134,22 @@ namespace UniFTP.Server.Virtual
         }
 
         /// <summary>
-        /// 虚拟目录是否存在
+        /// 虚拟实体是否存在
         /// </summary>
         /// <param name="vPath">虚拟路径</param>
         /// <returns></returns>
-        public bool ExistsDirectory(string vPath)
+        public bool ExistsEntity(string vPath)
         {
+            vPath = vPath.Trim();
             if (string.IsNullOrEmpty(vPath))
             {
                 return true;
             }
-            if (vPath.Trim() == "/")
+            if (vPath.StartsWith("-a") || vPath.StartsWith("-l"))
+            {
+                vPath = vPath.Remove(0, 2).Trim();
+            }
+            if (vPath == "/" || vPath == "." || vPath == "")
             {
                 return true;
             }
@@ -151,7 +157,7 @@ namespace UniFTP.Server.Virtual
 
             if (pre.StartsWith("/", StringComparison.OrdinalIgnoreCase))    //绝对虚拟路径
             {
-                if (Get(pre,true) != null)
+                if (Get(pre) != null)
                 {
                     return true;
                 }
@@ -166,6 +172,34 @@ namespace UniFTP.Server.Virtual
             return false;
         }
 
+        public bool ExistsDirectory(string vPath)
+        {
+            if (string.IsNullOrEmpty(vPath) || vPath == ".")
+            {
+                return true;
+            }
+            if (vPath.Trim() == "/")
+            {
+                return true;
+            }
+            string pre = VPath.NormalizeFilename(vPath, true);
+
+            if (pre.StartsWith("/", StringComparison.OrdinalIgnoreCase))    //绝对虚拟路径
+            {
+                if (Get(pre, true) != null)
+                {
+                    return true;
+                }
+            }
+            else    //相对虚拟路径
+            {
+                if (_currentDirectory.SubFiles.Find((t) => t.Name == vPath) != null)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
         /// <summary>
         /// 重命名
         /// </summary>
@@ -401,7 +435,7 @@ namespace UniFTP.Server.Virtual
         /// </summary>
         /// <param name="vPath">虚拟路径</param>
         /// <returns></returns>
-        public IEnumerable<string> ListFileNames(string vPath = null)
+        public List<string> ListFileNames(string vPath = null)
         {
             VDirectory dir;
             if (string.IsNullOrEmpty(vPath))
@@ -625,19 +659,54 @@ namespace UniFTP.Server.Virtual
             {
                 dir = _currentDirectory;
                 SetPermission(dir,true);
+                vPath = "";
             }
             else
             {
-                dir = Get(VPath.NormalizeFilename(vPath), true) as VDirectory ?? _currentDirectory;
+                dir = Get(VPath.NormalizeFilename(vPath), true) as VDirectory;
+            }
+            if (vPath.StartsWith("-a")) //-a
+            {
+                if (vPath.Trim() == "-a" || vPath.Trim() == "-a .")
+                {
+                    return ListFiles();
+                }
+                var vf = Get(VPath.NormalizeFilename(vPath.Remove(0,2))) as IFile;
+                if (vf != null)
+                {
+                    return new List<string>() { vf.Name ?? VPath.GetFileName(vf.RealPath) };
+                }
+            }
+            if (vPath.StartsWith("-l")) //-l
+            {
+                if (vPath.Trim() != "-l" && vPath.Trim() != "-l .")
+                {
+                    var vf = Get(VPath.NormalizeFilename(vPath.Remove(0, 2))) as IFile;
+                    if (vf != null)
+                    {
+                        return GenerateList(new List<IFile>() {vf});
+                    }
+                }
+            }
+            //标准方式
+            if (dir == null)
+            {
+
+                dir = _currentDirectory;
+                SetPermission(dir, true);
             }
 
             dir.Refresh();  //FIXED:目录及时更新
 
+            return GenerateList(dir.SubFiles);
+        }
+
+        private List<string> GenerateList(IEnumerable<IFile> list)
+        {
             List<string> fileList = new List<string>();
 
             DateTime now = DateTime.Now;
-
-            foreach (var f in dir.SubFiles)
+            foreach (var f in list)
             {
                 if (!f.Permission.CanRead)
                 {
@@ -645,23 +714,23 @@ namespace UniFTP.Server.Virtual
                 }
                 //参考格式
                 //drwxrwxrwx   1 user     group           0 Nov 27 00:13 上传
-                DateTime editDate;
-                StringBuilder sb = new StringBuilder();
 
+                StringBuilder sb = new StringBuilder();
+                DateTime editDate;
                 if (f.IsDirectory)
                 {
-                    VDirectory vf = (VDirectory)f;
+                    VDirectory vf = (VDirectory) f;
                     editDate = vf.RealDirectory.LastWriteTime;
 
-                    sb.Append('d').Append(f.Permission.ToString());                         //文件权限10位
-                    sb.Append("   1 ");                                                     //1空格  子文件个数2位 1空格
-                    sb.Append(string.Format("{0,-8}", _config.Owner.PadRight(8))).Append(' ');       //文件所有者8位 1空格
-                    sb.Append(string.Format("{0,-8}", _config.OwnerGroup.PadRight(8))).Append(' ');       //文件所有者8位 1空格
+                    sb.Append('d').Append(f.Permission.ToString()); //文件权限10位
+                    sb.Append("   1 "); //1空格  子文件个数2位 1空格
+                    sb.Append(string.Format("{0,-8}", _config.Owner.PadRight(8))).Append(' '); //文件所有者8位 1空格
+                    sb.Append(string.Format("{0,-8}", _config.OwnerGroup.PadRight(8))).Append(' '); //文件所有者8位 1空格
                     //sb.Append(_config.Owner.Substring(0, 8).PadRight(8)).Append(' ');       //文件所有者8位 1空格
                     //sb.Append(_config.OwnerGroup.Substring(0, 8).PadRight(8)).Append(' ');  //文件所有组8位 1空格
-                    sb.Append("       0 ");                                                 //文件大小>=8位，文件夹通常为0或4096  1空格
+                    sb.Append("       0 "); //文件大小>=8位，文件夹通常为0或4096  1空格
 
-                    sb.Append(editDate < now.Subtract(TimeSpan.FromDays(180))               //文件修改日期5位，1空格，时间5位，1空格
+                    sb.Append(editDate < now.Subtract(TimeSpan.FromDays(180)) //文件修改日期5位，1空格，时间5位，1空格
                         ? editDate.ToString("MMM dd  yyyy", CultureInfo.InvariantCulture)
                         : editDate.ToString("MMM dd HH:mm", CultureInfo.InvariantCulture))
                         .Append(' ');
@@ -669,23 +738,23 @@ namespace UniFTP.Server.Virtual
                 }
                 else
                 {
-                    VFile vf = (VFile)f;
+                    VFile vf = (VFile) f;
                     editDate = vf.RealFile.LastWriteTime;
 
                     //string.Format("{0,-50}", theObj);//格式化成50个字符，原字符左对齐，不足则补空格 
                     //string.Format("{0,50}", theObj);//格式化成50个字符，原字符右对齐，不足则补空格
-                    sb.Append('-').Append(f.Permission.ToString());       //文件权限10位
-                    sb.Append("   1 ");                 //1空格  子文件个数2位 1空格
-                    sb.Append(string.Format("{0,-8}", _config.Owner.PadRight(8))).Append(' ');       //文件所有者8位 1空格
-                    sb.Append(string.Format("{0,-8}", _config.OwnerGroup.PadRight(8))).Append(' ');       //文件所有者8位 1空格
+                    sb.Append('-').Append(f.Permission.ToString()); //文件权限10位
+                    sb.Append("   1 "); //1空格  子文件个数2位 1空格
+                    sb.Append(string.Format("{0,-8}", _config.Owner.PadRight(8))).Append(' '); //文件所有者8位 1空格
+                    sb.Append(string.Format("{0,-8}", _config.OwnerGroup.PadRight(8))).Append(' '); //文件所有者8位 1空格
                     //sb.Append(_config.OwnerGroup.Substring(0, 8).PadRight(8)).Append(' ');  //文件所有组8位 1空格
                     string length = vf.RealFile.Length.ToString(CultureInfo.InvariantCulture);
                     if (length.Length < 8)
                     {
                         length = length.PadLeft(8);
                     }
-                    sb.Append(length).Append(' ');                  //文件大小>=8位  1空格
-                    sb.Append(editDate < now.Subtract(TimeSpan.FromDays(180))   //文件修改日期5位，1空格，时间5位，1空格
+                    sb.Append(length).Append(' '); //文件大小>=8位  1空格
+                    sb.Append(editDate < now.Subtract(TimeSpan.FromDays(180)) //文件修改日期5位，1空格，时间5位，1空格
                         ? editDate.ToString("MMM dd  yyyy", CultureInfo.InvariantCulture)
                         : editDate.ToString("MMM dd HH:mm", CultureInfo.InvariantCulture))
                         .Append(' ');
