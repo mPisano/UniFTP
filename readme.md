@@ -1,18 +1,27 @@
 #UniFTP
 
-»ùÓÚC#µÄ¼òÒ×FTP¿â
+åŸºäºC#çš„ç®€æ˜“FTPåº“
 
-##×é¼ş
+##ç»„ä»¶
 
-* UniFTP.Server »ùÓÚSharpServerµÄFTP Server¿â
-* UniFTP.Client FTP Client¿â
+* UniFTP.Server åŸºäºSharpServerçš„FTP Serveråº“
+* UniFTP.Client FTP Clientåº“
 
-¸ü¶àÄÚÈİÕıÔÚ¿ª·¢ÖĞ...
+æ›´å¤šå†…å®¹æ­£åœ¨å¼€å‘ä¸­...
 
-###×¢Òâ
+###æ³¨æ„
 
-±¾ÏîÄ¿Óë[uniFTP](http://linux.softpedia.com/get/Internet/FTP/uniFTP-28869.shtml)£¨µ±Ç°ÒÑ¾­¸üÃû[CompleteFTP](http://enterprisedt.com/products/completeftp/)£©ÎŞÈÎºÎ¹ØÁª¡£±¾ÏîÄ¿²¢²»Ê¹ÓÃedtFTP×é¼ş¡£
+æœ¬é¡¹ç›®ä¸[uniFTP](http://linux.softpedia.com/get/Internet/FTP/uniFTP-28869.shtml)ï¼ˆå½“å‰å·²ç»æ›´å[CompleteFTP](http://enterprisedt.com/products/completeftp/)ï¼‰æ— ä»»ä½•å…³è”ã€‚æœ¬é¡¹ç›®å¹¶ä¸ä½¿ç”¨edtFTPç»„ä»¶ã€‚
 
 by Ulysses
 
-![ÊğÃû-·ÇÉÌÒµĞÔÊ¹ÓÃ-ÏàÍ¬·½Ê½¹²Ïí 3.0 ÖĞ¹ú´óÂ½](http://i.creativecommons.org/l/by-nc-sa/3.0/88x31.png)
+![ç½²å-éå•†ä¸šæ€§ä½¿ç”¨-ç›¸åŒæ–¹å¼å…±äº« 3.0 ä¸­å›½å¤§é™†](http://i.creativecommons.org/l/by-nc-sa/3.0/88x31.png)
+
+---
+UniFTP is a FTP server lib written in C#. It's based on Sharp FTP Server, but have been rewritted and enhanced.
+Many bugs in SharpServer have been fixed, such as encoding, path parsing, performance counters, FTPS and so on.
+Many new functions are added, such as cross-platform(Mono) support, FTPS support, RESTart support, new usergroup, log and virtual file system(I spend most time on them). 
+I hope this banch would be more stable, safe and powerful.(though still throw an exception sometimes)
+Notice that summarys are written in Chinese, but I think it's quite easy to figure out meaning by method names.
+
+LICENSE: CC-3.0-BY-NC-SA
