@@ -409,7 +409,15 @@ namespace UniFTP.Server
             {
                 logHeader = "UniFTP";
             }
-            ServerPerformanceCounter = new FtpPerformanceCounter(logHeader);
+            try
+            {
+                ServerPerformanceCounter = new FtpPerformanceCounter(logHeader);
+            }
+            catch (Exception)
+            {
+                throw new Exception("创建性能计数器时失败，通常这是由于不正确的系统配置导致的。请尝试以下解决方案：\n以管理员权限运行命令提示符（cmd），输入“lodctr /r”，按回车，稍后片刻直到得到成功提示。");
+                //throw;
+            }
         }
 
 

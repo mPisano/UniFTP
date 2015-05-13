@@ -228,15 +228,19 @@ namespace UniFTPServer
                 f.LoadLogConfigs(string.Format(Resources.LogConfig,
                     Path.Combine(Core.LogDirectory, VPath.RemoveInvalidPathChars(txtName.Text)) + ".log",
                     Path.Combine(Core.LogDirectory, VPath.RemoveInvalidPathChars(txtName.Text)) + ".error.log"));
-                if (!f.ImportCertificate(txtCer.Text,txtCerPwd.Text))
+                if (!string.IsNullOrWhiteSpace(txtCer.Text) && !string.IsNullOrWhiteSpace(txtCerPwd.Text))
                 {
-                    var result = MessageBox.Show("未能加载TLS证书，可能是您输入的密码有误。\n点击“确定”不加载证书（不启用TLS），或点击“取消”重新输入密码", "TLS证书未导入",
-                        MessageBoxButtons.OKCancel);
-                    if (result != DialogResult.OK)
+                    if (!f.ImportCertificate(txtCer.Text, txtCerPwd.Text))
                     {
-                        return;
+                        var result = MessageBox.Show("未能加载TLS证书，可能是您输入的密码有误。\n点击“确定”不加载证书（不启用TLS），或点击“取消”重新输入密码", "TLS证书未导入",
+                            MessageBoxButtons.OKCancel);
+                        if (result != DialogResult.OK)
+                        {
+                            return;
+                        }
                     }
                 }
+              
                 Core.AddServerTab(f);
                 this.Close();
             }

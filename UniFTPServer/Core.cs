@@ -25,7 +25,8 @@ namespace UniFTPServer
         private static Dictionary<string, FtpUserGroup> _groups;
         private static Dictionary<string, FtpUser> _users;
         public static readonly string LogDirectory = "Logs";
-        internal static Dictionary<string, FtpUserGroup> UserGroups {
+        internal static Dictionary<string, FtpUserGroup> UserGroups
+        {
             get { return _groups; }
             set { _groups = value; }
         }
@@ -52,7 +53,7 @@ namespace UniFTPServer
             else
             {
                 _groups = new Dictionary<string, FtpUserGroup>();
-                _groups.Add("anonymous",FtpUserGroup.Anonymous);
+                _groups.Add("anonymous", FtpUserGroup.Anonymous);
             }
             if (File.Exists("Users.cfg"))
             {
@@ -61,7 +62,7 @@ namespace UniFTPServer
             else
             {
                 _users = new Dictionary<string, FtpUser>();
-                _users.Add("anonymous",FtpUser.Anonymous);
+                _users.Add("anonymous", FtpUser.Anonymous);
             }
         }
 
@@ -72,7 +73,7 @@ namespace UniFTPServer
             TabPage tabPage = new TabPage(server.Config.ServerName);
             tabPage.Controls.Clear();
             tabPage.Controls.AddRange(new Control[] { _mainForm.splitContainerMain });
-            var tab = new TabData() {Tab = tabPage,Server = server};
+            var tab = new TabData() { Tab = tabPage, Server = server };
             Tabs.Add(tab);
             _mainForm.tabInstance.Invoke(new MethodInvoker(() =>
             {
@@ -95,7 +96,10 @@ namespace UniFTPServer
             {
                 return;
             }
-            Tabs.Remove(tab);
+            if (Tabs.Count > 1)
+            {
+                Tabs.Remove(tab);
+            }
         }
 
         public static bool IsServerRunning()

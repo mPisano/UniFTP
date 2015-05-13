@@ -75,18 +75,20 @@ namespace UniFTPServer
             if (tabInstance.TabCount>1)
             {
                 tabInstance.TabPages.Remove(tabInstance.SelectedTab);
-                if (Environment.OSVersion.Platform == PlatformID.Unix)
-                {
-                    tabInstance.SelectedTab = tabInstance.TabPages[0];
-                    tabInstance_Selected(null,null);
-                }
+                //if (Environment.OSVersion.Platform == PlatformID.Unix)
+                //{
+                //    tabInstance.SelectedTab = tabInstance.TabPages[0];
+                //    tabInstance_Selected(null,null);
+                //}
             }
             else
             {
                 if (tabInstance.TabCount>0)
                 {
-                    Core.CurrentTabData = null;
-                    tabInstance.TabPages[0].Text = "未启动";
+                    tabInstance.SelectedTab = tabInstance.TabPages[0];
+                    tabInstance_Selected(null, null);
+                    //Core.CurrentTabData = null;
+                    //tabInstance.TabPages[0].Text = "未启动";
                 }
             }
         }
