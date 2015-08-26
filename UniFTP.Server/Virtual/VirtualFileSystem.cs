@@ -499,7 +499,7 @@ namespace UniFTP.Server.Virtual
             if (isDir)
             {
                 var vf = (VDirectory) f;
-                editDate = vf.RealDirectory.LastWriteTime;
+                editDate = vf.RealDirectory.LastWriteTime.ToUniversalTime(); //FIXED:需要使用UTC时间
 
                 sb.Append("type=dir;");     //type类型
                 sb.Append("modify=").Append(editDate.ToString("yyyyMMddHHmmss")).Append(';');   //modify修改时间
