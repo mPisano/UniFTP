@@ -27,6 +27,7 @@ namespace UniFTPServer
             InitializeComponent();
             _groupName = groupName.ToLower();
             _oldRealPath = realpath;
+            _fileName = Path.GetFileName(_oldRealPath); //FIXED:修正直接修改目录权限时的异常
             txtDir.Text = realpath;
             txtVirtual.Text = vpath;
             _modify = true;

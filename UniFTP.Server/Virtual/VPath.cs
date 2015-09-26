@@ -98,6 +98,10 @@ namespace UniFTP.Server.Virtual
             StringBuilder dirBuilder = new StringBuilder();
             foreach (var dir in vdirs)
             {
+                if (string.IsNullOrWhiteSpace(dir))
+                {
+                    continue;
+                }
                 string pre = dir.Replace("\\\\", "/").Replace("\\", "/").Trim();    //确保此段路径分隔符均为/
                 if (!pre.StartsWith("/"))
                 {
@@ -111,6 +115,10 @@ namespace UniFTP.Server.Virtual
                         dirBuilder.Remove(dirBuilder.Length - 1, 1);  //去除尾部的/
                     }
                 }
+            }
+            if (dirBuilder.Length == 0)
+            {
+                dirBuilder.Append("/");
             }
             return dirBuilder.ToString();
         }
