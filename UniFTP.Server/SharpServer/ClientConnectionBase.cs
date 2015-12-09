@@ -84,7 +84,7 @@ namespace SharpServer
             byte[] buffer = new byte[bufferSize];
             int count = 0;
             long total = 0;
-
+            //BUG? May cause WSACancelBlockingCall
             while ((count = input.Read(buffer, 0, buffer.Length)) > 0)
             {
                 output.Write(buffer, 0, count);

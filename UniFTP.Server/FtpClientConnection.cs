@@ -508,7 +508,10 @@ namespace UniFTP.Server
                 CSUsername = _username,
                 SCStatus = "226",
             };
-
+            if (VPath.ContainsInvalidPathChars(pathname))
+            {
+                pathname = VPath.RemoveInvalidPathChars(pathname);
+            }
             using (FileStream fs = new FileStream(pathname, FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read, BUFFER_SIZE, FileOptions.SequentialScan))
             {
                 //if (_lastCommand.Code == "REST")
@@ -629,8 +632,10 @@ namespace UniFTP.Server
             foreach (var dir in dirList)
             {
                 dataWriter.WriteLine(dir);
-                dataWriter.Flush();
+                //dataWriter.Flush();
             }
+            dataWriter.WriteLine();
+            dataWriter.Flush();
 
             _log.Info(logEntry);
             OnLog(logEntry);

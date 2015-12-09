@@ -14,6 +14,8 @@ namespace UniFTP.Server.Virtual
     /// </summary>
     public static class VPath
     {
+        //MARK: Currently if upload a file with invalid characters in path/filename, upload will fail. Rename these files by remove invalid characters may clear the road for upload but may cause other problems.
+        //private static readonly Regex InvalidPathChars = new Regex(string.Join("|", Path.GetInvalidPathChars().Union(Path.GetInvalidFileNameChars()).Select(c => string.Format(CultureInfo.InvariantCulture, "\\u{0:X4}", (int)c))), RegexOptions.Compiled);
         private static readonly Regex InvalidPathChars = new Regex(string.Join("|", Path.GetInvalidPathChars().Select(c => string.Format(CultureInfo.InvariantCulture, "\\u{0:X4}", (int)c))), RegexOptions.Compiled);
 
         /// <summary>

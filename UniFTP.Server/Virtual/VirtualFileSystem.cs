@@ -85,7 +85,17 @@ namespace UniFTP.Server.Virtual
         {
             di = null;
             string pre = VPath.NormalizeFilename(vPath, true);
-            var f = Get(VPath.GetParentPath(vPath), true) as VDirectory;
+            //FIXED: create sub directory correctly
+            VDirectory f;
+            if (pre.StartsWith("/", StringComparison.OrdinalIgnoreCase))    //绝对虚拟路径
+            {
+                f = Get(VPath.GetParentPath(vPath), true) as VDirectory;
+            }
+            else    //相对虚拟路径
+            {
+                f = CurrentDirectory;
+            }
+            //var f = Get(VPath.GetParentPath(vPath), true) as VDirectory;
             if (f == null || !f.Permission.CanWrite)
             {
                 return FileError.NotFound;
@@ -99,7 +109,7 @@ namespace UniFTP.Server.Virtual
             }
             try
             {
-                di = f.RealDirectory.CreateSubdirectory(name);
+                di = f.RealDirectory.CreateSubdirectory(name); //This method can accept "/" as dir separator
                 f.Refresh();
             }
             catch (Exception)
