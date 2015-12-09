@@ -120,6 +120,7 @@ namespace UniFTPServer
             Groups[oldname].UserGroupName = newname;
             Groups[oldname].Auth = auth;
             Groups[oldname].HomeDir = txtDir.Text;
+            //Groups[oldname].AutoMakeDirectory = chkAutoMakeDir.Checked;
             if (newname == oldname)
             {
 
@@ -173,6 +174,7 @@ namespace UniFTPServer
             {
                 rdoForbid.Checked = true;
             }
+            //chkAutoMakeDir.Checked = group.AutoMakeDirectory;
             UpdateUsers(groupName);
         }
 

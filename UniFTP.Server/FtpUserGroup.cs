@@ -27,6 +27,7 @@ namespace UniFTP.Server
             HomeDir = dir;
             Rules = new Dictionary<string, FilePermission>();
             Links = new Dictionary<string, string>();
+            //AutoMakeDirectory = false;
         }
 
         /// <summary>
@@ -63,5 +64,7 @@ namespace UniFTP.Server
         /// 超时
         /// </summary>
         public long TimeOut { get; set; }
+        
+        //public bool AutoMakeDirectory { get; set; }
     }
 }

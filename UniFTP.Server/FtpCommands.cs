@@ -38,7 +38,7 @@ namespace UniFTP.Server
             };
 
             ConnectionInfo.LastCommand = cmd.Code;
-            
+
 
             //请求的命令需要权限
             if (!_validCommands.Contains(cmd.Code))
@@ -242,7 +242,7 @@ namespace UniFTP.Server
             logEntry.CSMethod = cmd.Code;
             logEntry.CSUsername = _username;
             logEntry.SCStatus = response.Code;
-            
+
             _log.Info(logEntry);
             OnLog(logEntry);
 
@@ -276,11 +276,11 @@ namespace UniFTP.Server
         private Response Password(string password)
         {
             FtpUser user = FtpUser.Validate((FtpServer)CurrentServer, _username, password);
-            if (user!=null && user.UserGroup == null)
+            if (user != null && user.UserGroup == null)
             {
-                user.UserGroup = ((FtpServer) CurrentServer).UserGroups["anonymous"];
+                user.UserGroup = ((FtpServer)CurrentServer).UserGroups["anonymous"];
             }
-            if (user!=null && user.UserGroup!=null && user.UserGroup.Auth == AuthType.SSL && _sslEnabled == false)    //只能通过SSL加密登录
+            if (user != null && user.UserGroup != null && user.UserGroup.Auth == AuthType.SSL && _sslEnabled == false)    //只能通过SSL加密登录
             {
                 user = null;
             }
@@ -343,9 +343,10 @@ namespace UniFTP.Server
         /// <returns></returns>
         private Response ChangeWorkingDirectory(string pathname)
         {
-            _virtualFileSystem.ChangeCurrentDirectory(pathname);
+            //var result = _virtualFileSystem.ChangeCurrentDirectory(pathname, _currentUser.UserGroup.AutoMakeDirectory);
+            var result = _virtualFileSystem.ChangeCurrentDirectory(pathname);
             ConnectionInfo.CurrentPosition = _virtualFileSystem.CurrentDirectory.VirtualPath;
-            return GetResponse(FtpResponses.OK);
+            return GetResponse(result ? FtpResponses.OK : FtpResponses.DIRECTORY_NOT_FOUND);
         }
 
         /// <summary>
@@ -592,7 +593,9 @@ namespace UniFTP.Server
         /// <returns></returns>
         private Response Store(string pathname)
         {
-            string pre = _transPosition == 0 ? _virtualFileSystem.GetRealPathOfFile(pathname) : _virtualFileSystem.GetRealPathOfFile(pathname, true);
+            //BUG: Can not overwrite file
+            //string pre = _transPosition == 0 ? _virtualFileSystem.GetRealPathOfFile(pathname) : _virtualFileSystem.GetRealPathOfFile(pathname, true);
+            string pre = _virtualFileSystem.GetRealPathOfFile(pathname, true);
 
             if (pre != null)
             {
@@ -646,7 +649,7 @@ namespace UniFTP.Server
                 SetupDataConnectionOperation(state);
 
                 return
-                    GetResponse(FtpResponses.OPENING_DATA_TRANSFER.SetData(_dataConnectionType,"APPE" + (_protected ? withSsl : "")));
+                    GetResponse(FtpResponses.OPENING_DATA_TRANSFER.SetData(_dataConnectionType, "APPE" + (_protected ? withSsl : "")));
             }
 
             return GetResponse(FtpResponses.FILE_ACTION_NOT_TAKEN);
@@ -726,7 +729,8 @@ namespace UniFTP.Server
         /// <returns></returns>
         private Response CreateDir(string pathname)
         {
-            FileError result = _virtualFileSystem.CreateDirectory(pathname);
+            DirectoryInfo di;
+            FileError result = _virtualFileSystem.CreateDirectory(pathname, out di);
 
             if (result == FileError.AlreadyExist)
             {
@@ -736,9 +740,11 @@ namespace UniFTP.Server
             {
                 return GetResponse(FtpResponses.DIRECTORY_NOT_FOUND);
             }
-            
+
+            var name = di != null ? di.Name : VPath.GetFileName(pathname);
+
             _virtualFileSystem.RefreshCurrentDirectory();
-            return GetResponse(FtpResponses.FILE_ACTION_COMPLETE);
+            return GetResponse(FtpResponses.MAKE_DIRECTORY_SUCCESS.SetData(name));
 
         }
 
@@ -834,17 +840,17 @@ namespace UniFTP.Server
         /// <returns></returns>
         private Response ProtectBufferSize(string bufferSize)
         {
-            if (!int.TryParse(bufferSize,out _protectBufferSize))
+            if (!int.TryParse(bufferSize, out _protectBufferSize))
             {
                 return GetResponse(FtpResponses.PARAMETER_NOT_RECOGNIZED);
             }
-            if (_protectBufferSize!=0)
+            if (_protectBufferSize != 0)
             {
                 return GetResponse(FtpResponses.NOT_IMPLEMENTED_FOR_PARAMETER);
             }
             else
             {
-                return new Response() { Code = "200", Text = string.Format("PBSZ={0}",_protectBufferSize) };
+                return new Response() { Code = "200", Text = string.Format("PBSZ={0}", _protectBufferSize) };
             }
         }
 
@@ -871,7 +877,7 @@ namespace UniFTP.Server
                     return GetResponse(FtpResponses.NOT_IMPLEMENTED_FOR_PARAMETER);
                     break;
             }
-            return new Response() { Code = "200", Text = string.Format("PROT {0} Accepted.",level) };
+            return new Response() { Code = "200", Text = string.Format("PROT {0} Accepted.", level) };
         }
 
         /// <summary>
@@ -925,7 +931,14 @@ namespace UniFTP.Server
 
             if (f != null)
             {
-                return new Response { Code = "213", Text = f.Length.ToString(CultureInfo.InvariantCulture) };
+                try
+                {
+                    return new Response { Code = "213", Text = f.Length.ToString(CultureInfo.InvariantCulture) };
+                }
+                catch (FileNotFoundException)
+                {
+                    return GetResponse(FtpResponses.FILE_NOT_FOUND);
+                }
             }
             else if (_virtualFileSystem.GetDirectory(pathname) != null)
             {
@@ -948,7 +961,7 @@ namespace UniFTP.Server
             }
             Write("250-Listing " + pathname);
             Write(_virtualFileSystem.MachineFileInfo(pathname));
-            return new Response(){Code = "250",Text = "End"};
+            return new Response() { Code = "250", Text = "End" };
         }
 
         /// <summary>

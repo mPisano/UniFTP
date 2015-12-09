@@ -153,6 +153,9 @@
   <data name="LOGGED_IN" xml:space="preserve">
     <value>User logged in</value>
   </data>
+  <data name="MAKE_DIRECTORY_SUCCESS" xml:space="preserve">
+    <value>"{0}" directory created.</value>
+  </data>
   <data name="NEED_VERIFICATION" xml:space="preserve">
     <value>Need more verification</value>
   </data>

@@ -9,7 +9,7 @@ namespace UniFTP.Server
     public class FtpUser
     {
         public static FtpUser Anonymous = new FtpUser("anonymous");
-        public FtpUser(string name, string groupName = null, int conn = 4096, string pass = "", string md5 = "")
+        public FtpUser(string name, string groupName = null, int conn = 2048, string pass = "", string md5 = "")
         {
             UserName = name;
             MaxConnection = conn;
@@ -47,7 +47,7 @@ namespace UniFTP.Server
         //public string TwoFactorSecret { get; set; }
 
         public bool IsAnonymous { get; set; }
-        
+
         public FtpUserGroup UserGroup { get; internal set; }
 
         public static FtpUser Validate(FtpServer server, string username, string password)

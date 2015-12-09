@@ -205,4 +205,16 @@
   <data name="UTF8_ENCODING_ON" xml:space="preserve">
     <value>UTF8 编码开启</value>
   </data>
+  <data name="MAKE_DIRECTORY_SUCCESS" xml:space="preserve">
+    <value>"{0}" 文件夹已创建.</value>
+  </data>
+  <data name="OPENING_SAFE_DATA_TRANSFER" xml:space="preserve">
+    <value>正在为 {1} 开启 {0} 模式传输 (TLS/SSL加密).</value>
+  </data>
+  <data name="TLS_AUTH_FAILED" xml:space="preserve">
+    <value>TLS 认证失败</value>
+  </data>
+  <data name="TLS_DISABLED" xml:space="preserve">
+    <value>AUTH 指令已禁用</value>
+  </data>
 </root>

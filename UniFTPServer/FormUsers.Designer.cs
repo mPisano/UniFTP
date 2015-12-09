@@ -52,6 +52,7 @@
             this.label4 = new System.Windows.Forms.Label();
             this.txtName = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -122,7 +123,7 @@
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(13, 10);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(49, 14);
+            this.label1.Size = new System.Drawing.Size(46, 13);
             this.label1.TabIndex = 1;
             this.label1.Text = "用户组";
             // 
@@ -146,9 +147,9 @@
             this.rdoPwd.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.rdoPwd.AutoSize = true;
             this.rdoPwd.Checked = true;
-            this.rdoPwd.Location = new System.Drawing.Point(141, 40);
+            this.rdoPwd.Location = new System.Drawing.Point(145, 40);
             this.rdoPwd.Name = "rdoPwd";
-            this.rdoPwd.Size = new System.Drawing.Size(81, 18);
+            this.rdoPwd.Size = new System.Drawing.Size(77, 17);
             this.rdoPwd.TabIndex = 33;
             this.rdoPwd.TabStop = true;
             this.rdoPwd.Text = "密码验证";
@@ -158,9 +159,9 @@
             // 
             this.rdoNone.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.rdoNone.AutoSize = true;
-            this.rdoNone.Location = new System.Drawing.Point(308, 40);
+            this.rdoNone.Location = new System.Drawing.Point(311, 40);
             this.rdoNone.Name = "rdoNone";
-            this.rdoNone.Size = new System.Drawing.Size(67, 18);
+            this.rdoNone.Size = new System.Drawing.Size(64, 17);
             this.rdoNone.TabIndex = 32;
             this.rdoNone.Text = "无验证";
             this.rdoNone.UseVisualStyleBackColor = true;
@@ -169,9 +170,9 @@
             // 
             this.rdoTLS.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.rdoTLS.AutoSize = true;
-            this.rdoTLS.Location = new System.Drawing.Point(228, 40);
+            this.rdoTLS.Location = new System.Drawing.Point(230, 40);
             this.rdoTLS.Name = "rdoTLS";
-            this.rdoTLS.Size = new System.Drawing.Size(74, 18);
+            this.rdoTLS.Size = new System.Drawing.Size(72, 17);
             this.rdoTLS.TabIndex = 31;
             this.rdoTLS.Text = "强制TLS";
             this.rdoTLS.UseVisualStyleBackColor = true;
@@ -180,9 +181,9 @@
             // 
             this.rdoForbid.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.rdoForbid.AutoSize = true;
-            this.rdoForbid.Location = new System.Drawing.Point(381, 40);
+            this.rdoForbid.Location = new System.Drawing.Point(383, 40);
             this.rdoForbid.Name = "rdoForbid";
-            this.rdoForbid.Size = new System.Drawing.Size(53, 18);
+            this.rdoForbid.Size = new System.Drawing.Size(51, 17);
             this.rdoForbid.TabIndex = 30;
             this.rdoForbid.Text = "禁用";
             this.rdoForbid.UseVisualStyleBackColor = true;
@@ -225,24 +226,25 @@
             // 
             // menuUser
             // 
+            this.menuUser.ImageScalingSize = new System.Drawing.Size(17, 17);
             this.menuUser.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.删除ToolStripMenuItem,
             this.修改ToolStripMenuItem});
             this.menuUser.Name = "menuUser";
-            this.menuUser.Size = new System.Drawing.Size(107, 52);
+            this.menuUser.Size = new System.Drawing.Size(105, 52);
             this.menuUser.Opening += new System.ComponentModel.CancelEventHandler(this.menuUser_Opening);
             // 
             // 删除ToolStripMenuItem
             // 
             this.删除ToolStripMenuItem.Name = "删除ToolStripMenuItem";
-            this.删除ToolStripMenuItem.Size = new System.Drawing.Size(106, 24);
+            this.删除ToolStripMenuItem.Size = new System.Drawing.Size(104, 24);
             this.删除ToolStripMenuItem.Text = "删除";
             this.删除ToolStripMenuItem.Click += new System.EventHandler(this.删除ToolStripMenuItem_Click);
             // 
             // 修改ToolStripMenuItem
             // 
             this.修改ToolStripMenuItem.Name = "修改ToolStripMenuItem";
-            this.修改ToolStripMenuItem.Size = new System.Drawing.Size(106, 24);
+            this.修改ToolStripMenuItem.Size = new System.Drawing.Size(104, 24);
             this.修改ToolStripMenuItem.Text = "修改";
             this.修改ToolStripMenuItem.Click += new System.EventHandler(this.修改ToolStripMenuItem_Click);
             // 
@@ -272,7 +274,7 @@
             // 
             this.label5.AutoSize = true;
             this.label5.Font = new System.Drawing.Font("宋体", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label5.Location = new System.Drawing.Point(3, 121);
+            this.label5.Location = new System.Drawing.Point(3, 133);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(45, 15);
             this.label5.TabIndex = 10;
@@ -375,5 +377,6 @@
         private System.Windows.Forms.ContextMenuStrip menuUser;
         private System.Windows.Forms.ToolStripMenuItem 删除ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 修改ToolStripMenuItem;
+        private System.Windows.Forms.ToolTip toolTip1;
     }
 }

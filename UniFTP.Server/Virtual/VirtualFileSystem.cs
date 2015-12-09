@@ -58,13 +58,13 @@ namespace UniFTP.Server.Virtual
             }
             _rootDirectory = new VDirectory(null, new FilePermission("r-xr-xr-x"), _rootPath, "");
 
-            
+
 
             _currentDirectory = _rootDirectory;
             _currentDirectory.Refresh();
             AddGroupLinks();    //FIXED:应在刷新后加入链接
             _currentDirectory.Refresh();
-            SetPermission(_currentDirectory,true);
+            SetPermission(_currentDirectory, true);
         }
 
         //public VirtualFileSystem()
@@ -79,10 +79,12 @@ namespace UniFTP.Server.Virtual
         /// 创建目录
         /// </summary>
         /// <param name="vPath">虚拟路径</param>
+        /// <param name="di">如创建成功，返回文件夹信息</param>
         /// <returns>创建是否成功</returns>
-        public FileError CreateDirectory(string vPath)
+        public FileError CreateDirectory(string vPath, out DirectoryInfo di)
         {
-            string pre = VPath.NormalizeFilename(vPath);
+            di = null;
+            string pre = VPath.NormalizeFilename(vPath, true);
             var f = Get(VPath.GetParentPath(vPath), true) as VDirectory;
             if (f == null || !f.Permission.CanWrite)
             {
@@ -90,14 +92,14 @@ namespace UniFTP.Server.Virtual
             }
             string name = VPath.GetFileName(vPath);
             if (f.Enumerate().Contains(name)
-                || Directory.Exists(Path.Combine(f.RealDirectory.FullName, name)) 
+                || Directory.Exists(Path.Combine(f.RealDirectory.FullName, name))
                 || File.Exists(Path.Combine(f.RealDirectory.FullName, name)))
             {
                 return FileError.AlreadyExist; //已有重名文件
             }
             try
             {
-                f.RealDirectory.CreateSubdirectory(name);
+                di = f.RealDirectory.CreateSubdirectory(name);
                 f.Refresh();
             }
             catch (Exception)
@@ -105,6 +107,17 @@ namespace UniFTP.Server.Virtual
                 return FileError.NotFound;
             }
             return FileError.None;
+        }
+
+        /// <summary>
+        /// 创建目录
+        /// </summary>
+        /// <param name="vPath">虚拟路径</param>
+        /// <returns>创建是否成功</returns>
+        internal FileError CreateDirectory(string vPath)
+        {
+            DirectoryInfo di;
+            return CreateDirectory(vPath, out di);
         }
 
         /// <summary>
@@ -260,15 +273,16 @@ namespace UniFTP.Server.Virtual
         /// 切换当前目录
         /// </summary>
         /// <param name="vPath">虚拟路径</param>
+        /// <param name="createDirIfNotExists">目录不存在时，是否创建目录</param> //MARK: WARNING: may cause Security Issue!
         /// <returns></returns>
-        public bool ChangeCurrentDirectory(string vPath)
+        public bool ChangeCurrentDirectory(string vPath, bool createDirIfNotExists = false)
         {
             string pre = VPath.NormalizeFilename(vPath, true);
             if (pre == "..")
             {
                 _currentDirectory = _currentDirectory.ParentDirectory;
             }
-            if (pre == "/")
+            else if (pre == "/") //FIXED:
             {
                 _currentDirectory = _rootDirectory;
             }
@@ -285,12 +299,33 @@ namespace UniFTP.Server.Virtual
                 }
                 if (v == null)
                 {
-                    return false;
+                    if (!createDirIfNotExists)
+                    {
+                        return false;
+                    }
+                    //ADDED:
+                    FileError fileError = CreateDirectory(pre);
+                    if (fileError == FileError.None)
+                    {
+                        var dir = Get(pre, true) as VDirectory;
+                        if (dir != null)
+                        {
+                            v = dir;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
                 _currentDirectory = v;
             }
             _currentDirectory.Refresh();
-            SetPermission(_currentDirectory,true);
+            SetPermission(_currentDirectory, true);
             return true;
         }
 
@@ -324,7 +359,7 @@ namespace UniFTP.Server.Virtual
             {
                 if (f.IsDirectory && delDir)
                 {
-                    var vf = (VDirectory) f;
+                    var vf = (VDirectory)f;
                     if (vf.RealDirectory.GetFileSystemInfos().Length > 0)
                     {
                         return FileError.ContainsSubFiles;
@@ -333,9 +368,9 @@ namespace UniFTP.Server.Virtual
                     vf.ParentDirectory.SubFiles.Remove(vf); //FIXED:删除文件更新相应虚拟目录
                     f = null;
                 }
-                else if(!f.IsDirectory && !delDir)
+                else if (!f.IsDirectory && !delDir)
                 {
-                    var vf = (VFile) f;
+                    var vf = (VFile)f;
                     File.Delete(f.RealPath);
                     vf.ParentDirectory.SubFiles.Remove(vf);
                     f = null;
@@ -407,7 +442,7 @@ namespace UniFTP.Server.Virtual
             if (!pre.StartsWith("/"))
             {
                 dir = _currentDirectory;
-                SetPermission(dir, true,true);
+                SetPermission(dir, true, true);
             }
             else
             {
@@ -441,7 +476,7 @@ namespace UniFTP.Server.Virtual
             if (string.IsNullOrEmpty(vPath))
             {
                 dir = _currentDirectory;
-                SetPermission(dir,true);
+                SetPermission(dir, true);
             }
             else
             {
@@ -482,7 +517,7 @@ namespace UniFTP.Server.Virtual
                     f = Get(vPath) as VFile;
                     isDir = false;
                 }
-                else if(ExistsDirectory(vPath))
+                else if (ExistsDirectory(vPath))
                 {
                     f = Get(vPath, true) as VDirectory;
                     isDir = true;
@@ -498,7 +533,7 @@ namespace UniFTP.Server.Virtual
             }
             if (isDir)
             {
-                var vf = (VDirectory) f;
+                var vf = (VDirectory)f;
                 editDate = vf.RealDirectory.LastWriteTime.ToUniversalTime(); //FIXED:需要使用UTC时间
 
                 sb.Append("type=dir;");     //type类型
@@ -658,7 +693,7 @@ namespace UniFTP.Server.Virtual
             if (string.IsNullOrEmpty(vPath))
             {
                 dir = _currentDirectory;
-                SetPermission(dir,true);
+                SetPermission(dir, true);
                 vPath = "";
             }
             else
@@ -671,7 +706,7 @@ namespace UniFTP.Server.Virtual
                 {
                     return ListFiles();
                 }
-                var vf = Get(VPath.NormalizeFilename(vPath.Remove(0,2))) as IFile;
+                var vf = Get(VPath.NormalizeFilename(vPath.Remove(0, 2))) as IFile;
                 if (vf != null)
                 {
                     return new List<string>() { vf.Name ?? VPath.GetFileName(vf.RealPath) };
@@ -684,7 +719,7 @@ namespace UniFTP.Server.Virtual
                     var vf = Get(VPath.NormalizeFilename(vPath.Remove(0, 2))) as IFile;
                     if (vf != null)
                     {
-                        return GenerateList(new List<IFile>() {vf});
+                        return GenerateList(new List<IFile>() { vf });
                     }
                 }
             }
@@ -719,7 +754,7 @@ namespace UniFTP.Server.Virtual
                 DateTime editDate;
                 if (f.IsDirectory)
                 {
-                    VDirectory vf = (VDirectory) f;
+                    VDirectory vf = (VDirectory)f;
                     editDate = vf.RealDirectory.LastWriteTime;
 
                     sb.Append('d').Append(f.Permission.ToString()); //文件权限10位
@@ -738,7 +773,7 @@ namespace UniFTP.Server.Virtual
                 }
                 else
                 {
-                    VFile vf = (VFile) f;
+                    VFile vf = (VFile)f;
                     editDate = vf.RealFile.LastWriteTime;
 
                     //string.Format("{0,-50}", theObj);//格式化成50个字符，原字符左对齐，不足则补空格 
@@ -771,7 +806,7 @@ namespace UniFTP.Server.Virtual
         /// <param name="vdir">虚拟路径</param>
         /// <param name="modify">需要修改的权限</param>
         /// <returns>文件信息，如不存在则为null</returns>
-        public FileInfo GetFile(string vdir,bool modify = false)
+        public FileInfo GetFile(string vdir, bool modify = false)
         {
             string pre = VPath.NormalizeFilename(vdir);
             VFile file = Get(pre) as VFile;
@@ -804,7 +839,7 @@ namespace UniFTP.Server.Virtual
         public void RefreshCurrentDirectory()
         {
             _currentDirectory.Refresh();
-            SetPermission(_currentDirectory,true);
+            SetPermission(_currentDirectory, true);
         }
 
         #endregion
@@ -850,7 +885,7 @@ namespace UniFTP.Server.Virtual
                             if (onlyFindDir)
                             {
                                 currentPosition = temp.SubFiles.Find((t) => (t.Name == pre) && (t.IsDirectory));
-                                return currentPosition??_rootDirectory;
+                                return currentPosition ?? _rootDirectory;
                             }
                             //Find:如果找到与指定谓词定义的条件匹配的第一个元素，则为该元素；否则为类型 T 的默认值。
                             currentPosition = temp.SubFiles.Find((t) => (t.Name == pre) && (!t.IsDirectory)) ??
@@ -869,11 +904,11 @@ namespace UniFTP.Server.Virtual
                 SetPermission(currentPosition);
                 currentPosition.Refresh();
             }
-            SetPermission(currentPosition,true,true);
+            SetPermission(currentPosition, true, true);
             return !currentPosition.Permission.CanRead ? null : currentPosition;
         }
 
-        private void SetPermission(IFile file , bool setSubFiles = false,bool setParentFiles = false)
+        private void SetPermission(IFile file, bool setSubFiles = false, bool setParentFiles = false)
         {
             if (setParentFiles)
             {
@@ -891,7 +926,8 @@ namespace UniFTP.Server.Virtual
             if (setSubFiles)
             {
                 VDirectory f = file as VDirectory;
-                if (f == null) return;
+                if (f == null)
+                    return;
                 foreach (var s in f.SubFiles)
                 {
                     if (_group.Rules.ContainsKey(s.VirtualPath))

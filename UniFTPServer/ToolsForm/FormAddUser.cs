@@ -15,13 +15,13 @@ namespace UniFTPServer
         private string _groupName = "";
         private string _oldName = "";
         private bool _modify = false;
-        private Dictionary<string, FtpUser> _users; 
+        private Dictionary<string, FtpUser> _users;
         public FormAddUser(string groupName)
         {
             InitializeComponent();
             _groupName = groupName;
         }
-        public FormAddUser(string groupName,string userName)
+        public FormAddUser(string groupName, string userName)
         {
             InitializeComponent();
             _groupName = groupName;
@@ -44,6 +44,8 @@ namespace UniFTPServer
         private void btnAdd_Click(object sender, EventArgs e)
         {
             string username = txtName.Text.Trim().ToLower();
+            //BUG: If change a user's name to another already-exists user's name, setting will be apply to that user.
+            //But since username are exclusive and all users can be managed here, currently this bug is ingnored.
             if (_users.ContainsKey(username))
             {
                 _users[username].GroupName = cboGroup.SelectedItem.ToString();
@@ -54,10 +56,21 @@ namespace UniFTPServer
             }
             else
             {
-                _users.Add(username, new FtpUser(username, cboGroup.SelectedItem.ToString(), pass: txtPwd.Text.Trim()));
+                //FIXED: BUG: Change Username
+                if (!string.IsNullOrEmpty(_oldName) && _users.ContainsKey(_oldName))
+                {
+                    var user = _users[_oldName];
+                    _users.Remove(_oldName);
+                    user.UserName = username;
+                    _users.Add(username, user);
+                }
+                else
+                {
+                    _users.Add(username, new FtpUser(username, cboGroup.SelectedItem.ToString(), pass: txtPwd.Text.Trim()));
+                }
             }
             this.Close();
-            
+
         }
     }
 }

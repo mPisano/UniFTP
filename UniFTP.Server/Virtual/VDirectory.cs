@@ -125,7 +125,7 @@ namespace UniFTP.Server.Virtual
         public void Refresh()
         {
             //_realSub.Clear();
-            if (!RealDirectory.Exists)
+            if (!RealDirectory.Exists || !Directory.Exists(RealDirectory.FullName))
             {
                 return;
             }

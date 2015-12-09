@@ -82,6 +82,10 @@ namespace UniFTP.Server
         /// </summary>
         public static readonly Response FILE_ACTION_COMPLETE = new Response { Code = "250", ResourceManager = FtpReplies.ResourceManager, Text = "FILE_ACTION_COMPLETE" };
         /// <summary>
+        /// 257 新建目录成功
+        /// </summary>
+        public static readonly Response MAKE_DIRECTORY_SUCCESS = new Response { Code = "257", ResourceManager = FtpReplies.ResourceManager, Text = "MAKE_DIRECTORY_SUCCESS" };
+        /// <summary>
         /// 450 文件操作未执行
         /// </summary>
         public static readonly Response FILE_ACTION_NOT_TAKEN = new Response { Code = "450", ResourceManager = FtpReplies.ResourceManager, Text = "FILE_ACTION_NOT_TAKEN" };
