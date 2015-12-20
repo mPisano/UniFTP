@@ -228,7 +228,7 @@ namespace UniFTPServer
                 f.LoadLogConfigs(string.Format(Resources.LogConfig,
                     Path.Combine(Core.LogDirectory, VPath.RemoveInvalidPathChars(txtName.Text)) + ".log",
                     Path.Combine(Core.LogDirectory, VPath.RemoveInvalidPathChars(txtName.Text)) + ".error.log"));
-                if (!string.IsNullOrWhiteSpace(txtCer.Text) && !string.IsNullOrWhiteSpace(txtCerPwd.Text))
+                if (!string.IsNullOrWhiteSpace(txtCer.Text)) //BUG: logic error
                 {
                     if (!f.ImportCertificate(txtCer.Text, txtCerPwd.Text))
                     {
