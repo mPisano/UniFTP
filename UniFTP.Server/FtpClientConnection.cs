@@ -10,6 +10,7 @@ using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using SharpServer;
+using UniFTP.Server.Performance;
 using UniFTP.Server.Virtual;
 
 namespace UniFTP.Server
@@ -113,7 +114,7 @@ namespace UniFTP.Server
         private Encoding _currentEncoding = Encoding.UTF8;//FIXED:全部使用UTF8
         private CultureInfo _currentCulture = CultureInfo.InvariantCulture;
 
-        private FtpPerformanceCounter _performanceCounter;
+        private ICounter _performanceCounter;
         //protected event LogEventHandler OnLog;
         private LogEventHandler OnLog;
         public FtpClientConnection()

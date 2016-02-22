@@ -8,6 +8,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Timers;
 using System.Xml;
 using SharpServer;
+using UniFTP.Server.Performance;
 using UniFTP.Server.Virtual;
 
 namespace UniFTP.Server
@@ -44,7 +45,7 @@ namespace UniFTP.Server
         public List<FtpConnectionInfo> ConnectionInfos { get; set; }
 
         internal X509Certificate2 ServerCertificate;
-        public FtpPerformanceCounter ServerPerformanceCounter { get; set; }
+        public ICounter ServerPerformanceCounter { get; set; }
 
         public event LogEventHandler OnLog;
         public bool Active { get; set; }
@@ -59,7 +60,7 @@ namespace UniFTP.Server
         public bool Disconnect(string id)
         {
             ulong num;
-            if (!ulong.TryParse(id,out num))
+            if (!ulong.TryParse(id, out num))
             {
                 return false;
             }
@@ -78,7 +79,7 @@ namespace UniFTP.Server
                 {
                     return false;
                 }
-                
+
             }
             return true;
         }
@@ -347,12 +348,12 @@ namespace UniFTP.Server
         #endregion
 
         public FtpServer(string logHeader = null)
-            : this(IPAddress.Any, 21, logHeader)
+            : this(IPAddress.Any, 21, false, -1, logHeader)
         {
         }
 
         public FtpServer(int port, string logHeader = null)
-            : this(IPAddress.Any, port, logHeader)
+            : this(IPAddress.Any, port, false, -1, logHeader)
         {
         }
 
@@ -364,28 +365,35 @@ namespace UniFTP.Server
         /// <param name="enableIPv6">启用IPv6</param>
         /// <param name="ipv6Port">IPv6端口</param>   //MARK:Linux中无法将一个Socket绑定到IPv4和IPv6的同一个端口
         /// <param name="logHeader">日志头，也用作性能计数器的实例划分，请传入服务器名</param>
-        public FtpServer(int port = 21, FtpConfig config = null, bool enableIPv6 = false, int ipv6Port = -1, string logHeader = null)
-            : this(IPAddress.Any, port, enableIPv6, ipv6Port, logHeader)
+        public FtpServer(int port, FtpConfig config = null, bool enableIPv6 = false, int ipv6Port = -1, string logHeader = null)
+            //: this(IPAddress.Any, port, enableIPv6, ipv6Port, logHeader)
+            : base(new[] { new IPEndPoint(IPAddress.Any, port) , enableIPv6 ? new IPEndPoint(IPAddress.IPv6Any, (ipv6Port > 0 ? ipv6Port : port)) : null }, logHeader)
         {
             Config = config;
             if (logHeader == null && config != null)
             {
                 logHeader = config.ServerName;
             }
+            InitServer(logHeader);
         }
 
-        public FtpServer(IPAddress ipAddress, int port, string logHeader = null)
-            : this(new IPEndPoint[] { new IPEndPoint(ipAddress, port) }, logHeader)
-        {
-        }
+        //public FtpServer(IPAddress ipAddress, int port, string logHeader = null)
+        //    : this(new IPEndPoint[] { new IPEndPoint(ipAddress, port) }, logHeader)
+        //{
+        //}
 
-        public FtpServer(IPAddress ipAddress, int port, bool enableIPv6, int ipv6Port = -1, string logHeader = null)
+        public FtpServer(IPAddress ipAddress, int port, bool enableIPv6 = false, int ipv6Port = -1, string logHeader = null)
             : this(new IPEndPoint[] { new IPEndPoint(ipAddress, port), enableIPv6 ? new IPEndPoint(IPAddress.IPv6Any, (ipv6Port > 0 ? ipv6Port : port)) : null }, logHeader)
         {
         }
 
-        public FtpServer(IPEndPoint[] localEndPoints, string logHeader = null)
+        public FtpServer(IPEndPoint[] localEndPoints, string logHeader = "UniFTP")
             : base(localEndPoints, logHeader)
+        {
+            InitServer(logHeader);
+        }
+
+        private void InitServer(string logHeader)
         {
             Active = false;
             if (File.Exists("UniFTP.Server.log4net"))
@@ -404,19 +412,25 @@ namespace UniFTP.Server
             //{
             //    //_performanceCounter.Initialize(endPoint.Port);
             //}
-
-            if (logHeader == null)
-            {
-                logHeader = "UniFTP";
-            }
             try
             {
-                ServerPerformanceCounter = new FtpPerformanceCounter(logHeader);
+                switch (Config.CounterType)
+                {
+                    case CounterType.System:
+                        ServerPerformanceCounter = new SystemCounter(logHeader);
+                        break;
+                    case CounterType.BuiltIn:
+                        ServerPerformanceCounter = new SimpleCounter();
+                        break;
+                    default:
+                        ServerPerformanceCounter = new StubCounter();
+                        break;
+                }
             }
             catch (Exception)
             {
-                throw new Exception("创建性能计数器时失败，通常这是由于不正确的系统配置导致的。请尝试以下解决方案：\n以管理员权限运行命令提示符（cmd），输入“lodctr /r”，按回车，稍后片刻直到得到成功提示。");
-                //throw;
+                throw new Exception(
+                    "创建性能计数器时失败，通常这是由于不正确的系统配置导致的。请尝试以下解决方案：\n以管理员权限运行命令提示符（cmd），输入“lodctr /r”，按回车，稍后片刻直到得到成功提示。");
             }
         }
 

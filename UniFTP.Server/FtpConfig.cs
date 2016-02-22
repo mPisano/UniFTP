@@ -6,13 +6,19 @@ using System.Text;
 
 namespace UniFTP.Server
 {
+    public enum CounterType
+    {
+        None,
+        System,
+        BuiltIn,
+    }
     /// <summary>
     /// FTP配置
     /// </summary>
     [Serializable]
     public class FtpConfig
     {
-        public FtpConfig(string homeDir = null, string name = "UniFTP", bool allowAnonymous = true, string owner = "UniFTP",string ownerGroup="UniFTP",string[] welcome = null,string[] loginWelcome = null,string[] logoutWelcome = null)
+        public FtpConfig(string homeDir = null, string name = "UniFTP", bool allowAnonymous = true, string owner = "UniFTP",string ownerGroup="UniFTP",string[] welcome = null,string[] loginWelcome = null,string[] logoutWelcome = null, CounterType counter = CounterType.System)
         {
             HomeDir = homeDir;
             //if (homeDir == null)
@@ -28,6 +34,7 @@ namespace UniFTP.Server
             Welcome = welcome;
             LogInWelcome = loginWelcome;
             LogOutWelcome = logoutWelcome;
+            CounterType = counter;
         }
 
         /// <summary>
@@ -85,5 +92,10 @@ namespace UniFTP.Server
         /// SSL密码
         /// </summary>
         internal string CertificatePassword { get; set; }
+
+        /// <summary>
+        /// 性能计数器
+        /// </summary>
+        internal CounterType CounterType { get; set; }
     }
 }

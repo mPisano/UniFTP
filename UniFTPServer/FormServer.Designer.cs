@@ -34,6 +34,10 @@
             this.btnDel = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.listServers = new System.Windows.Forms.ListView();
+            this.rdoCtrNone = new System.Windows.Forms.RadioButton();
+            this.rdoCtrBuiltIn = new System.Windows.Forms.RadioButton();
+            this.rdoCtrSystem = new System.Windows.Forms.RadioButton();
+            this.btnCancel = new System.Windows.Forms.Button();
             this.chkV6 = new System.Windows.Forms.CheckBox();
             this.txtV6Port = new System.Windows.Forms.TextBox();
             this.label10 = new System.Windows.Forms.Label();
@@ -46,6 +50,7 @@
             this.btnSave = new System.Windows.Forms.Button();
             this.btnInstance = new System.Windows.Forms.Button();
             this.txtLogOut = new System.Windows.Forms.TextBox();
+            this.label11 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.txtLogIn = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
@@ -61,7 +66,6 @@
             this.label2 = new System.Windows.Forms.Label();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-            this.btnCancel = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -83,6 +87,9 @@
             // 
             // splitContainer1.Panel2
             // 
+            this.splitContainer1.Panel2.Controls.Add(this.rdoCtrNone);
+            this.splitContainer1.Panel2.Controls.Add(this.rdoCtrBuiltIn);
+            this.splitContainer1.Panel2.Controls.Add(this.rdoCtrSystem);
             this.splitContainer1.Panel2.Controls.Add(this.btnCancel);
             this.splitContainer1.Panel2.Controls.Add(this.chkV6);
             this.splitContainer1.Panel2.Controls.Add(this.txtV6Port);
@@ -96,6 +103,7 @@
             this.splitContainer1.Panel2.Controls.Add(this.btnSave);
             this.splitContainer1.Panel2.Controls.Add(this.btnInstance);
             this.splitContainer1.Panel2.Controls.Add(this.txtLogOut);
+            this.splitContainer1.Panel2.Controls.Add(this.label11);
             this.splitContainer1.Panel2.Controls.Add(this.label7);
             this.splitContainer1.Panel2.Controls.Add(this.txtLogIn);
             this.splitContainer1.Panel2.Controls.Add(this.label6);
@@ -109,7 +117,7 @@
             this.splitContainer1.Panel2.Controls.Add(this.label3);
             this.splitContainer1.Panel2.Controls.Add(this.txtName);
             this.splitContainer1.Panel2.Controls.Add(this.label2);
-            this.splitContainer1.Size = new System.Drawing.Size(628, 519);
+            this.splitContainer1.Size = new System.Drawing.Size(628, 566);
             this.splitContainer1.SplitterDistance = 195;
             this.splitContainer1.TabIndex = 0;
             // 
@@ -117,7 +125,7 @@
             // 
             this.btnNew.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnNew.Location = new System.Drawing.Point(3, 428);
+            this.btnNew.Location = new System.Drawing.Point(3, 475);
             this.btnNew.Name = "btnNew";
             this.btnNew.Size = new System.Drawing.Size(189, 37);
             this.btnNew.TabIndex = 17;
@@ -129,7 +137,7 @@
             // 
             this.btnDel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnDel.Location = new System.Drawing.Point(3, 470);
+            this.btnDel.Location = new System.Drawing.Point(3, 517);
             this.btnDel.Name = "btnDel";
             this.btnDel.Size = new System.Drawing.Size(189, 37);
             this.btnDel.TabIndex = 2;
@@ -142,7 +150,7 @@
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(13, 10);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(63, 14);
+            this.label1.Size = new System.Drawing.Size(59, 13);
             this.label1.TabIndex = 1;
             this.label1.Text = "站点列表";
             // 
@@ -155,20 +163,63 @@
             this.listServers.Location = new System.Drawing.Point(3, 30);
             this.listServers.MultiSelect = false;
             this.listServers.Name = "listServers";
-            this.listServers.Size = new System.Drawing.Size(189, 389);
+            this.listServers.Size = new System.Drawing.Size(189, 435);
             this.listServers.TabIndex = 0;
             this.listServers.UseCompatibleStateImageBehavior = false;
             this.listServers.View = System.Windows.Forms.View.List;
             this.listServers.SelectedIndexChanged += new System.EventHandler(this.listServers_SelectedIndexChanged);
+            // 
+            // rdoCtrNone
+            // 
+            this.rdoCtrNone.AutoSize = true;
+            this.rdoCtrNone.Location = new System.Drawing.Point(202, 473);
+            this.rdoCtrNone.Name = "rdoCtrNone";
+            this.rdoCtrNone.Size = new System.Drawing.Size(38, 17);
+            this.rdoCtrNone.TabIndex = 28;
+            this.rdoCtrNone.Text = "无";
+            this.rdoCtrNone.UseVisualStyleBackColor = true;
+            // 
+            // rdoCtrBuiltIn
+            // 
+            this.rdoCtrBuiltIn.AutoSize = true;
+            this.rdoCtrBuiltIn.Location = new System.Drawing.Point(145, 473);
+            this.rdoCtrBuiltIn.Name = "rdoCtrBuiltIn";
+            this.rdoCtrBuiltIn.Size = new System.Drawing.Size(51, 17);
+            this.rdoCtrBuiltIn.TabIndex = 28;
+            this.rdoCtrBuiltIn.Text = "内置";
+            this.rdoCtrBuiltIn.UseVisualStyleBackColor = true;
+            // 
+            // rdoCtrSystem
+            // 
+            this.rdoCtrSystem.AutoSize = true;
+            this.rdoCtrSystem.Checked = true;
+            this.rdoCtrSystem.Location = new System.Drawing.Point(88, 473);
+            this.rdoCtrSystem.Name = "rdoCtrSystem";
+            this.rdoCtrSystem.Size = new System.Drawing.Size(51, 17);
+            this.rdoCtrSystem.TabIndex = 28;
+            this.rdoCtrSystem.TabStop = true;
+            this.rdoCtrSystem.Text = "系统";
+            this.rdoCtrSystem.UseVisualStyleBackColor = true;
+            // 
+            // btnCancel
+            // 
+            this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnCancel.Location = new System.Drawing.Point(237, 517);
+            this.btnCancel.Name = "btnCancel";
+            this.btnCancel.Size = new System.Drawing.Size(88, 37);
+            this.btnCancel.TabIndex = 27;
+            this.btnCancel.Text = "取消";
+            this.btnCancel.UseVisualStyleBackColor = true;
+            this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
             // 
             // chkV6
             // 
             this.chkV6.AutoSize = true;
             this.chkV6.Checked = true;
             this.chkV6.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkV6.Location = new System.Drawing.Point(232, 76);
+            this.chkV6.Location = new System.Drawing.Point(232, 77);
             this.chkV6.Name = "chkV6";
-            this.chkV6.Size = new System.Drawing.Size(82, 18);
+            this.chkV6.Size = new System.Drawing.Size(80, 17);
             this.chkV6.TabIndex = 26;
             this.chkV6.Text = "启用IPv6";
             this.toolTip1.SetToolTip(this.chkV6, "勾选后启用IPv6");
@@ -187,10 +238,9 @@
             // label10
             // 
             this.label10.AutoSize = true;
-            this.label10.Font = new System.Drawing.Font("宋体", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label10.Location = new System.Drawing.Point(3, 76);
+            this.label10.Location = new System.Drawing.Point(3, 78);
             this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(77, 15);
+            this.label10.Size = new System.Drawing.Size(68, 13);
             this.label10.TabIndex = 24;
             this.label10.Text = "IPv6端口:";
             // 
@@ -207,16 +257,16 @@
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Font = new System.Drawing.Font("宋体", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label9.Location = new System.Drawing.Point(3, 196);
+            this.label9.Location = new System.Drawing.Point(3, 197);
             this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(75, 15);
+            this.label9.Size = new System.Drawing.Size(66, 13);
             this.label9.TabIndex = 22;
             this.label9.Text = "证书密码:";
             this.toolTip1.SetToolTip(this.label9, "如果您的证书没有密码，可以不输入");
             // 
             // btnCerBrowse
             // 
+            this.btnCerBrowse.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnCerBrowse.Location = new System.Drawing.Point(342, 193);
             this.btnCerBrowse.Name = "btnCerBrowse";
             this.btnCerBrowse.Size = new System.Drawing.Size(75, 23);
@@ -238,10 +288,9 @@
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Font = new System.Drawing.Font("宋体", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label8.Location = new System.Drawing.Point(3, 166);
+            this.label8.Location = new System.Drawing.Point(5, 168);
             this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(69, 15);
+            this.label8.Size = new System.Drawing.Size(61, 13);
             this.label8.TabIndex = 19;
             this.label8.Text = "TLS证书:";
             this.toolTip1.SetToolTip(this.label8, "导入pfx证书文件以启用TLS安全连接");
@@ -250,17 +299,18 @@
             // 
             this.chkTLS.AutoSize = true;
             this.chkTLS.Enabled = false;
-            this.chkTLS.Location = new System.Drawing.Point(232, 43);
+            this.chkTLS.Location = new System.Drawing.Point(323, 44);
             this.chkTLS.Name = "chkTLS";
-            this.chkTLS.Size = new System.Drawing.Size(75, 18);
+            this.chkTLS.Size = new System.Drawing.Size(73, 17);
             this.chkTLS.TabIndex = 18;
             this.chkTLS.Text = "隐式TLS";
             this.chkTLS.UseVisualStyleBackColor = true;
+            this.chkTLS.Visible = false;
             // 
             // btnSave
             // 
             this.btnSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnSave.Location = new System.Drawing.Point(8, 470);
+            this.btnSave.Location = new System.Drawing.Point(8, 517);
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(88, 37);
             this.btnSave.TabIndex = 17;
@@ -271,7 +321,7 @@
             // btnInstance
             // 
             this.btnInstance.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnInstance.Location = new System.Drawing.Point(331, 470);
+            this.btnInstance.Location = new System.Drawing.Point(331, 517);
             this.btnInstance.Name = "btnInstance";
             this.btnInstance.Size = new System.Drawing.Size(88, 37);
             this.btnInstance.TabIndex = 16;
@@ -286,16 +336,25 @@
             this.txtLogOut.Location = new System.Drawing.Point(8, 405);
             this.txtLogOut.Multiline = true;
             this.txtLogOut.Name = "txtLogOut";
+            this.txtLogOut.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.txtLogOut.Size = new System.Drawing.Size(409, 60);
             this.txtLogOut.TabIndex = 15;
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(3, 475);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(79, 13);
+            this.label11.TabIndex = 14;
+            this.label11.Text = "性能计数器:";
             // 
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Font = new System.Drawing.Font("宋体", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.label7.Location = new System.Drawing.Point(3, 387);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(90, 15);
+            this.label7.Size = new System.Drawing.Size(79, 13);
             this.label7.TabIndex = 14;
             this.label7.Text = "退出提示语:";
             this.toolTip1.SetToolTip(this.label7, "将在用户正常断开时显示\r\n（但用户正常断开的几率很小）");
@@ -307,16 +366,16 @@
             this.txtLogIn.Location = new System.Drawing.Point(8, 324);
             this.txtLogIn.Multiline = true;
             this.txtLogIn.Name = "txtLogIn";
+            this.txtLogIn.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.txtLogIn.Size = new System.Drawing.Size(409, 60);
             this.txtLogIn.TabIndex = 13;
             // 
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Font = new System.Drawing.Font("宋体", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.label6.Location = new System.Drawing.Point(3, 306);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(120, 15);
+            this.label6.Size = new System.Drawing.Size(105, 13);
             this.label6.TabIndex = 12;
             this.label6.Text = "用户登录欢迎语:";
             this.toolTip1.SetToolTip(this.label6, "将在用户成功登录时显示\r\nTLS加密模式下不显示");
@@ -328,22 +387,23 @@
             this.txtWelcome.Location = new System.Drawing.Point(8, 243);
             this.txtWelcome.Multiline = true;
             this.txtWelcome.Name = "txtWelcome";
+            this.txtWelcome.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.txtWelcome.Size = new System.Drawing.Size(409, 60);
             this.txtWelcome.TabIndex = 11;
             // 
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Font = new System.Drawing.Font("宋体", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.label5.Location = new System.Drawing.Point(3, 225);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(105, 15);
+            this.label5.Size = new System.Drawing.Size(92, 13);
             this.label5.TabIndex = 10;
             this.label5.Text = "服务器欢迎语:";
             this.toolTip1.SetToolTip(this.label5, "将在连接成功时显示");
             // 
             // btnBrowse
             // 
+            this.btnBrowse.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnBrowse.Location = new System.Drawing.Point(342, 135);
             this.btnBrowse.Name = "btnBrowse";
             this.btnBrowse.Size = new System.Drawing.Size(75, 23);
@@ -365,23 +425,21 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Font = new System.Drawing.Font("宋体", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label4.Location = new System.Drawing.Point(3, 108);
+            this.label4.Location = new System.Drawing.Point(3, 110);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(90, 15);
+            this.label4.Size = new System.Drawing.Size(79, 13);
             this.label4.TabIndex = 7;
             this.label4.Text = "默认主目录:";
             this.toolTip1.SetToolTip(this.label4, "此目录将作为默认可见的根目录");
             // 
             // chkAnonymous
             // 
-            this.chkAnonymous.AutoEllipsis = true;
             this.chkAnonymous.AutoSize = true;
             this.chkAnonymous.Checked = true;
             this.chkAnonymous.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkAnonymous.Location = new System.Drawing.Point(313, 43);
+            this.chkAnonymous.Location = new System.Drawing.Point(232, 44);
             this.chkAnonymous.Name = "chkAnonymous";
-            this.chkAnonymous.Size = new System.Drawing.Size(89, 18);
+            this.chkAnonymous.Size = new System.Drawing.Size(85, 17);
             this.chkAnonymous.TabIndex = 5;
             this.chkAnonymous.Text = "允许匿名 ";
             this.toolTip1.SetToolTip(this.chkAnonymous, "勾选后允许匿名登录");
@@ -398,10 +456,9 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Font = new System.Drawing.Font("宋体", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label3.Location = new System.Drawing.Point(3, 43);
+            this.label3.Location = new System.Drawing.Point(3, 45);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(77, 15);
+            this.label3.Size = new System.Drawing.Size(68, 13);
             this.label3.TabIndex = 2;
             this.label3.Text = "IPv4端口:";
             // 
@@ -418,29 +475,17 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("宋体", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label2.Location = new System.Drawing.Point(3, 13);
+            this.label2.Location = new System.Drawing.Point(3, 15);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(75, 15);
+            this.label2.Size = new System.Drawing.Size(66, 13);
             this.label2.TabIndex = 0;
             this.label2.Text = "服务器名:";
-            // 
-            // btnCancel
-            // 
-            this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnCancel.Location = new System.Drawing.Point(237, 470);
-            this.btnCancel.Name = "btnCancel";
-            this.btnCancel.Size = new System.Drawing.Size(88, 37);
-            this.btnCancel.TabIndex = 27;
-            this.btnCancel.Text = "取消";
-            this.btnCancel.UseVisualStyleBackColor = true;
-            this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
             // 
             // FormServer
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(628, 519);
+            this.ClientSize = new System.Drawing.Size(628, 566);
             this.Controls.Add(this.splitContainer1);
             this.MinimumSize = new System.Drawing.Size(640, 550);
             this.Name = "FormServer";
@@ -494,5 +539,9 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.ToolTip toolTip1;
         private System.Windows.Forms.Button btnCancel;
+        private System.Windows.Forms.RadioButton rdoCtrNone;
+        private System.Windows.Forms.RadioButton rdoCtrBuiltIn;
+        private System.Windows.Forms.RadioButton rdoCtrSystem;
+        private System.Windows.Forms.Label label11;
     }
 }

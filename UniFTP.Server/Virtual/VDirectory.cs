@@ -110,12 +110,7 @@ namespace UniFTP.Server.Virtual
 
         public List<string> Enumerate()
         {
-            List<string> result = new List<string>();
-            foreach (var sub in SubFiles)
-            {
-                result.Add(sub.Name);
-            }
-            return result;
+            return SubFiles.Select(sub => sub.Name).ToList();
         }
 
         /// <summary>

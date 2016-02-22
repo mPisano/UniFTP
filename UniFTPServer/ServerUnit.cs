@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Xml.Serialization;
+using UniFTP.Server;
 
 namespace UniFTPServer
 {
@@ -24,6 +25,9 @@ namespace UniFTPServer
         public string[] Welcome { get; set; }
         public string[] LogInWelcome { get; set; }
         public string[] LogOutWelcome { get; set; }
+        public CounterType CounterType { get; set; }
+        public bool UseTls { get; set; }
+
         //[XmlAttribute]
         //public string UserGroupConfig { get; set; }
         //[XmlAttribute]
@@ -40,6 +44,8 @@ namespace UniFTPServer
             Welcome = null;
             LogInWelcome = null;
             LogOutWelcome = null;
+            UseTls = false;
+            CounterType = CounterType.System;
         }
     }
 }

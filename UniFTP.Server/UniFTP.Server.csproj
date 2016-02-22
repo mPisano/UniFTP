@@ -50,13 +50,16 @@
     <Compile Include="FtpConfig.cs" />
     <Compile Include="FtpListenerPool.cs" />
     <Compile Include="FtpLogEntry.cs" />
-    <Compile Include="FtpPerformanceCounter.cs" />
+    <Compile Include="Performance\StubCounter.cs" />
+    <Compile Include="Performance\SystemCounter.cs" />
     <Compile Include="FtpStaticPerformanceCounters.cs" />
     <Compile Include="FtpResponses.cs" />
     <Compile Include="FtpServer.cs" />
     <Compile Include="FtpStore.cs" />
     <Compile Include="FtpUser.cs" />
     <Compile Include="FtpUserGroup.cs" />
+    <Compile Include="Performance\ICounter.cs" />
+    <Compile Include="Performance\SimpleCounter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SharpServer\ClientConnection.cs" />
     <Compile Include="SharpServer\ClientConnectionBase.cs" />
@@ -94,6 +97,7 @@
   <ItemGroup>
     <Content Include="UniFTP-Icon-compat.ico" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

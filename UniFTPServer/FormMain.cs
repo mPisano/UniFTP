@@ -248,15 +248,36 @@ namespace UniFTPServer
             {
                 try
                 {
-                    lblSpeed.Text = string.Format("上传:{0}/s 下载:{1}/s 当前连接:{2} 用户:{3}/{4}",
+                    if (Core.CurrentTabData.Server.ServerPerformanceCounter.Enabled)
+                    {
+                        this.Invoke(new Action((() =>
+                        {
+                            lblSpeed.Text = string.Format("上传:{0}/s 下载:{1}/s 当前连接:{2} 用户:{3}/{4}",
                         Util.ByteConvert(
-                        Core.CurrentTabData.Server.ServerPerformanceCounter.CounterBytesReceivedPerSec.NextValue()),
+                        Core.CurrentTabData.Server.ServerPerformanceCounter.BytesReceivedPerSec),
                         Util.ByteConvert(
-                            Core.CurrentTabData.Server.ServerPerformanceCounter.CounterBytesSentPerSec.NextValue()),
-                        Core.CurrentTabData.Server.ServerPerformanceCounter.CounterCurrentConnections.RawValue,
-                        Core.CurrentTabData.Server.ServerPerformanceCounter.CounterCurrentAnonymousUsers.RawValue,
-                        Core.CurrentTabData.Server.ServerPerformanceCounter.CounterCurrentNonAnonymousUsers.RawValue);
-                    
+                            Core.CurrentTabData.Server.ServerPerformanceCounter.BytesSentPerSec),
+                        Core.CurrentTabData.Server.ServerPerformanceCounter.CurrentConnections,
+                        Core.CurrentTabData.Server.ServerPerformanceCounter.CurrentAnonymousUsers,
+                        Core.CurrentTabData.Server.ServerPerformanceCounter.CurrentNonAnonymousUsers);
+                        })));
+                    }
+                    else
+                    {
+                        this.Invoke(new Action((() =>
+                        {
+                            lblSpeed.Text = "Not Available";
+                        })));
+                    }
+                    //lblSpeed.Text = string.Format("上传:{0}/s 下载:{1}/s 当前连接:{2} 用户:{3}/{4}",
+                    //    Util.ByteConvert(
+                    //    Core.CurrentTabData.Server.ServerPerformanceCounter.CounterBytesReceivedPerSec.NextValue()),
+                    //    Util.ByteConvert(
+                    //        Core.CurrentTabData.Server.ServerPerformanceCounter.CounterBytesSentPerSec.NextValue()),
+                    //    Core.CurrentTabData.Server.ServerPerformanceCounter.CounterCurrentConnections.RawValue,
+                    //    Core.CurrentTabData.Server.ServerPerformanceCounter.CounterCurrentAnonymousUsers.RawValue,
+                    //    Core.CurrentTabData.Server.ServerPerformanceCounter.CounterCurrentNonAnonymousUsers.RawValue);
+
                 }
                 catch (Exception)
                 {
