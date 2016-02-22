@@ -202,7 +202,7 @@ namespace SharpServer
 
             Stream stream = (Stream)result.AsyncState;
 
-            if (_disposed || !stream.CanWrite)
+            if (_disposed || stream == null || !stream.CanWrite)
             {
                 Dispose();
                 return;
@@ -229,7 +229,7 @@ namespace SharpServer
 
             Stream stream = result.AsyncState as Stream;
 
-            if (_disposed || !stream.CanRead)
+            if (_disposed || stream == null || !stream.CanRead)
             {
                 Dispose();
                 return;

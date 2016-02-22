@@ -84,7 +84,7 @@ namespace UniFTPServer
             }
 
             string oldname = listGroups.SelectedItems[0].Text;
-            string newname = txtName.Text.Trim();
+            string newname = txtName.Text.ToLower().Trim();
             if (!Groups.ContainsKey(oldname.ToLower()))
             {
                 return;

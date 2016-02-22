@@ -49,7 +49,7 @@ namespace UniFTPServer
                 }
                 else
                 {
-                    MessageBox.Show("服务器启动失败，可能是端口已经被占用！", "ERROR");
+                    MessageBox.Show("服务器启动失败，可能是端口已经被占用或权限不足！", "ERROR");
                 }
             }
         }

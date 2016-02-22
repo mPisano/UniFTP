@@ -11,7 +11,7 @@ namespace UniFTP.Server.Performance
     class SimpleCounter : ICounter
     {
         private Timer _timer = new Timer(1000);
-        private object _speedLock;
+        private readonly object _speedLock = new object();
         //private List<int> _speedCounter = new List<int>(3);
         //private Stopwatch _timer = new Stopwatch();
         //private string _logHeader;
