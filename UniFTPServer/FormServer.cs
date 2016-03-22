@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Runtime.Serialization.Formatters;
 using System.Text;
 using System.Windows.Forms;
@@ -12,6 +13,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using UniFTP.Server;
 using UniFTP.Server.Virtual;
 using UniFTPServer.Properties;
+using UniFTPServer.ToolsForm;
 
 namespace UniFTPServer
 {
@@ -24,17 +26,20 @@ namespace UniFTPServer
 
         }
 
+        private string[] _welcome;
+        private string[] _logIn;
+        private string[] _logOut;
         private readonly string _path = "Servers";
         private string _selected = "";
         private Dictionary<string, ServerUnit> _serverUnits = new Dictionary<string, ServerUnit>();
         private bool _modified = false;
-        private BinaryFormatter  _configSerializer;
-        private static readonly ServerUnit DefaultServerUnit = new ServerUnit(){AllowAnonymous = true,Name = "UniFTP默认站点",Port = 21,V6Port = 2121,RootDir = Application.StartupPath};
+        private BinaryFormatter _configSerializer;
+        private static readonly ServerUnit DefaultServerUnit = new ServerUnit() { AllowAnonymous = true, Name = "UniFTP默认站点", Port = 21, V6Port = 2121, RootDir = Application.StartupPath };
 
         private void FormServer_Load(object sender, EventArgs e)
         {
             listServers.Items.Clear();
-            
+
             if (File.Exists("Servers.cfg"))
             {
                 using (FileStream fs = File.Open("Servers.cfg", FileMode.Open))
@@ -43,20 +48,30 @@ namespace UniFTPServer
                     _configSerializer.Deserialize(fs) as Dictionary<string, ServerUnit> ??
                     _serverUnits;
                 }
-                
+
             }
             if (_serverUnits.Count == 0)
             {
-                _serverUnits.Add(DefaultServerUnit.UID,DefaultServerUnit);
+                _serverUnits.Add(DefaultServerUnit.UID, DefaultServerUnit);
             }
             foreach (var serverUnit in _serverUnits)
             {
-                listServers.Items.Add(new ListViewItem(new []{serverUnit.Value.Name,serverUnit.Key}));
+                listServers.Items.Add(new ListViewItem(new[] { serverUnit.Value.Name, serverUnit.Key }));
             }
             if (listServers.Items.Count > 0)
             {
                 listServers.Items[0].Selected = true;
             }
+            cboAddress.Items.Clear();
+            cboAddress.Items.Add("Any");
+            try
+            {
+                cboAddress.Items.AddRange(Dns.GetHostAddresses(Dns.GetHostName()));
+            }
+            catch (Exception)
+            {
+            }
+            cboAddress.SelectedItem = "Any";
         }
 
         private CounterType GetCounterType()
@@ -109,9 +124,9 @@ namespace UniFTPServer
                 s.CertificatePath = txtCer.Text;
                 s.AllowAnonymous = chkAnonymous.Checked;
                 s.RootDir = txtDir.Text;
-                s.Welcome = txtWelcome.Text.ToArrayStrings();
-                s.LogInWelcome = txtLogIn.Text.ToArrayStrings();
-                s.LogOutWelcome = txtLogOut.Text.ToArrayStrings();
+                s.Welcome = _welcome;
+                s.LogInWelcome = _logIn;
+                s.LogOutWelcome = _logOut;
                 s.CounterType = GetCounterType();
                 s.UseTls = chkTLS.Checked;
 
@@ -159,9 +174,9 @@ namespace UniFTPServer
             chkV6.Checked = unit.V6Port > 0;
             txtV6Port.Text = unit.V6Port.ToString();
             txtCer.Text = unit.CertificatePath;
-            txtWelcome.Text = unit.Welcome.ToSingleString();
-            txtLogIn.Text = unit.LogInWelcome.ToSingleString();
-            txtLogOut.Text = unit.LogOutWelcome.ToSingleString();
+            _welcome = unit.Welcome;
+            _logIn = unit.LogInWelcome;
+            _logOut = unit.LogOutWelcome;
             chkAnonymous.Checked = unit.AllowAnonymous;
             chkTLS.Checked = unit.UseTls;
             SetCounterType(unit.CounterType);
@@ -212,8 +227,11 @@ namespace UniFTPServer
         {
             _modified = true;
             ServerUnit s = new ServerUnit();
+            s.CounterType = (Environment.OSVersion.Platform == PlatformID.Unix
+                ? CounterType.BuiltIn
+                : CounterType.System);
             _serverUnits.Add(s.UID, s);
-            listServers.Items.Add(new ListViewItem(new[] {s.Name, s.UID}));
+            listServers.Items.Add(new ListViewItem(new[] { s.Name, s.UID }));
         }
 
         private void btnDel_Click(object sender, EventArgs e)
@@ -257,8 +275,17 @@ namespace UniFTPServer
             }
             try
             {
-                FtpConfig config = new FtpConfig(txtDir.Text, txtName.Text, chkAnonymous.Checked, "UniFTP", "UniFTP", txtWelcome.Text.ToArrayStrings(), txtLogIn.Text.ToArrayStrings(), txtLogOut.Text.ToArrayStrings(),GetCounterType());
-                FtpServer f = new FtpServer(int.Parse(txtPort.Text), config, chkV6.Checked, chkV6.Checked ? int.Parse(txtV6Port.Text) : -1);
+                FtpConfig config = new FtpConfig(txtDir.Text, txtName.Text, chkAnonymous.Checked, "UniFTP", "UniFTP", _welcome, _logIn, _logOut, GetCounterType());
+                FtpServer f;
+                if (cboAddress.SelectedItem.ToString() != "Any")
+                {
+                    f = new FtpServer(IPAddress.Parse(cboAddress.SelectedItem.ToString()), int.Parse(txtPort.Text), chkV6.Checked, chkV6.Checked ? int.Parse(txtV6Port.Text) : -1);
+                    f.Config = config;
+                }
+                else
+                {
+                    f = new FtpServer(int.Parse(txtPort.Text), config, chkV6.Checked, chkV6.Checked ? int.Parse(txtV6Port.Text) : -1);
+                }
                 f.LoadLogConfigs(string.Format(Resources.LogConfig, Path.Combine(Core.LogDirectory, VPath.RemoveInvalidPathChars(txtName.Text)) + ".log", Path.Combine(Core.LogDirectory, VPath.RemoveInvalidPathChars(txtName.Text)) + ".error.log"));
                 if (!string.IsNullOrWhiteSpace(txtCer.Text)) //BUG: logic error
                 {
@@ -278,7 +305,7 @@ namespace UniFTPServer
             catch (Exception ex)
             {
                 MessageBox.Show("创建服务器时发生错误。\n" + ex.ToString(), "ERROR");
-                throw;
+                //throw;
             }
         }
 
@@ -308,6 +335,28 @@ namespace UniFTPServer
         private void btnCancel_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void btnWelcome_Click(object sender, EventArgs e)
+        {
+            FormWelcome welcome;
+            if (_serverUnits.ContainsKey(_selected))
+            {
+                welcome = new FormWelcome(_serverUnits[_selected]);
+            }
+            else
+            {
+                welcome = new FormWelcome(_welcome,_logIn,_logOut);
+            }
+            var dr = welcome.ShowDialog();
+            if (dr == DialogResult.OK)
+            {
+                _logIn = welcome.LogIn;
+                _logOut = welcome.LogOut;
+                _welcome = welcome.Welcome;
+                _modified = true;
+            }
+
         }
     }
 }
