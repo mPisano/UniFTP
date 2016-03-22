@@ -401,6 +401,10 @@ namespace UniFTP.Server
 
         private void InitServer(string logHeader)
         {
+            if (_config == null)
+            {
+                _config = new FtpConfig();
+            }
             if (File.Exists("UniFTP.Server.log4net"))
             {
                 log4net.Config.XmlConfigurator.ConfigureAndWatch(new FileInfo("UniFTP.Server.log4net"));

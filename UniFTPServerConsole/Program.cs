@@ -7,7 +7,7 @@ namespace UniFTPServerTestConsole
     {
         static void Main(string[] args)
         {
-            FtpServer f = new FtpServer(port:21,enableIPv6:true,logHeader:"UniFTP");
+            FtpServer f = new FtpServer(port:21,enableIPv6:true, ipv6Port:2121, logHeader:"UniFTP");
             f.Config = new FtpConfig( "D:\\Temp",welcome:new string[]{"By Ulysses"});
             //如果有配置文件则可以读取
             f.LoadConfigs();
@@ -22,8 +22,8 @@ namespace UniFTPServerTestConsole
             //f.AddGroupRule("test", "/", "rwxrwxrwx");
             //f.AddUser("root", "test", "test");
             //添加链接
-            f.AddLink("test", "M:\\Clannad", "/");
-            f.AddGroupRule("test", "/Clannad", "r-xr-xr-x");
+            f.AddLink("test", "M:\\ACGMusic", "/");
+            f.AddGroupRule("test", "/Music", "r-xr-xr-x");
 
             f.Start();
             Console.WriteLine("UniFTP Server Started!");
