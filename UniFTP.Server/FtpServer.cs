@@ -28,7 +28,11 @@ namespace UniFTP.Server
         public FtpConfig Config
         {
             get { return _config; }
-            set { _config = value; }
+            set
+            {
+                _config = value;
+                InitServer(_config != null ? _config.ServerName : "UniFTP");
+            }
         }
         /// <summary>
         /// 用户组
@@ -367,13 +371,14 @@ namespace UniFTP.Server
         /// <param name="logHeader">日志头，也用作性能计数器的实例划分，请传入服务器名</param>
         public FtpServer(int port, FtpConfig config = null, bool enableIPv6 = false, int ipv6Port = -1, string logHeader = null)
             //: this(IPAddress.Any, port, enableIPv6, ipv6Port, logHeader)
-            : base(new[] { new IPEndPoint(IPAddress.Any, port) , enableIPv6 ? new IPEndPoint(IPAddress.IPv6Any, (ipv6Port > 0 ? ipv6Port : port)) : null }, logHeader)
+            : base(new[] { new IPEndPoint(IPAddress.Any, port), enableIPv6 ? new IPEndPoint(IPAddress.IPv6Any, (ipv6Port > 0 ? ipv6Port : port)) : null }, logHeader)
         {
             Config = config;
             if (logHeader == null && config != null)
             {
                 logHeader = config.ServerName;
             }
+            Active = false;
             InitServer(logHeader);
         }
 
@@ -390,28 +395,37 @@ namespace UniFTP.Server
         public FtpServer(IPEndPoint[] localEndPoints, string logHeader = "UniFTP")
             : base(localEndPoints, logHeader)
         {
+            Active = false;
             InitServer(logHeader);
         }
 
         private void InitServer(string logHeader)
         {
-            Active = false;
             if (File.Exists("UniFTP.Server.log4net"))
             {
                 log4net.Config.XmlConfigurator.ConfigureAndWatch(new FileInfo("UniFTP.Server.log4net"));
             }
             UserGroups.Clear();
             UserGroups.Add("anonymous", FtpUserGroup.Anonymous);
+            Users.Clear();
             if (Config.AllowAnonymous)
             {
                 Users.Add("anonymous", FtpUser.Anonymous);
             }
-            OnLog += sender => { };
+            if (OnLog == null)
+            {
+                OnLog += sender => { };
+            }
             ConnectionInfos = new List<FtpConnectionInfo>();
             //foreach (var endPoint in localEndPoints)
             //{
             //    //_performanceCounter.Initialize(endPoint.Port);
             //}
+            SetCounter(logHeader);
+        }
+
+        private void SetCounter(string logHeader = "UniFTP")
+        {
             try
             {
                 switch (Config.CounterType)

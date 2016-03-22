@@ -18,7 +18,7 @@ namespace UniFTP.Server
     [Serializable]
     public class FtpConfig
     {
-        public FtpConfig(string homeDir = null, string name = "UniFTP", bool allowAnonymous = true, string owner = "UniFTP",string ownerGroup="UniFTP",string[] welcome = null,string[] loginWelcome = null,string[] logoutWelcome = null, CounterType counter = CounterType.System)
+        public FtpConfig(string homeDir = null, string name = "UniFTP", bool allowAnonymous = true, string owner = "UniFTP",string ownerGroup="UniFTP",string[] welcome = null,string[] loginWelcome = null,string[] logoutWelcome = null, CounterType counter = CounterType.BuiltIn)
         {
             HomeDir = homeDir;
             //if (homeDir == null)
