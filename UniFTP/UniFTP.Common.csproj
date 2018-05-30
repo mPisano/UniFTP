@@ -6,7 +6,17 @@
     </TargetFrameworks>
     <Description>FixedSslStream which can send proper [close_notify] signal.</Description>
     <Company>Nikolay Uvaliyev</Company>
-    <Copyright>Copyright © Nikolay Uvaliyev 2014</Copyright>
+    <Copyright>Copyright © Nikolay Uvaliyev 2017</Copyright>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>UlyssesWu</Authors>
+    <RepositoryUrl>https://github.com/UlyssesWu/UniFTP</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/UlyssesWu/UniFTP</PackageProjectUrl>
+    <PackageLicenseUrl>https://creativecommons.org/licenses/by/4.0/</PackageLicenseUrl>
+    <PackageReleaseNotes>rickbassham  UlyssesWu MaiKeBing</PackageReleaseNotes>
+    <AssemblyVersion>1.1.0.1</AssemblyVersion>
+    <FileVersion>1.1.0.1</FileVersion>
+    <ApplicationIcon />
+    <Version>1.1.0</Version>
   </PropertyGroup>
 
 </Project>

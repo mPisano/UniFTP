@@ -6,7 +6,21 @@
     </TargetFrameworks>
     <Description>FixedSslStream which can send proper [close_notify] signal.</Description>
     <Company>Nikolay Uvaliyev</Company>
-    <Copyright>Copyright © Nikolay Uvaliyev 2014</Copyright>
+    <Copyright>Copyright © Nikolay Uvaliyev 2017</Copyright>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>UlyssesWu</Authors>
+    <RepositoryUrl>https://github.com/UlyssesWu/UniFTP</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/UlyssesWu/UniFTP</PackageProjectUrl>
+    <PackageLicenseUrl>https://creativecommons.org/licenses/by/4.0/</PackageLicenseUrl>
+    <PackageReleaseNotes>rickbassham  UlyssesWu MaiKeBing</PackageReleaseNotes>
+    <AssemblyVersion>1.1.0.1</AssemblyVersion>
+    <FileVersion>1.1.0.1</FileVersion>
+    <ApplicationIcon />
+    <Version>1.1.0</Version>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net40|AnyCPU'">
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,8 +31,12 @@
        <PackageReference Include="System.Diagnostics.PerformanceCounter" Version="4.5.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\GnuSslStream\GnuSslStream.csproj" />
-    <ProjectReference Include="..\UniFTP\UniFTP.Common.csproj" />
+    <ProjectReference Include="..\GnuSslStream\GnuSslStream.csproj">
+      <Private></Private>
+    </ProjectReference>
+    <ProjectReference Include="..\UniFTP\UniFTP.Common.csproj">
+      <Private></Private>
+    </ProjectReference>
   </ItemGroup>
 
  
