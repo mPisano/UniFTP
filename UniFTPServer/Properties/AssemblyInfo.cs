@@ -9,8 +9,8 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("Managed FTP Server.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("UniFTP Server")]
-[assembly: AssemblyCopyright("Copyright © Ulysses 2014-2016")]
+[assembly: AssemblyProduct("UniFTP")]
+[assembly: AssemblyCopyright("Copyright © UlyssesWu 2014-2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

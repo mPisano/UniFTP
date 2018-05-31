@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("UniFTPServerConsole")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Ulysses")]
+[assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("UniFTP")]
-[assembly: AssemblyCopyright("Copyright © Ulysses 2014")]
+[assembly: AssemblyCopyright("Copyright © UlyssesWu 2014-2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
