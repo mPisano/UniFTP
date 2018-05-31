@@ -1,17 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.30723.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2018
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniFTP.Common", "UniFTP\UniFTP.Common.csproj", "{4AB45E2B-1096-454B-A02B-AC89D10D06D4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UniFTP.Common", "UniFTP\UniFTP.Common.csproj", "{4AB45E2B-1096-454B-A02B-AC89D10D06D4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniFTP.Server", "UniFTP.Server\UniFTP.Server.csproj", "{73191499-85CD-4275-9237-0C838078832E}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniFTP.Client", "UniFTP.Client\UniFTP.Client.csproj", "{6E3C1016-90B1-414B-9F04-7BD9B1930DE9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UniFTP.Server", "UniFTP.Server\UniFTP.Server.csproj", "{73191499-85CD-4275-9237-0C838078832E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniFTPServerTestConsole", "UniFTPServerConsole\UniFTPServerTestConsole.csproj", "{79EBC28A-D408-452A-AD79-76378E16DBA4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GnuSslStream", "GnuSslStream\GnuSslStream.csproj", "{E8975487-6509-4663-BB61-14326E1AD464}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GnuSslStream", "GnuSslStream\GnuSslStream.csproj", "{E8975487-6509-4663-BB61-14326E1AD464}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniFTPServer", "UniFTPServer\UniFTPServer.csproj", "{8C3556E6-9C55-4EFA-B5F1-1E93C7E5B9C7}"
 EndProject
@@ -29,10 +27,6 @@ Global
 		{73191499-85CD-4275-9237-0C838078832E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{73191499-85CD-4275-9237-0C838078832E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{73191499-85CD-4275-9237-0C838078832E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6E3C1016-90B1-414B-9F04-7BD9B1930DE9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6E3C1016-90B1-414B-9F04-7BD9B1930DE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6E3C1016-90B1-414B-9F04-7BD9B1930DE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6E3C1016-90B1-414B-9F04-7BD9B1930DE9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{79EBC28A-D408-452A-AD79-76378E16DBA4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{79EBC28A-D408-452A-AD79-76378E16DBA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{79EBC28A-D408-452A-AD79-76378E16DBA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -48,5 +42,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {19D308F5-C91B-4F9E-94A3-9DA44B487BA6}
 	EndGlobalSection
 EndGlobal

@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Ulysses")]
-[assembly: AssemblyProduct("UniFTPServerConsole")]
+[assembly: AssemblyProduct("UniFTP")]
 [assembly: AssemblyCopyright("Copyright © Ulysses 2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

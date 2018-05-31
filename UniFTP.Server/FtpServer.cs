@@ -100,7 +100,8 @@ namespace UniFTP.Server
             {
                 XmlDocument x = new XmlDocument();
                 x.LoadXml(xml);
-                log4net.Config.XmlConfigurator.Configure(x["log4net"]);
+               
+                log4net.Config.XmlConfigurator.Configure(log4net.LogManager.GetRepository(typeof(FtpServer).Assembly),  x["log4net"]);
                 return true;
             }
             catch (Exception)
@@ -123,7 +124,7 @@ namespace UniFTP.Server
             {
                 try
                 {
-                    log4net.Config.XmlConfigurator.ConfigureAndWatch(new FileInfo(path));
+                    log4net.Config.XmlConfigurator.ConfigureAndWatch(log4net.LogManager.GetRepository(typeof(FtpServer).Assembly), new FileInfo(path));
                     return true;
                 }
                 catch (Exception)
@@ -407,7 +408,7 @@ namespace UniFTP.Server
             }
             if (File.Exists("UniFTP.Server.log4net"))
             {
-                log4net.Config.XmlConfigurator.ConfigureAndWatch(new FileInfo("UniFTP.Server.log4net"));
+                log4net.Config.XmlConfigurator.ConfigureAndWatch(log4net.LogManager.GetRepository(typeof(FtpServer).Assembly), new FileInfo("UniFTP.Server.log4net"));
             }
             UserGroups.Clear();
             UserGroups.Add("anonymous", FtpUserGroup.Anonymous);
