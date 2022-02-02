@@ -1,16 +1,16 @@
-# UniFTP
+# UniFTP (English)
 
-基于C#的简易FTP库，支持FTPS、IPv6等大部分FTP协议扩展功能，可通过mono跨平台。
+The simple ftp library based on C# supports most of the ftp protocol extension functions such as ftps and i pv6, and can be cross-platform through mono.
 
-## 组件
+## Components
 
-* UniFTP.Server 基于SharpServer的FTP Server库
-* UniFTP#Server 基于UniFTP.Server的FTP服务器软件
-* UniFTP.Client FTP Client库（Planning）
+* UniFTP.Server is based on SharpServer's FTP Server library
+* UniFTP#Server FTP server software based on UniFTP.Server
+* UniFTP.Client FTP Client Library (Planning)
 
-### 注意
+### Attention
 
-本项目与[uniFTP](http://linux.softpedia.com/get/Internet/FTP/uniFTP-28869.shtml)（当前已经更名[CompleteFTP](http://enterprisedt.com/products/completeftp/)）无任何关联。本项目并不使用edtFTP组件。
+This project has nothing to do with [uni ftp] (http://linux.softpedia.com/get/internet/ftp/uni ftp 28869.shtml) (currently renamed [complete ftp] (http://enterprisedt.com/products/completeftp/)). This project does not use the edt ftp component.
 
 by Ulysses
 
