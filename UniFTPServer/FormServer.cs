@@ -34,7 +34,7 @@ namespace UniFTPServer
         private Dictionary<string, ServerUnit> _serverUnits = new Dictionary<string, ServerUnit>();
         private bool _modified = false;
         private BinaryFormatter _configSerializer;
-        private static readonly ServerUnit DefaultServerUnit = new ServerUnit() { AllowAnonymous = true, Name = "UniFTP默认站点", Port = 21, V6Port = 2121, RootDir = Application.StartupPath };
+        private static readonly ServerUnit DefaultServerUnit = new ServerUnit() { AllowAnonymous = true, Name = "UniFTP Default Site", Port = 21, V6Port = 2121, RootDir = Application.StartupPath };
 
         private void FormServer_Load(object sender, EventArgs e)
         {
@@ -184,7 +184,7 @@ namespace UniFTPServer
 
         private void btnBrowse_Click(object sender, EventArgs e)
         {
-            folderBrowserDialog1.Description = "请选择服务器的默认主目录";
+            folderBrowserDialog1.Description = "Please select the default home directory for the server";
             folderBrowserDialog1.ShowDialog();
             txtDir.Text = folderBrowserDialog1.SelectedPath;
             _modified = true;
@@ -197,12 +197,12 @@ namespace UniFTPServer
             StringBuilder sb = new StringBuilder();
             if (!UInt16.TryParse(txtPort.Text, out tmp))
             {
-                sb.Append("端口号不正确！").AppendLine();
+                sb.Append("Incorrect port number!").AppendLine();
                 result = false;
             }
             if (!UInt16.TryParse(txtV6Port.Text, out tmp))
             {
-                sb.Append("IPv6端口号不正确！将尝试采用与IPv4相同端口！").AppendLine();
+                sb.Append("Incorrect I pv6 port number! Will try to use the same port as i pv4!").AppendLine();
                 if (result)
                 {
                     txtV6Port.Text = txtPort.Text;
@@ -210,15 +210,15 @@ namespace UniFTPServer
             }
             if (!File.Exists(txtCer.Text) && !string.IsNullOrEmpty(txtCer.Text))
             {
-                sb.Append("证书路径不存在或格式错误，未能加载证书！").AppendLine();
+                sb.Append("The certification path does not exist or is malformed, failed to load the certificate!").AppendLine();
             }
             if (!Directory.Exists(txtDir.Text))
             {
-                sb.Append("默认主路径不存在或格式错误！").AppendLine();
+                sb.Append("The default main path does not exist or is malformed!").AppendLine();
             }
             if (!string.IsNullOrEmpty(sb.ToString()))
             {
-                MessageBox.Show(sb.ToString(), "提示");
+                MessageBox.Show(sb.ToString(), "prompt");
             }
             return result;
         }
@@ -240,7 +240,7 @@ namespace UniFTPServer
             {
                 if (_serverUnits.ContainsKey(_selected))
                 {
-                    var dr = MessageBox.Show("真的要删除此服务器吗？", "警告", MessageBoxButtons.YesNo);
+                    var dr = MessageBox.Show("Do you really want to delete this server?", "warn", MessageBoxButtons.YesNo);
                     if (dr == DialogResult.Yes)
                     {
                         listServers.Items.Remove(listServers.SelectedItems[0]);
@@ -254,7 +254,7 @@ namespace UniFTPServer
         private void btnCerBrowse_Click(object sender, EventArgs e)
         {
             OpenFileDialog fileDialog = new OpenFileDialog();
-            fileDialog.Title = "请选择.pfx证书文件";
+            fileDialog.Title = "Please select.Pfx certificate file";
             fileDialog.AddExtension = true;
             //fileDialog.RestoreDirectory = true;
             fileDialog.Filter = "pfx files (*.pfx)|*.pfx";
@@ -270,7 +270,7 @@ namespace UniFTPServer
         {
             if (!CheckInput())
             {
-                MessageBox.Show("参数错误。未能创建服务器！");
+                MessageBox.Show("Parameter error. Failed to create server！");
                 return;
             }
             try
@@ -291,7 +291,7 @@ namespace UniFTPServer
                 {
                     if (!f.ImportCertificate(txtCer.Text, txtCerPwd.Text))
                     {
-                        var result = MessageBox.Show("未能加载TLS证书，可能是您输入的密码有误。\n点击“确定”不加载证书（不启用TLS），或点击“取消”重新输入密码", "TLS证书未导入", MessageBoxButtons.OKCancel);
+                        var result = MessageBox.Show("Failed to load the TLS certificate, it may be that you entered the wrong password. \nClick 'OK' not to load the certificate (do not enable TLS), or click 'Cancel' to re-enter password","TLS certificate not imported.", MessageBoxButtons.OKCancel);
                         if (result != DialogResult.OK)
                         {
                             return;
@@ -304,7 +304,7 @@ namespace UniFTPServer
             }
             catch (Exception ex)
             {
-                MessageBox.Show("创建服务器时发生错误。\n" + ex.ToString(), "ERROR");
+                MessageBox.Show("An error occurred while creating the server.\n" + ex.ToString(), "ERROR");
                 //throw;
             }
         }

@@ -12,7 +12,8 @@ namespace UniFTPServer
         public string LogRecorder { get; private set; }
         public StringBuilder LogBuilder { get; set; }
         public List<ListViewItem> ConnectionList { get; set; }
-        public FtpServer Server {
+        public FtpServer Server
+        {
             get { return _server; }
             set
             {
@@ -20,12 +21,14 @@ namespace UniFTPServer
                 _server.OnLog += UpdateLog;
             }
         }
-        public TabPage Tab {
+        public TabPage Tab
+        {
             get { return _tab; }
-            set {_tab = value;}
+            set { _tab = value; }
         }
 
-        public bool Active {
+        public bool Active
+        {
             get { return Tab != null && IsActive(this); }
         }
 
@@ -86,7 +89,7 @@ namespace UniFTPServer
                 return;
             }
             _entryBuilder.Append(entry.Date.ToLongTimeString()).Append("\t")
-                .Append(entry.CIP??"-").Append("\t")
+                .Append(entry.CIP ?? "-").Append("\t")
                 .Append(entry.CSUsername ?? "-").Append("\t")
                 .Append(entry.CSMethod ?? "-").Append(" ")
                 .Append(entry.CSArgs ?? "-").Append("\t")
@@ -119,7 +122,7 @@ namespace UniFTPServer
             ConnectionList.Clear();
             Server.ConnectionInfos.ForEach((c) =>
             {
-                ListViewItem item = new ListViewItem(new []{c.ID.ToString(),c.User,c.UserGroup,c.IP,c.CurrentPosition,c.CurrentFile,c.LastCommand});
+                ListViewItem item = new ListViewItem(new[] { c.ID.ToString(), c.User, c.UserGroup, c.IP, c.CurrentPosition, c.CurrentFile, c.LastCommand });
                 ConnectionList.Add(item);
             });
         }

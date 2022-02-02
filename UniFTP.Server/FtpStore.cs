@@ -74,12 +74,12 @@ namespace UniFTP.Server
             }
         }
 
-        /// <summary>
-        /// 保存为
-        /// </summary>
-        /// <param name="obj"></param>
-        /// <param name="file"></param>
-        /// <returns></returns>
+        ///<summary>
+        ///Save as
+        ///</summary>
+        ///<param name="obj"></param>
+        ///<param name="file"></param>
+        ///<returns></returns>
         public static bool SaveAs(object obj, string file)
         {
             try
@@ -98,7 +98,7 @@ namespace UniFTP.Server
             }
         }
 
-        private static bool Load(FtpServer server, string file,string directory = null)
+        private static bool Load(FtpServer server, string file, string directory = null)
         {
             string sname = VPath.RemoveInvalidPathChars(server.Config.ServerName);
             string p = directory == null ? Path.Combine(sname, "Config", file) : Path.Combine(VPath.RemoveInvalidPathChars(directory), sname, "Config", file);
@@ -137,7 +137,7 @@ namespace UniFTP.Server
             return false;
         }
 
-        private static bool Save(FtpServer server, string file,string directory = null)
+        private static bool Save(FtpServer server, string file, string directory = null)
         {
             string sname = VPath.RemoveInvalidPathChars(server.Config.ServerName);
             string dir = directory == null ? Path.Combine(sname, "Config") : Path.Combine(VPath.RemoveInvalidPathChars(directory), sname, "Config");
@@ -145,7 +145,7 @@ namespace UniFTP.Server
             {
                 Directory.CreateDirectory(dir);
             }
-            using (FileStream fs = new FileStream(Path.Combine(dir,file), FileMode.Create))
+            using (FileStream fs = new FileStream(Path.Combine(dir, file), FileMode.Create))
             {
                 switch (file)
                 {
@@ -170,7 +170,7 @@ namespace UniFTP.Server
 
 
 
-        public static void Delete(FtpServer server, string file=null ,string directory=null)
+        public static void Delete(FtpServer server, string file = null, string directory = null)
         {
             string sname = VPath.RemoveInvalidPathChars(server.Config.ServerName);
             //string dir = Path.Combine(sname, "Config");
@@ -181,7 +181,7 @@ namespace UniFTP.Server
             }
             else
             {
-                if (file!=null)
+                if (file != null)
                 {
                     File.Delete(Path.Combine(dir, file));
                 }
@@ -195,34 +195,34 @@ namespace UniFTP.Server
             return;
         }
 
-        public static bool LoadUsers(FtpServer server,string dir = null)
+        public static bool LoadUsers(FtpServer server, string dir = null)
         {
-            return Load(server, "users.cfg",dir);
+            return Load(server, "users.cfg", dir);
         }
 
         public static void SaveUsers(FtpServer server, string dir = null)
         {
-            Save(server, "users.cfg",dir);
+            Save(server, "users.cfg", dir);
         }
 
         public static bool LoadUserGroups(FtpServer server, string dir = null)
         {
-            return Load(server, "usergroups.cfg",dir);
+            return Load(server, "usergroups.cfg", dir);
         }
 
         public static void SaveUserGroups(FtpServer server, string dir = null)
         {
-            Save(server, "usergroups.cfg",dir);
+            Save(server, "usergroups.cfg", dir);
         }
 
         public static bool LoadConfig(FtpServer server, string dir = null)
         {
-            return Load(server, "config.cfg",dir);
+            return Load(server, "config.cfg", dir);
         }
 
         public static void SaveConfig(FtpServer server, string dir = null)
         {
-            Save(server, "config.cfg",dir);
+            Save(server, "config.cfg", dir);
         }
     }
 }

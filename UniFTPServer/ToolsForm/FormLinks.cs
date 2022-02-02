@@ -68,7 +68,7 @@ namespace UniFTPServer
         private string GetPermissionString(FilePermission p)
         {
             StringBuilder sb = new StringBuilder();
-            sb.Append(p.CanRead ? "下载 " : "").Append(p.CanWrite ? "上传 " : "").Append(p.GroupCanWrite ? "修改 " : "");
+            sb.Append(p.CanRead ? "Download " : "").Append(p.CanWrite ? "upload " : "").Append(p.GroupCanWrite ? "revise " : "");
             return sb.ToString();
         }
 

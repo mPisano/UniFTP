@@ -19,7 +19,7 @@ namespace UniFTP.Server
     [Serializable]
     public class FtpUserGroup
     {
-        public static readonly FtpUserGroup Anonymous = new FtpUserGroup("anonymous",AuthType.None);
+        public static readonly FtpUserGroup Anonymous = new FtpUserGroup("anonymous", AuthType.None);
         public FtpUserGroup(string name, AuthType auth, string dir = null)
         {
             UserGroupName = name;
@@ -30,41 +30,41 @@ namespace UniFTP.Server
             //AutoMakeDirectory = false;
         }
 
-        /// <summary>
-        /// 用户组名
-        /// </summary>
+        ///<summary>
+        ///The user group name
+        ///</summary>
         public string UserGroupName { get; set; }
 
-        /// <summary>
-        /// 主目录
-        /// </summary>
-        public string HomeDir { get;  set; }
+        ///<summary>
+        ///Home Directory
+        ///</summary>
+        public string HomeDir { get; set; }
 
-        /// <summary>
-        /// 禁用
-        /// </summary>
+        ///<summary>
+        ///disable
+        ///</summary>
         public bool Forbidden { get; set; }
 
-        /// <summary>
-        /// 认证方式
-        /// </summary>
-        public AuthType Auth  { get; set; }
+        ///<summary>
+        ///Authentication method
+        ///</summary>
+        public AuthType Auth { get; set; }
 
-        /// <summary>
-        /// 权限规则
-        /// </summary>
+        ///<summary>
+        ///Permission rules
+        ///</summary>
         public Dictionary<string, FilePermission> Rules { get; set; }
 
         /// <summary>
-        /// 文件链接
+        /// File links
         /// </summary>
         public Dictionary<string, string> Links { get; set; }
 
         /// <summary>
-        /// 超时
+        /// Timeout
         /// </summary>
         public long TimeOut { get; set; }
-        
+
         //public bool AutoMakeDirectory { get; set; }
     }
 }

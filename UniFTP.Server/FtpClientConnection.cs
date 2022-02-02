@@ -15,15 +15,15 @@ using UniFTP.Server.Virtual;
 
 namespace UniFTP.Server
 {
-    //TODO:可能会加入限速
+    //Todo: Speed limit may be added
 
     /// <summary>
-    /// FTP连接
+    /// Ftp connection
     /// </summary>
     public partial class FtpClientConnection : ClientConnection
     {
         /// <summary>
-        /// 数据流操作
+        /// Data flow operations
         /// </summary>
         private class DataConnectionOperation
         {
@@ -31,13 +31,13 @@ namespace UniFTP.Server
             public string Arguments { get; set; }
         }
 
-        
-        #region 枚举
 
-        /// <summary>
-        /// 传输类型
-        /// <para>只实现了Image和ASCII，且ASCII由于传输UTF8文档时会出错所以弃用</para>
-        /// </summary>
+        #region enumerate
+
+        ///<summary>
+        ///The transport type
+        ///<para>Only Image and ASCII are implemented, and ASCII is deprecated due to errors when transmitting UTF8 documents</para>
+        ///</summary>
         public enum TransferType
         {
             Ascii,
@@ -45,9 +45,9 @@ namespace UniFTP.Server
             Image,
             Local,
         }
-        /// <summary>
-        /// 格式控制
-        /// </summary>
+        ///<summary>
+        ///Format control
+        ///</summary>
         public enum FormatControlType
         {
             NonPrint,
@@ -55,22 +55,22 @@ namespace UniFTP.Server
             CarriageControl,
         }
         /// <summary>
-        /// 数据传输模式
+        /// Data transfer mode
         /// </summary>
         public enum DataConnectionType
         {
             /// <summary>
-            /// 被动模式(推荐)
+            /// Passive mode (recommended)
             /// </summary>
             Passive,
-            /// <summary>
-            /// 主动模式(不推荐)
-            /// </summary>
+            ///<summary>
+            ///Active mode (not recommended)
+            ///</summary>
             Active,
         }
-        /// <summary>
-        /// 文件结构（STRU）
-        /// </summary>
+        ///<summary>
+        ///File Structure (STRU)
+        ///</summary>
         public enum FileStructureType
         {
             File,
@@ -99,9 +99,9 @@ namespace UniFTP.Server
         private IPEndPoint _dataEndpoint;
         private X509Certificate2 _cert = null;
         private GnuSslStream _sslStream;
-        /// <summary>
-        /// 是否启用了保护模式
-        /// </summary>
+        ///<summary>
+        ///Whether Protected Mode is enabled
+        ///</summary>
         private bool _protected = false;
 
         private bool _disposed = false;
@@ -111,7 +111,7 @@ namespace UniFTP.Server
         private FtpUser _currentUser;
         private List<string> _validCommands;
 
-        private Encoding _currentEncoding = Encoding.UTF8;//FIXED:全部使用UTF8
+        private Encoding _currentEncoding = Encoding.UTF8;//Fixed: Use ut f8 all
         private CultureInfo _currentCulture = CultureInfo.InvariantCulture;
 
         private ICounter _performanceCounter;
@@ -139,15 +139,15 @@ namespace UniFTP.Server
             }
         }
 
-        #region 重载
-        
+        #region heavy load
+
         protected override void OnConnected()
         {
             _performanceCounter = ((FtpServer)CurrentServer).ServerPerformanceCounter;
 
             _performanceCounter.IncrementCurrentConnections();
 
-            ConnectionInfo.ID = ID;//FIXED:注意与下一句的先后顺序
+            ConnectionInfo.ID = ID;//Fixed: Note the order of precedence from the next sentence
 
             RegisterToServer();
 
@@ -175,11 +175,11 @@ namespace UniFTP.Server
             }
 
             Write(GetResponse(FtpResponses.SERVICE_READY));
-            //FIXED:SSL指令可以在登陆前执行
-            _validCommands.AddRange(new string[] { "AUTH", "USER", "PASS", "ACCT", "QUIT", "HELP", "NOOP","PBSZ","PROT"});
+            //Fixed: Ssl instructions can be executed before logging in
+            _validCommands.AddRange(new string[] { "AUTH", "USER", "PASS", "ACCT", "QUIT", "HELP", "NOOP", "PBSZ", "PROT" });
 
             _dataClient = new TcpClient();
-            
+
             Read();
         }
 
@@ -190,7 +190,7 @@ namespace UniFTP.Server
                 try
                 {
                     //Write(GetResponse(FtpResponses.ENABLING_TLS));
-                    //MARK:建立TLS连接
+                    //MARK: Establish a TLS connection
                     _cert = ((FtpServer)CurrentServer).ServerCertificate;
 
                     _sslStream = new GnuSslStream(ControlStream);
@@ -258,7 +258,7 @@ namespace UniFTP.Server
                 };
                 OnLog(logEntry);
 
-                var serverConnInfos = ((FtpServer) CurrentServer).ConnectionInfos;
+                var serverConnInfos = ((FtpServer)CurrentServer).ConnectionInfos;
                 if (serverConnInfos.Contains(ConnectionInfo))
                 {
                     serverConnInfos.Remove(ConnectionInfo);
@@ -295,11 +295,11 @@ namespace UniFTP.Server
 
         #endregion
 
-        /// <summary>
-        /// 检测目录是否有效（必须在根目录以下）
-        /// </summary>
-        /// <param name="path"></param>
-        /// <returns></returns>
+        ///<summary>
+        ///Detects whether the directory is valid (must be below the root directory)
+        ///</summary>
+        ///<param name="path"></param>
+        ///<returns></returns>
         private bool IsPathValid(string path)
         {
             return path.StartsWith(_root, StringComparison.OrdinalIgnoreCase);
@@ -325,7 +325,7 @@ namespace UniFTP.Server
             }
             else
             {
-                //FIXED:ANSI模式传输是有问题的，尤其是在非英语国家，非ANSI编码的文档势必导致混乱，因此统一用二进制
+                //FIXED: ANSI mode transmission is problematic, especially in non-English-speaking countries, where non-ANSI-encoded documents are bound to lead to confusion, so binary is used uniformly
                 //return CopyStream(input, limitedStream, BUFFER_SIZE, Encoding.UTF8 , perfAction);
                 //return CopyStream(input, limitedStream, BUFFER_SIZE, Encoding.Default, perfAction);
                 return CopyStream(input, limitedStream, BUFFER_SIZE, perfAction);
@@ -350,11 +350,11 @@ namespace UniFTP.Server
                 }
                 try
                 {
-                    _dataClient.EndConnect(result); 
-                    /* MARK:异步操作Tip
-                     * 如果调用 End操作名称OperationName 时 IAsyncResult 对象表示的异步操作尚未完成，
-                     * 则 End操作名称OperationName 将在异步操作完成之前阻止调用线程。
-                     */
+                    _dataClient.EndConnect(result);
+                    /*MARK: Asynchronous operation Tip
+* If the asynchronous operation represented by the IAsyncResult object has not completed when the End operation name OperationName is called,
+* The End operation name OperationName will block the calling thread until the asynchronous operation completes.
+*/
                 }
                 catch (Exception e)
                 {
@@ -380,7 +380,7 @@ namespace UniFTP.Server
             if (_dataConnectionType == DataConnectionType.Active)
             {
                 _dataClient = new TcpClient(_dataEndpoint.AddressFamily);
-                //开始异步连接，当连接成功后调用执行DoDataConnectionOperation，并把state与连接信息包装为IAsyncResult作为参数传给它
+                //Start an asynchronous connection, call the do data connection operation when the connection is successful, and pass the state and connection information as i as an async result parameter
                 _dataClient.BeginConnect(_dataEndpoint.Address, _dataEndpoint.Port, DoDataConnectionOperation, state);
             }
             else
@@ -393,9 +393,9 @@ namespace UniFTP.Server
         {
             _performanceCounter.IncrementTotalConnectionAttempts();
             _performanceCounter.IncrementCurrentConnections();
-            //由BeginConnect异步调用，因此需要EndConnect，EndConnect需要使用【对应的】IAsyncResult作为参数
+            //Called asynchronously by begin connect, end connect is required, and end connect needs to use [corresponding] i async result as an argument
             HandleAsyncResult(result);
-            //取出我们传入的真正需要的DataConnectionOperation结构，内含本次要执行的方法与参数
+            //Take out the data connection operation structure that we really need, and contain the methods and parameters to be executed this time
             DataConnectionOperation op = result.AsyncState as DataConnectionOperation;
 
             Response response;
@@ -406,14 +406,14 @@ namespace UniFTP.Server
                 {
                     throw new SocketException();
                 }
-                //通过上述异步过程，此时的_dataClient已经连接
+                //Through the above asynchronous procedure, the data client is already connected at this time
                 if (_protected)
                 {
                     using (GnuSslStream dataStream = new GnuSslStream(_dataClient.GetStream(), false))
                     {
                         try
                         {
-                            dataStream.AuthenticateAsServer(_cert,false,SslProtocols.Tls, true);
+                            dataStream.AuthenticateAsServer(_cert, false, SslProtocols.Tls, true);
                             response = op.Operation(dataStream, op.Arguments);
                         }
                         catch (Exception)
@@ -454,12 +454,12 @@ namespace UniFTP.Server
             Write(response.ToString());
         }
 
-        /// <summary>
-        /// 下载操作
-        /// </summary>
-        /// <param name="dataStream"></param>
-        /// <param name="pathname"></param>
-        /// <returns></returns>
+        ///<summary>
+        ///Download operation
+        ///</summary>
+        ///<param name="dataStream"></param>
+        ///<param name="pathname"></param>
+        ///<returns></returns>
         private Response RetrieveOperation(Stream dataStream, string pathname)
         {
             long bytes = 0;
@@ -471,11 +471,11 @@ namespace UniFTP.Server
                 CSUsername = _username,
                 SCStatus = "226",
             };
-            
+
             using (FileStream fs = new FileStream(pathname, FileMode.Open, FileAccess.Read))
             {
                 fs.Seek(_transPosition, SeekOrigin.Begin);
-                //由于是异步调用的 因此不会阻塞
+                //Because it is called asynchronously, it is not blocked
                 bytes = CopyStream(fs, dataStream, _performanceCounter.IncrementBytesSent);
             }
 
@@ -487,16 +487,16 @@ namespace UniFTP.Server
             _performanceCounter.IncrementFilesSent();
 
             _virtualFileSystem.RefreshCurrentDirectory();
-            
+
             return GetResponse(FtpResponses.TRANSFER_SUCCESSFUL);
         }
 
-        /// <summary>
-        /// 上传操作
-        /// </summary>
-        /// <param name="dataStream"></param>
-        /// <param name="pathname"></param>
-        /// <returns></returns>
+        ///<summary>
+        ///Upload operation
+        ///</summary>
+        ///<param name="dataStream"></param>
+        ///<param name="pathname"></param>
+        ///<returns></returns>
         private Response StoreOperation(Stream dataStream, string pathname)
         {
             long bytes = 0;
@@ -535,12 +535,12 @@ namespace UniFTP.Server
             return GetResponse(FtpResponses.TRANSFER_SUCCESSFUL);
         }
 
-        /// <summary>
-        /// 文件追加操作
-        /// </summary>
-        /// <param name="dataStream"></param>
-        /// <param name="pathname"></param>
-        /// <returns></returns>
+        ///<summary>
+        ///File append operations
+        ///</summary>
+        ///<param name="dataStream"></param>
+        ///<param name="pathname"></param>
+        ///<returns></returns>
         private Response AppendOperation(Stream dataStream, string pathname)
         {
             long bytes = 0;
@@ -567,18 +567,18 @@ namespace UniFTP.Server
             OnLog(logEntry);
 
             _performanceCounter.IncrementFilesReceived();
-            
+
             _virtualFileSystem.RefreshCurrentDirectory();
 
             return GetResponse(FtpResponses.TRANSFER_SUCCESSFUL);
         }
 
-        /// <summary>
-        /// 列目录操作
-        /// </summary>
-        /// <param name="dataStream"></param>
-        /// <param name="pathname"></param>
-        /// <returns></returns>
+        ///<summary>
+        ///Column directory operations
+        ///</summary>
+        ///<param name="dataStream"></param>
+        ///<param name="pathname"></param>
+        ///<returns></returns>
         private Response ListOperation(Stream dataStream, string pathname)
         {
             DateTime now = DateTime.Now;
@@ -593,9 +593,9 @@ namespace UniFTP.Server
             };
 
             StreamWriter dataWriter = new StreamWriter(dataStream, _currentEncoding);
-            
+
             var dirList = _virtualFileSystem.ListFiles(pathname);
-            dataWriter.WriteLine(dirList.Count);    //MARK:第一行表示数目
+            dataWriter.WriteLine(dirList.Count);    //Mark: The first row represents the number
             foreach (var dir in dirList)
             {
                 dataWriter.WriteLine(dir);
@@ -607,12 +607,12 @@ namespace UniFTP.Server
             return GetResponse(FtpResponses.TRANSFER_SUCCESSFUL);
         }
 
-        /// <summary>
-        /// 标准化列目录操作
-        /// </summary>
-        /// <param name="dataStream"></param>
-        /// <param name="pathname"></param>
-        /// <returns></returns>
+        ///<summary>
+        ///Standardize column directory operations
+        ///</summary>
+        ///<param name="dataStream"></param>
+        ///<param name="pathname"></param>
+        ///<returns></returns>
         private Response MachineListOperation(Stream dataStream, string pathname)
         {
             DateTime now = DateTime.Now;
@@ -629,7 +629,7 @@ namespace UniFTP.Server
             StreamWriter dataWriter = new StreamWriter(dataStream, _currentEncoding);
             dataWriter.WriteLine();
             var dirList = _virtualFileSystem.MachineListFiles(pathname);
-           
+
             foreach (var dir in dirList)
             {
                 dataWriter.WriteLine(dir);
@@ -643,12 +643,12 @@ namespace UniFTP.Server
             return GetResponse(FtpResponses.TRANSFER_SUCCESSFUL);
         }
 
-        /// <summary>
-        /// 列文件名操作
-        /// </summary>
-        /// <param name="dataStream"></param>
-        /// <param name="pathname"></param>
-        /// <returns></returns>
+        ///<summary>
+        ///Column file name operation
+        ///</summary>
+        ///<param name="dataStream"></param>
+        ///<param name="pathname"></param>
+        ///<returns></returns>
         private Response NameListOperation(Stream dataStream, string pathname)
         {
             FtpLogEntry logEntry = new FtpLogEntry

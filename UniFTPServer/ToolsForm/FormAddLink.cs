@@ -27,7 +27,7 @@ namespace UniFTPServer
             InitializeComponent();
             _groupName = groupName.ToLower();
             _oldRealPath = realpath;
-            _fileName = Path.GetFileName(_oldRealPath); //FIXED:修正直接修改目录权限时的异常
+            _fileName = Path.GetFileName(_oldRealPath); //Fixed: Fixed exception when directly modifying directory permissions
             txtDir.Text = realpath;
             txtVirtual.Text = vpath;
             _modify = true;
@@ -36,7 +36,7 @@ namespace UniFTPServer
         private void btnBrowse_Click(object sender, EventArgs e)
         {
             OpenFileDialog fileDialog = new OpenFileDialog();
-            fileDialog.Title = "请选择文件";
+            fileDialog.Title = "Please select file";
             fileDialog.AddExtension = true;
             //fileDialog.RestoreDirectory = true;
             fileDialog.Filter = "All files (*.*)|*.*";
@@ -52,7 +52,7 @@ namespace UniFTPServer
         private void btnDir_Click(object sender, EventArgs e)
         {
             FolderBrowserDialog folderBrowserDialog1 = new FolderBrowserDialog();
-            folderBrowserDialog1.Description = "请选择要添加的文件夹";
+            folderBrowserDialog1.Description = "Please select a folder to add";
             
             if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
             {
@@ -125,7 +125,7 @@ namespace UniFTPServer
                             this.Close();
                             return;
                         }
-                        string vdir = VPath.Combine(txtVirtual.Text, _fileName); //BUG:有待考证
+                        string vdir = VPath.Combine(txtVirtual.Text, _fileName); //Bug: To be verified
                         if (!group.Rules.ContainsKey(vdir))
                         {
                             group.Rules.Add(vdir, f);
@@ -141,7 +141,7 @@ namespace UniFTPServer
             }
             else
             {
-                MessageBox.Show("文件路径有误！", "ERROR");
+                MessageBox.Show("The file path is wrong!", "ERROR");
             }
             return;
         }

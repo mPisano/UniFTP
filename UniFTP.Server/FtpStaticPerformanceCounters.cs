@@ -4,9 +4,9 @@ using System.Diagnostics;
 namespace UniFTP.Server
 {
     [Obsolete("Use the new non-static class to hanle multiple instances.")]
-    /// <summary>
-    /// FTP性能计数器
-    /// </summary>
+    ///<summary>
+    ///FTP performance counters
+    ///</summary>
     public static class FtpStaticPerformanceCounters
     {
         private const string CATEGORY = "UniFTP";
@@ -42,18 +42,18 @@ namespace UniFTP.Server
         private static long _maxNonAnonymousUsersCount = 0;
         private static long _maxConnectionsCount = 0;
 
-        /// <summary>
-        /// 性能计数器初始化
-        /// <para>性能计数器按照端口作为不同实例的划分</para>
-        /// </summary>
-        /// <param name="port"></param>
+        ///<summary>
+        ///Performance counter initialization
+        ///<para>Performance counters are divided into different instances by port</para>
+        ///</summary>
+        ///<param name="port"></param>
         public static void Initialize(int port)
         {
             //if (PerformanceCounterCategory.Exists(CATEGORY))
             //{
-            //    //return;
-            //    //FIXED:每次都要创建效率很低啊，而且还需要管理员权限
-            //    //PerformanceCounterCategory.Delete(CATEGORY);
+            //return;
+            //FIXED: It is inefficient to create it every time, and it also requires administrator privileges
+            //PerformanceCounterCategory.Delete(CATEGORY);
             //}
 
             if (!PerformanceCounterCategory.Exists(CATEGORY))
@@ -332,8 +332,8 @@ namespace UniFTP.Server
         {
             lock (_anonUsersLock)
             {
-//                if (_currentAnonymousUsers.RawValue > 0)
-                    _currentAnonymousUsers.Decrement();
+                //                if (_currentAnonymousUsers.RawValue > 0)
+                _currentAnonymousUsers.Decrement();
             }
         }
 
@@ -341,8 +341,8 @@ namespace UniFTP.Server
         {
             lock (_nonAnonUsersLock)
             {
-//                if (_currentNonAnonymousUsers.RawValue > 0)
-                    _currentNonAnonymousUsers.Decrement();
+                //                if (_currentNonAnonymousUsers.RawValue > 0)
+                _currentNonAnonymousUsers.Decrement();
             }
         }
 
@@ -364,8 +364,8 @@ namespace UniFTP.Server
         {
             lock (_currentConnectionsLock)
             {
-//                if (_currentConnections.RawValue > 0)
-                    _currentConnections.Decrement();
+                //                if (_currentConnections.RawValue > 0)
+                _currentConnections.Decrement();
             }
         }
 

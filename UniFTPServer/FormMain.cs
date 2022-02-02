@@ -30,7 +30,7 @@ namespace UniFTPServer
             {
                 if (Core.StopServer())
                 {
-                    lblState.Text = "未启动";
+                    lblState.Text = "Not started";
                     lblState.Image = Resources.Stop;
                     ChangeButtonStart(true);
                 }
@@ -39,7 +39,7 @@ namespace UniFTPServer
             {
                 if (Core.StartServer())
                 {
-                    lblState.Text = "运行中";
+                    lblState.Text = "Running";
                     lblState.Image = Resources.Start;
                     ChangeButtonStart(false);
                     if (!bgWorkerCounter.IsBusy)
@@ -49,7 +49,7 @@ namespace UniFTPServer
                 }
                 else
                 {
-                    MessageBox.Show("服务器启动失败，可能是端口已经被占用或权限不足！", "ERROR");
+                    MessageBox.Show("Server startup fails, it may be that the port is already occupied or the permissions are insufficient!", "ERROR");
                 }
             }
         }
@@ -71,8 +71,8 @@ namespace UniFTPServer
             Core.StopServer();
             Core.DelServerTab();
             ChangeButtonStart(true);
-            
-            if (tabInstance.TabCount>1)
+
+            if (tabInstance.TabCount > 1)
             {
                 tabInstance.TabPages.Remove(tabInstance.SelectedTab);
                 //if (Environment.OSVersion.Platform == PlatformID.Unix)
@@ -83,12 +83,12 @@ namespace UniFTPServer
             }
             else
             {
-                if (tabInstance.TabCount>0)
+                if (tabInstance.TabCount > 0)
                 {
                     tabInstance.SelectedTab = tabInstance.TabPages[0];
                     tabInstance_Selected(null, null);
                     //Core.CurrentTabData = null;
-                    //tabInstance.TabPages[0].Text = "未启动";
+                    //tabInstance.TabPages[0]. Text = "Not started";
                 }
             }
         }
@@ -127,7 +127,7 @@ namespace UniFTPServer
             {
                 listCon.Items[_lastSelection].Selected = true;
             }
-            
+
         }
 
         private void toolAutoRefresh_CheckedChanged(object sender, EventArgs e)
@@ -158,7 +158,7 @@ namespace UniFTPServer
             {
                 return;
             }
-            txtLog.Select(Math.Max(txtLog.TextLength,0),0);
+            txtLog.Select(Math.Max(txtLog.TextLength, 0), 0);
         }
 
         private void ChangeButtonStart(bool Start = true)
@@ -166,18 +166,18 @@ namespace UniFTPServer
             if (Start)
             {
                 toolStart.Image = Resources.Start;
-                toolStart.Text = "启动";
+                toolStart.Text = "Start";
             }
             else
             {
                 toolStart.Image = Resources.Pause;
-                toolStart.Text = "暂停";
+                toolStart.Text = "Pause";
             }
         }
 
         private void tabInstance_Selected(object sender, TabControlEventArgs e)
         {
-            if (Core.LastTabData!=null)
+            if (Core.LastTabData != null)
             {
                 Core.LastTabData.Sleep();
             }
@@ -188,15 +188,15 @@ namespace UniFTPServer
             }
             Core.CurrentTabData = tab;
             tab.WakeUp();
-            
+
             if (tab.Server.Active)
             {
-                lblState.Text = "运行中";
+                lblState.Text = "Running";
                 lblState.Image = Resources.Start;
             }
             else
             {
-                lblState.Text = "未启动";
+                lblState.Text = "Not started";
                 lblState.Image = Resources.Stop;
             }
             ChangeButtonStart(!tab.Server.Active);
@@ -208,7 +208,7 @@ namespace UniFTPServer
             f.ShowDialog();
         }
 
-        private void 关于ToolStripMenuItem_Click(object sender, EventArgs e)
+        private void AboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
             AboutBox about = new AboutBox();
             about.Show();
@@ -241,7 +241,7 @@ namespace UniFTPServer
             Core.CurrentTabData.Server.Disconnect(listCon.SelectedItems[0].Text);
         }
 
-        
+
         private void bgWorkerCounter_DoWork(object sender, DoWorkEventArgs e)
         {
             while (Core.CurrentTabData != null)
@@ -252,7 +252,7 @@ namespace UniFTPServer
                     {
                         this.Invoke(new Action((() =>
                         {
-                            lblSpeed.Text = string.Format("上传:{0}/s 下载:{1}/s 当前连接:{2} 用户:{3}/{4}",
+                            lblSpeed.Text = string.Format("Upload:{0}/s Download:{1}/s Current Connection:{2} User:{3}/{4}",
                         Util.ByteConvert(
                         Core.CurrentTabData.Server.ServerPerformanceCounter.BytesReceivedPerSec),
                         Util.ByteConvert(
@@ -269,7 +269,7 @@ namespace UniFTPServer
                             lblSpeed.Text = "Not Available";
                         })));
                     }
-                    //lblSpeed.Text = string.Format("上传:{0}/s 下载:{1}/s 当前连接:{2} 用户:{3}/{4}",
+                    //lblSpeed.Text = string.Format("Upload:{0}/s Download:{1}/s Current Connection:{2} User:{3}/{4}",
                     //    Util.ByteConvert(
                     //    Core.CurrentTabData.Server.ServerPerformanceCounter.CounterBytesReceivedPerSec.NextValue()),
                     //    Util.ByteConvert(

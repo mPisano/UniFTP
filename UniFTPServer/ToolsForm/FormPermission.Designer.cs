@@ -40,11 +40,11 @@
             // btnAdd
             // 
             this.btnAdd.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnAdd.Location = new System.Drawing.Point(321, 92);
+            this.btnAdd.Location = new System.Drawing.Point(275, 92);
             this.btnAdd.Name = "btnAdd";
-            this.btnAdd.Size = new System.Drawing.Size(103, 34);
+            this.btnAdd.Size = new System.Drawing.Size(88, 34);
             this.btnAdd.TabIndex = 26;
-            this.btnAdd.Text = "确定";
+            this.btnAdd.Text = "Ok";
             this.btnAdd.UseVisualStyleBackColor = true;
             this.btnAdd.Click += new System.EventHandler(this.btnAdd_Click);
             // 
@@ -52,70 +52,70 @@
             // 
             this.chkXW.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.chkXW.AutoSize = true;
-            this.chkXW.Location = new System.Drawing.Point(149, 102);
+            this.chkXW.Location = new System.Drawing.Point(128, 103);
             this.chkXW.Name = "chkXW";
-            this.chkXW.Size = new System.Drawing.Size(103, 18);
+            this.chkXW.Size = new System.Drawing.Size(90, 17);
             this.chkXW.TabIndex = 25;
-            this.chkXW.Text = "可修改/删除";
+            this.chkXW.Text = "Modify/Delee";
             this.chkXW.UseVisualStyleBackColor = true;
             // 
             // chkW
             // 
             this.chkW.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.chkW.AutoSize = true;
-            this.chkW.Location = new System.Drawing.Point(75, 102);
+            this.chkW.Location = new System.Drawing.Point(64, 103);
             this.chkW.Name = "chkW";
-            this.chkW.Size = new System.Drawing.Size(68, 18);
+            this.chkW.Size = new System.Drawing.Size(51, 17);
             this.chkW.TabIndex = 24;
-            this.chkW.Text = "可上传";
+            this.chkW.Text = "Write";
             this.chkW.UseVisualStyleBackColor = true;
             // 
             // chkR
             // 
             this.chkR.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.chkR.AutoSize = true;
-            this.chkR.Location = new System.Drawing.Point(15, 102);
+            this.chkR.Location = new System.Drawing.Point(13, 103);
             this.chkR.Name = "chkR";
-            this.chkR.Size = new System.Drawing.Size(54, 18);
+            this.chkR.Size = new System.Drawing.Size(52, 17);
             this.chkR.TabIndex = 23;
-            this.chkR.Text = "可读";
+            this.chkR.Text = "Read";
             this.chkR.UseVisualStyleBackColor = true;
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Font = new System.Drawing.Font("宋体", 10.18868F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label3.Location = new System.Drawing.Point(12, 75);
+            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.18868F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label3.Location = new System.Drawing.Point(10, 75);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(42, 16);
+            this.label3.Size = new System.Drawing.Size(95, 17);
             this.label3.TabIndex = 22;
-            this.label3.Text = "权限";
+            this.label3.Text = "Permissions";
             // 
             // txtVirtual
             // 
-            this.txtVirtual.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.txtVirtual.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtVirtual.Font = new System.Drawing.Font("宋体", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.txtVirtual.Location = new System.Drawing.Point(12, 37);
+            this.txtVirtual.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.txtVirtual.Location = new System.Drawing.Point(10, 37);
             this.txtVirtual.Name = "txtVirtual";
-            this.txtVirtual.Size = new System.Drawing.Size(412, 24);
+            this.txtVirtual.Size = new System.Drawing.Size(354, 23);
             this.txtVirtual.TabIndex = 21;
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("宋体", 10.18868F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label2.Location = new System.Drawing.Point(12, 9);
+            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.18868F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label2.Location = new System.Drawing.Point(10, 9);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(76, 16);
+            this.label2.Size = new System.Drawing.Size(92, 17);
             this.label2.TabIndex = 20;
-            this.label2.Text = "虚拟路径";
+            this.label2.Text = "Virtual path";
             // 
             // FormPermission
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(436, 132);
+            this.ClientSize = new System.Drawing.Size(374, 132);
             this.Controls.Add(this.btnAdd);
             this.Controls.Add(this.chkXW);
             this.Controls.Add(this.chkW);
@@ -124,10 +124,10 @@
             this.Controls.Add(this.txtVirtual);
             this.Controls.Add(this.label2);
             this.MaximizeBox = false;
-            this.MinimumSize = new System.Drawing.Size(452, 171);
+            this.MinimumSize = new System.Drawing.Size(390, 171);
             this.Name = "FormPermission";
             this.ShowIcon = false;
-            this.Text = "文件权限设置";
+            this.Text = "File Permission Settings";
             this.Load += new System.EventHandler(this.FormPermission_Load);
             this.ResumeLayout(false);
             this.PerformLayout();

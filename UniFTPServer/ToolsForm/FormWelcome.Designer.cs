@@ -39,7 +39,7 @@
             // 
             // txtLogOut
             // 
-            this.txtLogOut.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.txtLogOut.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.txtLogOut.Location = new System.Drawing.Point(17, 241);
             this.txtLogOut.Multiline = true;
@@ -55,11 +55,11 @@
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(79, 13);
             this.label7.TabIndex = 20;
-            this.label7.Text = "退出提示语:";
+            this.label7.Text = "Exit prompt:";
             // 
             // txtLogIn
             // 
-            this.txtLogIn.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.txtLogIn.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.txtLogIn.Location = new System.Drawing.Point(17, 133);
             this.txtLogIn.Multiline = true;
@@ -75,11 +75,11 @@
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(231, 13);
             this.label6.TabIndex = 18;
-            this.label6.Text = "用户登录欢迎语: （FTPS模式不可见）";
+            this.label6.Text = "User Login Welcome Note: (FTPS mode is not visible)";
             // 
             // txtWelcome
             // 
-            this.txtWelcome.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.txtWelcome.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.txtWelcome.Location = new System.Drawing.Point(17, 27);
             this.txtWelcome.Multiline = true;
@@ -95,7 +95,7 @@
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(92, 13);
             this.label5.TabIndex = 16;
-            this.label5.Text = "服务器欢迎语:";
+            this.label5.Text = "Server Welcome Word:";
             // 
             // btnOk
             // 
@@ -104,7 +104,7 @@
             this.btnOk.Name = "btnOk";
             this.btnOk.Size = new System.Drawing.Size(102, 23);
             this.btnOk.TabIndex = 22;
-            this.btnOk.Text = "确定";
+            this.btnOk.Text = "Are you sure";
             this.btnOk.UseVisualStyleBackColor = true;
             this.btnOk.Click += new System.EventHandler(this.btnOk_Click);
             // 
@@ -124,7 +124,7 @@
             this.MaximizeBox = false;
             this.Name = "FormWelcome";
             this.ShowIcon = false;
-            this.Text = "提示语设置";
+            this.Text = "Prompt settings";
             this.Load += new System.EventHandler(this.FormWelcome_Load);
             this.ResumeLayout(false);
             this.PerformLayout();

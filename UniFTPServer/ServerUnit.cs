@@ -11,7 +11,7 @@ namespace UniFTPServer
     [Serializable]
     class ServerUnit
     {
-        //MARK:Xml序列化真心辣鸡
+        //Mark: xml serializes true heart spicy chicken
 
         public string UID { get; private set; }
 
@@ -36,7 +36,7 @@ namespace UniFTPServer
         public ServerUnit()
         {
             UID = Guid.NewGuid().ToString("N");
-            Name = "UniFTP新站点";
+            Name = "UniFTP New site";
             RootDir = "";
             Port = 21;
             V6Port = 0;

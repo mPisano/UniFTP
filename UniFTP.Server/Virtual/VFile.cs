@@ -6,9 +6,9 @@ using System.Text;
 
 namespace UniFTP.Server.Virtual
 {
-    /// <summary>
-    /// 虚拟文件
-    /// </summary>
+    ///<summary>
+    ///dummy file
+    ///</summary>
     internal class VFile : IFile
     {
         private FilePermission _permission;
@@ -30,7 +30,7 @@ namespace UniFTP.Server.Virtual
         public VFile(VDirectory parent, FilePermission permission, string realPath, string name)
         {
             ParentDirectory = parent;
-            _permission = permission ?? ParentDirectory.Permission; 
+            _permission = permission ?? ParentDirectory.Permission;
             try
             {
                 Name = name ?? Path.GetFileName(realPath);
@@ -57,18 +57,20 @@ namespace UniFTP.Server.Virtual
         }
 
 
-        public FilePermission Permission {
+        public FilePermission Permission
+        {
             get { return _permission; }
             set
             {
                 _permission = value;
                 PermissionSetted = true;
-            } }
+            }
+        }
 
 
         public void Refresh()
         {
-            
+
         }
 
         public bool PermissionSetted { get; set; }

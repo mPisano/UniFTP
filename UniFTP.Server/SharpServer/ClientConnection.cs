@@ -10,47 +10,47 @@ namespace SharpServer
     {
         public event EventHandler<EventArgs> Disposed;
 
-        /// <summary>
-        /// 所属服务器
-        /// </summary>
-        public object CurrentServer { get; set; } // MARK:尝试建立Connection与Server的联系
-        /// <summary>
-        /// 编号
-        /// </summary>
+        ///<summary>
+        ///The owning server
+        ///</summary>
+        public object CurrentServer { get; set; } //MARK: Try to establish a connection between Connection and Server
+        ///<summary>
+        ///numbering
+        ///</summary>
         public ulong ID = 0;
         private bool _disposed = false;
 
         #region Private Fields
-        
+
         private byte[] _buffer = new byte[128];
         private StringBuilder _commandBuffer = new StringBuilder();
-        private Encoding _controlStreamEncoding = Encoding.UTF8;//FIXED:全部使用UTF8
+        private Encoding _controlStreamEncoding = Encoding.UTF8;//Fixed: Use ut f8 all
         private string _expectedTerminator = "\r\n";
 
         #endregion
 
-        /// <summary>
-        /// 控制流编码
-        /// </summary>
+        ///<summary>
+        ///Control flow encoding
+        ///</summary>
         protected Encoding ControlStreamEncoding
         {
             get { return _controlStreamEncoding; }
             set { _controlStreamEncoding = value; }
         }
 
-        /// <summary>
-        /// 预期的Message结尾。在FTP中是 &lt;CRLF&gt;。在SMTP中是 &lt;CRLF&gt;。
-        /// 当在SMTP中发送实际Email信息时结尾是: &lt;CRLF&gt;.&lt;CRLF&gt;
-        /// </summary>
+        ///<summary>
+        ///Expected message ending. In FTP is the &lt; CRLF &gt;. In SMTP is &lt; CRLF &gt;.
+        ///When sending the actual email message in SMTP it ends with: &lt; CRLF&gt;.&lt; CRLF &gt;
+        ///</summary>
         protected string ExpectedTerminator
         {
             get { return _expectedTerminator; }
             set { _expectedTerminator = value; }
         }
 
-        /// <summary>
-        /// 从control connection stream中开始异步读.
-        /// </summary>
+        ///<summary>
+        ///Start an asynchronous read from the control connection stream.
+        ///</summary>
         protected virtual void Read()
         {
             Read(ControlStream);
@@ -58,7 +58,7 @@ namespace SharpServer
 
         /// <summary>
         /// Begins an asynchronous read from the provided <paramref name="stream"/>.
-        /// <para>从提供的流<paramref name="stream"/>中开始异步读。</para>
+        /// <para>From the provided stream<paramref name="stream"/>Start an asynchronous read.</para>
         /// </summary>
         /// <param name="stream">The stream to read from.</param>
         protected virtual void Read(Stream stream)
@@ -107,7 +107,7 @@ namespace SharpServer
             try
             {
                 byte[] response = ControlStreamEncoding.GetBytes(string.Concat(content, "\r\n"));
-                
+
                 stream.BeginWrite(response, 0, response.Length, WriteCallback, stream);
             }
             catch (Exception ex)
@@ -117,11 +117,11 @@ namespace SharpServer
             }
         }
 
-        /// <summary>
-        /// 初始化Connection，专用于服务一个成功连接的TcpClient
-        /// <para>Sets up the class to handle the communication to the given TcpClient.</para>
-        /// </summary>
-        /// <param name="client">The TcpClient to communicate with.</param>
+        ///<summary>
+        ///Initialize The Connect, dedicated to serving a successfully connected TcpClient
+        ///<para>Sets up the class to handle the communication to the given TcpClient.</para>
+        ///</summary>
+        ///<param name="client">The TcpClient to communicate with.</param>
         public override void HandleClient(object obj)
         {
             TcpClient client = obj as TcpClient;
@@ -133,7 +133,7 @@ namespace SharpServer
             ClientIP = RemoteEndPoint.Address.ToString();
 
             ControlStream = ControlClient.GetStream();
-            
+
             OnConnected();
         }
 
@@ -168,22 +168,22 @@ namespace SharpServer
         }
 
         // TODO: Make CopyStream async.
-/*
-        protected virtual long CopyStream(Stream input, Stream output, int bufferSize)
-        {
-            byte[] buffer = new byte[bufferSize];
-            int count = 0;
-            long total = 0;
+        /*
+                protected virtual long CopyStream(Stream input, Stream output, int bufferSize)
+                {
+                    byte[] buffer = new byte[bufferSize];
+                    int count = 0;
+                    long total = 0;
 
-            while ((count = input.Read(buffer, 0, buffer.Length)) > 0)
-            {
-                output.Write(buffer, 0, count);
-                total += count;
-            }
+                    while ((count = input.Read(buffer, 0, buffer.Length)) > 0)
+                    {
+                        output.Write(buffer, 0, count);
+                        total += count;
+                    }
 
-            return total;
-        }
-*/
+                    return total;
+                }
+        */
         public void Dispose()
         {
             Dispose(true);
@@ -259,8 +259,8 @@ namespace SharpServer
 
             _log.Debug(line);
 
-            // 信息没有以预定的结束符结尾，后面可能还有信息，继续读（_commandBuffer命令缓冲区保留）
-            // We don't have the full message yet, so keep reading.
+            //The message does not end with a predetermined terminator, and there may be information after it, continue reading (_commandBuffer command buffer reserved)
+            //We don't have the full message yet, so keep reading.
             if (!_commandBuffer.EndsWith(ExpectedTerminator))
             {
                 Read();
@@ -273,8 +273,8 @@ namespace SharpServer
 
             Command cmd = ParseCommandLine(command);
 
-            // 清除命令缓冲区（_commandBuffer），准备下次读取
-            // Clear the command buffer, so we can keep listening for more commands.
+            //Clear the command buffer (_commandBuffer) in preparation for the next read
+            //Clear the command buffer, so we can keep listening for more commands.
             _commandBuffer.Clear();
             command = null;
 
@@ -282,7 +282,7 @@ namespace SharpServer
 
             if (ControlClient != null && ControlClient.Connected)
             {
-                if (r != null)  //FIXED:可以不响应
+                if (r != null)  //Fixed: Can not respond
                 {
                     Write(r);
                 }

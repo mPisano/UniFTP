@@ -16,25 +16,25 @@ namespace SharpServer
         protected ILog _log = LogManager.GetLogger(typeof(ClientConnectionBase));
 
         protected TcpClient ControlClient { get; set; }
-        /// <summary>
-        /// 控制流
-        /// </summary>
+        ///<summary>
+        ///control flow
+        ///</summary>
         protected NetworkStream ControlStream { get; set; }
-        /// <summary>
-        /// 远端地址（IP:端口号）
-        /// </summary>
+        ///<summary>
+        ///Remote address (IP: port number)
+        ///</summary>
         protected IPEndPoint RemoteEndPoint { get; set; }
-        /// <summary>
-        /// 客户端IP
-        /// </summary>
+        ///<summary>
+        ///Client IP
+        ///</summary>
         protected string ClientIP { get; set; }
 
         protected abstract void Write(string content);
-        /// <summary>
-        /// 处理命令
-        /// </summary>
-        /// <param name="cmd"></param>
-        /// <returns></returns>
+        ///<summary>
+        ///Process the command
+        ///</summary>
+        ///<param name="cmd"></param>
+        ///<returns></returns>
         protected abstract Response HandleCommand(Command cmd);
 
         protected virtual Response HandleCommand(string cmd)
@@ -49,11 +49,11 @@ namespace SharpServer
             Write(response.ToString());
         }
 
-        /// <summary>
-        /// 解析命令
-        /// </summary>
-        /// <param name="line"></param>
-        /// <returns></returns>
+        ///<summary>
+        ///Parse the command
+        ///</summary>
+        ///<param name="line"></param>
+        ///<returns></returns>
         protected virtual Command ParseCommandLine(string line)
         {
             Command c = new Command();
@@ -95,15 +95,15 @@ namespace SharpServer
             return total;
         }
 
-        /// <summary>
-        /// 流传输
-        /// </summary>
-        /// <param name="input"></param>
-        /// <param name="output"></param>
-        /// <param name="bufferSize"></param>
-        /// <param name="encoding">编码方式</param>
-        /// <param name="performanceCounterAction">计数器操作</param>
-        /// <returns></returns>
+        ///<summary>
+        ///streaming
+        ///</summary>
+        ///<param name="input"></param>
+        ///<param name="output"></param>
+        ///<param name="bufferSize"></param>
+        ///<param name="encoding">Encoding</param>
+        ///<param name="performanceCounterAction">Counter Action</param>
+        ///<returns></returns>
         protected virtual long CopyStream(Stream input, Stream output, int bufferSize, Encoding encoding, Action<int> performanceCounterAction)
         {
             char[] buffer = new char[bufferSize];

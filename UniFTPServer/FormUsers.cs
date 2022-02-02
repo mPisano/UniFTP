@@ -36,7 +36,7 @@ namespace UniFTPServer
             listGroups.Items.Clear();
             foreach (var g in Groups)
             {
-                listGroups.Items.Add(new ListViewItem(g.Key){Name = g.Key});    //MARK:Name属性就是Key
+                listGroups.Items.Add(new ListViewItem(g.Key){Name = g.Key});    //MARK:The Name attribute is the key
             }
             if (listGroups.Items.Count > 0)
             {
@@ -69,7 +69,7 @@ namespace UniFTPServer
                 gnum++;
                 if (gnum == uint.MaxValue)
                 {
-                    return; //MARK:非要捣乱！拒绝服务
+                    return; //MARK:Don't mess around! Denial of Service
                 }
             }
             Groups.Add((name + gnum).ToLower(), new FtpUserGroup(name + gnum,AuthType.Password));
@@ -91,12 +91,12 @@ namespace UniFTPServer
             }
             if (Groups.ContainsKey(newname.ToLower()) && newname != oldname)    //尝试用户组重名
             {
-                MessageBox.Show("已存在同名用户组！", "保存用户组失败");
+                MessageBox.Show("A user group with the same name already exists!", "Failed to save user group");
                 return;
             }
             if (!string.IsNullOrEmpty(txtDir.Text) && !Directory.Exists(txtDir.Text))
             {
-                MessageBox.Show("目录不合法！", "保存用户组失败");
+                MessageBox.Show("Directory is not legitimate!", "Failed to save user group");
                 return;
             }
             bool forbid = false;
@@ -222,7 +222,7 @@ namespace UniFTPServer
             string groupname = listGroups.SelectedItems[0].Text;
             if (groupname.ToLower() == "anonymous")
             {
-                MessageBox.Show("匿名组不能删除！不需要请禁用。", "ERROR");
+                MessageBox.Show("Anonymous groups cannot be deleted! Do not need to disable.", "ERROR");
                 return;
             }
             List<FtpUser> u =
@@ -245,7 +245,7 @@ namespace UniFTPServer
         private void btnBrowse_Click(object sender, EventArgs e)
         {
             FolderBrowserDialog folderBrowserDialog1 = new FolderBrowserDialog();
-            folderBrowserDialog1.Description = "请选择该用户组的默认主目录";
+            folderBrowserDialog1.Description = "Please select the default home directory for the user group";
             folderBrowserDialog1.ShowDialog();
             txtDir.Text = folderBrowserDialog1.SelectedPath;
         }

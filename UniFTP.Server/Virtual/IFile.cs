@@ -1,53 +1,52 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 
 namespace UniFTP.Server.Virtual
 {
-    /// <summary>
-    /// 虚拟文件实体
-    /// <para>包括目录和文件</para>
-    /// </summary>
+    ///<summary>
+    ///Virtual file entity
+    ///<para>Includes directories and files</para>
+    ///</summary>
     internal interface IFile
     {
-        /// <summary>
-        /// 已经设置权限
-        /// </summary>
+        ///<summary>
+        ///Permissions have been set
+        ///</summary>
         bool PermissionSetted { get; set; }
-        /// <summary>
-        /// 真实路径
-        /// </summary>
+        ///<summary>
+        ///Real path
+        ///</summary>
         string RealPath { get; }
-        /// <summary>
-        /// 虚拟路径
-        /// </summary>
+        ///<summary>
+        ///Virtual path
+        ///</summary>
         string VirtualPath { get; }
-        /// <summary>
-        /// 名称
-        /// </summary>
+        ///<summary>
+        ///name
+        ///</summary>
         string Name { get; set; }
-        /// <summary>
-        /// 是否为文件夹
-        /// </summary>
+        ///<summary>
+        ///Whether it is a folder
+        ///</summary>
         bool IsDirectory { get; }
-        /// <summary>
-        /// 清空权限
-        /// </summary>
+        ///<summary>
+        ///Clear permissions
+        ///</summary>
         void ClearPermission();
 
-        /// <summary>
-        /// 刷新
-        /// </summary>
+        ///<summary>
+        ///flushed
+        ///</summary>
         void Refresh();
-        /// <summary>
-        /// 父目录
-        /// </summary>
+        ///<summary>
+        ///The parent directory
+        ///</summary>
         VDirectory ParentDirectory { get; set; }
-        /// <summary>
-        /// 权限
-        /// </summary>
+        ///<summary>
+        ///Permissions
+        ///</summary>
         FilePermission Permission { get; set; }
     }
 }

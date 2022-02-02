@@ -13,15 +13,15 @@ using UniFTP.Server.Virtual;
 
 namespace UniFTP.Server
 {
-    /// <summary>
-    /// 日志事件
-    /// </summary>
-    /// <param name="sender">日志实体</param>
+    ///<summary>
+    ///Log events
+    ///</summary>
+    ///<param name="sender" > log entity</param>
     public delegate void LogEventHandler(object sender);
 
-    /// <summary>
-    /// FTP服务器
-    /// </summary>
+    ///<summary>
+    ///FTP server
+    ///</summary>
     public class FtpServer : Server<FtpClientConnection>
     {
         private FtpConfig _config = new FtpConfig();
@@ -34,15 +34,15 @@ namespace UniFTP.Server
                 InitServer(_config != null ? _config.ServerName : "UniFTP");
             }
         }
-        /// <summary>
-        /// 用户组
-        /// <para>键必须为小写</para>
-        /// </summary>
+        ///<summary>
+        ///User groups
+        ///<para>The key must be lowercase</para>
+        ///</summary>
         public Dictionary<string, FtpUserGroup> UserGroups = new Dictionary<string, FtpUserGroup>();
-        /// <summary>
-        /// 用户
-        /// <para>键必须为小写</para>
-        /// </summary>
+        ///<summary>
+        ///user
+        ///<para>The key must be lowercase</para>
+        ///</summary>
         public Dictionary<string, FtpUser> Users = new Dictionary<string, FtpUser>();
         private DateTime _startTime;
         private Timer _timer;
@@ -56,11 +56,11 @@ namespace UniFTP.Server
 
         #region Public Methods
 
-        /// <summary>
-        /// 强行断开一个Connection
-        /// </summary>
-        /// <param name="id">Connection编号</param>
-        /// <returns></returns>
+        ///<summary>
+        ///Forcibly disconnect a Connection
+        ///</summary>
+        ///< the connection number >param name="id"</param>
+        ///<returns></returns>
         public bool Disconnect(string id)
         {
             ulong num;
@@ -88,20 +88,20 @@ namespace UniFTP.Server
             return true;
         }
 
-        /// <summary>
-        /// 加载日志配置设置
-        /// <para>配置应为一个表示XML的字符串</para>
-        /// </summary>
-        /// <param name="xml">表示XML的字符串，xml根元素为log4net</param>
-        /// <returns></returns>
+        ///<summary>
+        ///Load log configuration settings
+        ///<para>The configuration should be a string representing XML</para>
+        ///</summary>
+        ///<param name="xml" > string representing XML, with the xml root element being log4net</param>
+        ///<returns></returns>
         public bool LoadLogConfigs(string xml)
         {
             try
             {
                 XmlDocument x = new XmlDocument();
                 x.LoadXml(xml);
-               
-                log4net.Config.XmlConfigurator.Configure(log4net.LogManager.GetRepository(typeof(FtpServer).Assembly),  x["log4net"]);
+
+                log4net.Config.XmlConfigurator.Configure(log4net.LogManager.GetRepository(typeof(FtpServer).Assembly), x["log4net"]);
                 return true;
             }
             catch (Exception)
@@ -112,12 +112,12 @@ namespace UniFTP.Server
             return false;
         }
 
-        /// <summary>
-        /// 加载日志配置设置
-        /// <para>配置应为一个标准的log4net XML文档</para>
-        /// </summary>
-        /// <param name="path"></param>
-        /// <returns></returns>
+        ///<summary>
+        ///Load log configuration settings
+        ///<para>The configuration should be a standard log4net XML document</para>
+        ///</summary>
+        ///<param name="path"></param>
+        ///<returns></returns>
         public bool LoadLogConfigsFromFile(string path)
         {
             if (File.Exists(path))
@@ -136,15 +136,15 @@ namespace UniFTP.Server
             return false;
         }
 
-        /// <summary>
-        /// 读取配置信息
-        /// </summary>
+        ///<summary>
+        ///Read configuration information
+        ///</summary>
         public void LoadConfigs()
         {
             try
             {
                 FtpStore.LoadConfig(this);
-                if (File.Exists(Config.CertificatePath))    //有X509证书
+                if (File.Exists(Config.CertificatePath))    //There are x509 certificates
                 {
                     ImportCertificate(Config.CertificatePath, Config.CertificatePassword);
                 }
@@ -159,12 +159,12 @@ namespace UniFTP.Server
 
         }
 
-        /// <summary>
-        /// 导入X509证书
-        /// </summary>
-        /// <param name="path"></param>
-        /// <param name="password"></param>
-        /// <returns></returns>
+        ///<summary>
+        ///Import the X509 certificate
+        ///</summary>
+        ///<param name="path"></param>
+        ///<param name="password"></param>
+        ///<returns></returns>
         public bool ImportCertificate(string path, string password)
         {
             if (!File.Exists(path))
@@ -205,13 +205,13 @@ namespace UniFTP.Server
             }
         }
 
-        /// <summary>
-        /// 添加组权限规则
-        /// </summary>
-        /// <param name="groupname">组名</param>
-        /// <param name="vPath">虚拟路径</param>
-        /// <param name="permission">权限，9位UNIX权限</param>
-        /// <returns></returns>
+        ///<summary>
+        ///Add a group permission rule
+        ///</summary>
+        ///<param name="groupname" > group name</param>
+        ///< virtual path >param name="vPath"</param>
+        ///<param name="permission" > permissions, 9-digit UNIX permissions</param>
+        ///<returns></returns>
         public bool AddGroupRule(string groupname, string vPath, string permission)
         {
             FilePermission f;
@@ -238,12 +238,12 @@ namespace UniFTP.Server
             return true;
         }
 
-        /// <summary>
-        /// 删除用户组
-        /// <para>只有</para>
-        /// </summary>
-        /// <param name="groupname"></param>
-        /// <returns></returns>
+        ///<summary>
+        ///Delete a user group
+        ///<para>only</para>
+        ///</summary>
+        ///<param name="groupname"></param>
+        ///<returns></returns>
         public bool DeleteUserGroup(string groupname)
         {
             if (groupname.ToLower() == "anonymous")
@@ -362,14 +362,14 @@ namespace UniFTP.Server
         {
         }
 
-        /// <summary>
-        /// FTP服务器
-        /// </summary>
-        /// <param name="port">监听端口号</param>
-        /// <param name="config">FTP配置（可为空）</param>
-        /// <param name="enableIPv6">启用IPv6</param>
-        /// <param name="ipv6Port">IPv6端口</param>   //MARK:Linux中无法将一个Socket绑定到IPv4和IPv6的同一个端口
-        /// <param name="logHeader">日志头，也用作性能计数器的实例划分，请传入服务器名</param>
+        ///<summary>
+        ///FTP server
+        ///</summary>
+        ///<param name="port" > listening port number</param>
+        ///<param name="config" > FTP configuration (nullable</param>).
+        ///<param name="enable IPv6" ></param>
+        ///<param name="ipv6Port" > IPv6 port</param> //MARK: It is not possible to bind a Socket to the same port as IPv4 and IPv6 in Linux
+        ///<param name="logHeader" > log header and also used as an instance partition for performance counters, pass in the server name</param>
         public FtpServer(int port, FtpConfig config = null, bool enableIPv6 = false, int ipv6Port = -1, string logHeader = null)
             //: this(IPAddress.Any, port, enableIPv6, ipv6Port, logHeader)
             : base(new[] { new IPEndPoint(IPAddress.Any, port), enableIPv6 ? new IPEndPoint(IPAddress.IPv6Any, (ipv6Port > 0 ? ipv6Port : port)) : null }, logHeader)
@@ -448,8 +448,7 @@ namespace UniFTP.Server
             }
             catch (Exception)
             {
-                throw new Exception(
-                    "创建性能计数器时失败，通常这是由于不正确的系统配置导致的。请尝试以下解决方案：\n以管理员权限运行命令提示符（cmd），输入“lodctr /r”，按回车，稍后片刻直到得到成功提示。");
+                throw new Exception("Performance counters failed, usually due to incorrect system configuration. Try the following solution:\nRun the command prompt (cmd) with administrator privileges, enter 'lodct', press Enter, and wait a few moments until you get a success prompt.");
             }
         }
 

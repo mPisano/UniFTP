@@ -57,30 +57,31 @@
             // 
             // listLink
             // 
-            this.listLink.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.listLink.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.listLink.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeader1,
             this.columnHeader2});
             this.listLink.ContextMenuStrip = this.menuLink;
             this.listLink.FullRowSelect = true;
-            this.listLink.Location = new System.Drawing.Point(12, 52);
+            this.listLink.HideSelection = false;
+            this.listLink.Location = new System.Drawing.Point(10, 52);
             this.listLink.MultiSelect = false;
             this.listLink.Name = "listLink";
-            this.listLink.Size = new System.Drawing.Size(584, 253);
+            this.listLink.Size = new System.Drawing.Size(501, 253);
             this.listLink.TabIndex = 0;
             this.listLink.UseCompatibleStateImageBehavior = false;
             this.listLink.View = System.Windows.Forms.View.Details;
             // 
             // columnHeader1
             // 
-            this.columnHeader1.Text = "真实路径";
+            this.columnHeader1.Text = "Real path";
             this.columnHeader1.Width = 277;
             // 
             // columnHeader2
             // 
-            this.columnHeader2.Text = "虚拟路径父目录";
+            this.columnHeader2.Text = "The virtual path parent directory";
             this.columnHeader2.Width = 293;
             // 
             // menuLink
@@ -89,87 +90,88 @@
             this.menuLinkDel,
             this.menuLinkEdit});
             this.menuLink.Name = "menuLink";
-            this.menuLink.Size = new System.Drawing.Size(163, 76);
+            this.menuLink.Size = new System.Drawing.Size(108, 48);
             this.menuLink.Opening += new System.ComponentModel.CancelEventHandler(this.menuLink_Opening);
             // 
             // menuLinkDel
             // 
             this.menuLinkDel.Name = "menuLinkDel";
-            this.menuLinkDel.Size = new System.Drawing.Size(162, 24);
-            this.menuLinkDel.Text = "删除";
+            this.menuLinkDel.Size = new System.Drawing.Size(107, 22);
+            this.menuLinkDel.Text = "Delete";
             this.menuLinkDel.Click += new System.EventHandler(this.menuLinkDel_Click);
             // 
             // menuLinkEdit
             // 
             this.menuLinkEdit.Name = "menuLinkEdit";
-            this.menuLinkEdit.Size = new System.Drawing.Size(162, 24);
-            this.menuLinkEdit.Text = "修改";
+            this.menuLinkEdit.Size = new System.Drawing.Size(107, 22);
+            this.menuLinkEdit.Text = "revise";
             this.menuLinkEdit.Click += new System.EventHandler(this.menuLinkEdit_Click);
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("宋体", 10.18868F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label1.Location = new System.Drawing.Point(12, 9);
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.18868F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label1.Location = new System.Drawing.Point(10, 9);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(42, 16);
+            this.label1.Size = new System.Drawing.Size(38, 17);
             this.label1.TabIndex = 1;
-            this.label1.Text = "链接";
+            this.label1.Text = "Link";
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("宋体", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label2.Location = new System.Drawing.Point(12, 29);
+            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label2.Location = new System.Drawing.Point(10, 29);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(315, 15);
+            this.label2.Size = new System.Drawing.Size(351, 17);
             this.label2.TabIndex = 2;
-            this.label2.Text = "您可以将多个文件/文件夹映射到虚拟目录下。";
+            this.label2.Text = "You can map multiple files/folders to virtual directories.";
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Font = new System.Drawing.Font("宋体", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label3.Location = new System.Drawing.Point(12, 24);
+            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label3.Location = new System.Drawing.Point(10, 24);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(263, 15);
+            this.label3.Size = new System.Drawing.Size(344, 17);
             this.label3.TabIndex = 4;
-            this.label3.Text = "可以在此设置不同文件/文件夹的权限.";
+            this.label3.Text = "Permissions for different files/folders can be set here.";
             // 
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Font = new System.Drawing.Font("宋体", 10.18868F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label4.Location = new System.Drawing.Point(12, 4);
+            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.18868F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label4.Location = new System.Drawing.Point(10, 4);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(42, 16);
+            this.label4.Size = new System.Drawing.Size(95, 17);
             this.label4.TabIndex = 3;
-            this.label4.Text = "权限";
+            this.label4.Text = "Permissions";
             // 
             // listRules
             // 
-            this.listRules.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.listRules.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.listRules.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeader3,
             this.columnHeader4});
             this.listRules.ContextMenuStrip = this.menuPermission;
-            this.listRules.Location = new System.Drawing.Point(12, 364);
+            this.listRules.HideSelection = false;
+            this.listRules.Location = new System.Drawing.Point(10, 364);
             this.listRules.Name = "listRules";
-            this.listRules.Size = new System.Drawing.Size(584, 254);
+            this.listRules.Size = new System.Drawing.Size(501, 254);
             this.listRules.TabIndex = 5;
             this.listRules.UseCompatibleStateImageBehavior = false;
             this.listRules.View = System.Windows.Forms.View.Details;
             // 
             // columnHeader3
             // 
-            this.columnHeader3.Text = "虚拟路径";
+            this.columnHeader3.Text = "Virtual path";
             this.columnHeader3.Width = 444;
             // 
             // columnHeader4
             // 
-            this.columnHeader4.Text = "权限";
+            this.columnHeader4.Text = "Permissions";
             this.columnHeader4.Width = 132;
             // 
             // menuPermission
@@ -178,42 +180,42 @@
             this.menuPerDel,
             this.menuPerEdit});
             this.menuPermission.Name = "menuPermission";
-            this.menuPermission.Size = new System.Drawing.Size(107, 52);
+            this.menuPermission.Size = new System.Drawing.Size(108, 48);
             this.menuPermission.Opening += new System.ComponentModel.CancelEventHandler(this.menuPermission_Opening);
             // 
             // menuPerDel
             // 
             this.menuPerDel.Name = "menuPerDel";
-            this.menuPerDel.Size = new System.Drawing.Size(106, 24);
-            this.menuPerDel.Text = "删除";
+            this.menuPerDel.Size = new System.Drawing.Size(107, 22);
+            this.menuPerDel.Text = "Delete";
             this.menuPerDel.Click += new System.EventHandler(this.menuPerDel_Click);
             // 
             // menuPerEdit
             // 
             this.menuPerEdit.Name = "menuPerEdit";
-            this.menuPerEdit.Size = new System.Drawing.Size(106, 24);
-            this.menuPerEdit.Text = "修改";
+            this.menuPerEdit.Size = new System.Drawing.Size(107, 22);
+            this.menuPerEdit.Text = "revise";
             this.menuPerEdit.Click += new System.EventHandler(this.menuPerEdit_Click);
             // 
             // btnAddLink
             // 
             this.btnAddLink.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnAddLink.Location = new System.Drawing.Point(493, 21);
+            this.btnAddLink.Location = new System.Drawing.Point(423, 21);
             this.btnAddLink.Name = "btnAddLink";
-            this.btnAddLink.Size = new System.Drawing.Size(103, 23);
+            this.btnAddLink.Size = new System.Drawing.Size(88, 23);
             this.btnAddLink.TabIndex = 6;
-            this.btnAddLink.Text = "添加链接";
+            this.btnAddLink.Text = "Add Link";
             this.btnAddLink.UseVisualStyleBackColor = true;
             this.btnAddLink.Click += new System.EventHandler(this.btnAddLink_Click);
             // 
             // btnAddRule
             // 
             this.btnAddRule.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnAddRule.Location = new System.Drawing.Point(493, 16);
+            this.btnAddRule.Location = new System.Drawing.Point(423, 16);
             this.btnAddRule.Name = "btnAddRule";
-            this.btnAddRule.Size = new System.Drawing.Size(103, 23);
+            this.btnAddRule.Size = new System.Drawing.Size(88, 23);
             this.btnAddRule.TabIndex = 7;
-            this.btnAddRule.Text = "添加权限规则";
+            this.btnAddRule.Text = "Add Permission";
             this.btnAddRule.UseVisualStyleBackColor = true;
             this.btnAddRule.Click += new System.EventHandler(this.btnAddRule_Click);
             // 
@@ -229,15 +231,15 @@
             this.splitContainer1.Panel2.Controls.Add(this.btnAddRule);
             this.splitContainer1.Panel2.Controls.Add(this.label4);
             this.splitContainer1.Panel2.Controls.Add(this.label3);
-            this.splitContainer1.Size = new System.Drawing.Size(608, 630);
+            this.splitContainer1.Size = new System.Drawing.Size(521, 630);
             this.splitContainer1.SplitterDistance = 315;
             this.splitContainer1.TabIndex = 8;
             // 
             // FormLinks
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(608, 630);
+            this.ClientSize = new System.Drawing.Size(521, 630);
             this.Controls.Add(this.btnAddLink);
             this.Controls.Add(this.listRules);
             this.Controls.Add(this.label2);
@@ -246,7 +248,7 @@
             this.Controls.Add(this.splitContainer1);
             this.Name = "FormLinks";
             this.ShowIcon = false;
-            this.Text = "目录设置";
+            this.Text = "Directory Settings";
             this.Load += new System.EventHandler(this.FormLinks_Load);
             this.menuLink.ResumeLayout(false);
             this.menuPermission.ResumeLayout(false);

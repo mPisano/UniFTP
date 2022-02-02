@@ -7,8 +7,8 @@ namespace UniFTPServerTestConsole
     {
         static void Main(string[] args)
         {
-            FtpServer f = new FtpServer(port:21,enableIPv6:true, ipv6Port:2121, logHeader:"UniFTP");
-            f.Config = new FtpConfig( "D:\\Temp",welcome:new string[]{"By Ulysses"});
+            FtpServer f = new FtpServer(port: 21, enableIPv6: true, ipv6Port: 2121, logHeader: "UniFTP");
+            f.Config = new FtpConfig("D:\\Temp", welcome: new string[] { "By Ulysses" });
             //Load configs...
             f.LoadConfigs();
             //or add configs manually
@@ -17,11 +17,11 @@ namespace UniFTPServerTestConsole
             //f.AddUser("root", "test", "test");
 
             //Import SSL cert
-            f.ImportCertificate("UniFTP.Open.pfx",null);
+            f.ImportCertificate("UniFTP.Open.pfx", null);
             //Log event
             f.OnLog += sender => Console.WriteLine(((FtpLogEntry)sender).ToString());
 
-            f.Config.LogInWelcome = new string[]{"Welcome back,Commander."};
+            f.Config.LogInWelcome = new string[] { "Welcome back,Commander." };
 
             //Add directory/file link
             f.AddLink("test", "M:\\ACGMusic", "/");

@@ -7,9 +7,9 @@ using log4net.Layout.Pattern;
 
 namespace UniFTP.Server.Virtual
 {
-    /// <summary>
-    /// 虚拟目录
-    /// </summary>
+    ///<summary>
+    ///virtical list
+    ///</summary>
     internal class VDirectory : IFile
     {
         private VDirectory _parent;
@@ -37,23 +37,23 @@ namespace UniFTP.Server.Virtual
             return true;
         }
 
-        /// <summary>
-        /// 父文件夹
-        /// </summary>
+        ///<summary>
+        ///parent folder
+        ///</summary>
         public VDirectory ParentDirectory
         {
-            get { return _parent ?? this; } //_parent为NULL则返回后面
+            get { return _parent ?? this; } //If Parent is null, return to the back
             set { _parent = value; }
         }
 
-        /// <summary>
-        /// 真实目录
-        /// </summary>
+        ///<summary>
+        ///real directory
+        ///</summary>
         public DirectoryInfo RealDirectory { get; set; }
 
-        /// <summary>
-        /// 真实路径
-        /// </summary>
+        ///<summary>
+        ///real path
+        ///</summary>
         public string RealPath
         {
             get
@@ -66,9 +66,9 @@ namespace UniFTP.Server.Virtual
             }
         }
 
-        /// <summary>
-        /// 虚拟路径
-        /// </summary>
+        ///<summary>
+        ///virtual path
+        ///</summary>
         public string VirtualPath { get; set; }
 
         /// <summary>
@@ -76,13 +76,13 @@ namespace UniFTP.Server.Virtual
         /// </summary>
         public string Name { get; set; }
 
-        /// <summary>
-        /// 虚拟文件夹
-        /// </summary>
-        /// <param name="permission">权限</param>
-        /// <param name="parent">父目录</param>
-        /// <param name="name">文件夹名</param>
-        /// <param name="realPath">真实路径</param>
+        ///<summary>
+        ///virtual folder
+        ///</summary>
+        ///<param name="permission">Permission</param>
+        ///<param name="parent">parent directory</param>
+        ///<param name="name">folder name</param>
+        ///<param name="realPath">real path</param>
         public VDirectory(VDirectory parent, FilePermission permission, string realPath, string name = null)
         {
             ParentDirectory = parent;
@@ -113,10 +113,10 @@ namespace UniFTP.Server.Virtual
             return SubFiles.Select(sub => sub.Name).ToList();
         }
 
-        /// <summary>
-        /// 刷新子目录与子文件
-        /// MARK:改善刷新逻辑，减少新建对象次数
-        /// </summary>
+        ///<summary>
+        ///Refresh subdirectories and subfiles
+        ///MARK: Improve refresh logic and reduce the number of new objects
+        ///</summary>
         public void Refresh()
         {
             //_realSub.Clear();
@@ -132,7 +132,7 @@ namespace UniFTP.Server.Virtual
                 {
                     continue;
                 }
-                if ((fileSystemInfo.Attributes & FileAttributes.Directory) == FileAttributes.Directory) //文件夹
+                if ((fileSystemInfo.Attributes & FileAttributes.Directory) == FileAttributes.Directory) //folder
                 {
                     _realSub.Add(new VDirectory(this, this.Permission, fileSystemInfo.FullName, fileSystemInfo.Name));
                 }
@@ -141,7 +141,7 @@ namespace UniFTP.Server.Virtual
                     _realSub.Add(new VFile(this, this.Permission, fileSystemInfo.FullName, fileSystemInfo.Name));
                 }
             }
-            //ADDED:Linq搜索已被消灭的文件
+            //Added: linq search for wiped files
             _realSub.RemoveAll(s => infos.FirstOrDefault(t => t.FullName == s.RealPath) == null);
         }
 

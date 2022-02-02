@@ -40,18 +40,18 @@ namespace UniFTP.Server
             ConnectionInfo.LastCommand = cmd.Code;
 
 
-            //请求的命令需要权限
+            //The requested command requires permission
             if (!_validCommands.Contains(cmd.Code))
             {
-                response = CheckUser(); //如果被拒绝将直接发送权限认证的响应
+                response = CheckUser(); //If it is rejected, it will directly send the response of authorization authentication
             }
 
-            // RNFR重命名后面必须立即接RNTO命令
+            //The rnto command must be followed immediately after the Rnfr rename
             if (cmd.Code != "RNTO")
             {
                 _renameFrom = null;
             }
-            // REST重新开始后面必须立即接传输命令
+            //After Rest restarts, the transfer command must be received immediately
             if (cmd.Code != "RETR" && cmd.Code != "STOR")
             {
                 _transPosition = 0;
@@ -61,20 +61,20 @@ namespace UniFTP.Server
             {
                 switch (cmd.Code)
                 {
-                    case "USER":    //用户名
+                    case "USER":    //username
                         response = User(cmd.Arguments.FirstOrDefault());
                         break;
-                    case "PASS":    //密码
+                    case "PASS":    //password
                         response = Password(cmd.Arguments.FirstOrDefault());
                         logEntry.CSArgs = "******";
                         break;
-                    case "CWD":     //切换目录
+                    case "CWD":     //switch directory
                         response = ChangeWorkingDirectory(cmd.RawArguments);
                         break;
-                    case "CDUP":    //切换到上级目录
+                    case "CDUP":    //switch to the parent directory
                         response = ChangeWorkingDirectory("..");
                         break;
-                    case "QUIT":    //退出
+                    case "QUIT":    //quit
                         if (((FtpServer)CurrentServer).Config.LogOutWelcome != null)
                         {
                             Write(new Response { Code = "221-", Text = "Logging Out" });
@@ -85,7 +85,7 @@ namespace UniFTP.Server
                         }
                         response = GetResponse(FtpResponses.QUIT);
                         break;
-                    case "REIN":    //初始化
+                    case "REIN":    //initialization
                         _currentUser = null;
                         _username = null;
                         _dataClient = null;
@@ -95,141 +95,141 @@ namespace UniFTP.Server
 
                         response = GetResponse(FtpResponses.SERVICE_READY);
                         break;
-                    case "PORT":    //主动模式设置端口
+                    case "PORT": //Active mode setting port
                         response = Port(cmd.RawArguments);
                         logEntry.CPort = _dataEndpoint.Port.ToString(CultureInfo.InvariantCulture);
                         break;
-                    case "PASV":    //进入被动模式
+                    case "PASV": //Enter passive mode
                         response = Passive();
                         logEntry.SPort = ((IPEndPoint)_passiveListener.LocalEndpoint).Port.ToString(CultureInfo.InvariantCulture);
                         break;
-                    case "TYPE":    //设置传输类型
+                    case "TYPE": //Set the transmission type
                         response = Type(cmd.Arguments.FirstOrDefault(), cmd.Arguments.Skip(1).FirstOrDefault());
                         break;
-                    case "STRU":    //设置结构
+                    case "STRU": //set the structure
                         response = Structure(cmd.Arguments.FirstOrDefault());
                         break;
-                    case "MODE":    //设置模式
+                    case "MODE": //Set the mode
                         response = Mode(cmd.Arguments.FirstOrDefault());
                         break;
-                    case "RNFR":    //重命名
+                    case "RNFR":    //Rename
                         _renameFrom = cmd.RawArguments;
                         response = GetResponse(FtpResponses.RENAME_FROM);
                         break;
-                    case "RNTO":    //重命名为
+                    case "RNTO":    //renamed to
                         response = Rename(_renameFrom, cmd.RawArguments);
                         break;
-                    case "DELE":    //删除文件
+                    case "DELE":    //Delete Files
                         response = Delete(cmd.RawArguments);
                         break;
-                    case "RMD":     //删除文件夹
+                    case "RMD":     //delete folder
                         response = RemoveDir(cmd.RawArguments);
                         break;
-                    case "MKD":     //建立文件夹
+                    case "MKD":     //create folder
                         response = CreateDir(cmd.RawArguments);
                         break;
-                    case "PWD":     //显示目录
+                    case "PWD":     //show directory
                         response = PrintWorkingDirectory();
                         break;
-                    case "RETR":    //下载文件  //FIXED:文件名含空格
+                    case "RETR":    //Download file //FIXED: The file name contains spaces
                         response = Retrieve(cmd.RawArguments);
                         logEntry.Date = DateTime.Now;
                         break;
-                    case "STOR":    //上传文件
+                    case "STOR":    //upload files
                         response = Store(cmd.RawArguments);
                         logEntry.Date = DateTime.Now;
                         break;
-                    case "STOU":    //上传文件（不覆盖现有文件）
+                    case "STOU":    //Upload file (do not overwrite existing file)
                         response = StoreUnique(cmd.RawArguments);
                         logEntry.Date = DateTime.Now;
                         break;
-                    case "APPE":    //追加
+                    case "APPE":    //addition
                         response = Append(cmd.RawArguments);
                         logEntry.Date = DateTime.Now;
                         break;
-                    case "LIST":    //列出目录文件
+                    case "LIST":    //list directory files
                         response = List(cmd.RawArguments);
                         logEntry.Date = DateTime.Now;
                         break;
-                    case "SYST":    //系统类型
+                    case "SYST":    //system type
                         response = GetResponse(FtpResponses.SYSTEM);
                         break;
-                    case "NOOP":    //空指令 只为获取服务器响应
+                    case "NOOP":    //Empty directive only to get server response
                         response = GetResponse(FtpResponses.OK);
                         break;
-                    case "ACCT":    //要求账户(未实现)
+                    case "ACCT":    //Account required (not implemented)
                         response = Account(cmd.RawArguments);
                         break;
-                    case "ALLO":    //分配 (对于不需要分配存储空间的机器，它的作用等于NOOP)
+                    case "ALLO":    //allocate (for machines that don't need to allocate storage, it's equivalent to NOOP)
                         response = GetResponse(FtpResponses.OK);
                         break;
-                    case "NLST":    //列文件名
+                    case "NLST":    //column filename
                         response = NameList(cmd.RawArguments);
                         break;
-                    case "SITE":    //服务器系统相关命令 //TODO:可能在此处加入搜索
+                    case "SITE":    //Server system related commands //TODO: may add search here
                         response = GetResponse(FtpResponses.NOT_IMPLEMENTED);
                         break;
                     case "STAT":
                         response = GetResponse(FtpResponses.NOT_IMPLEMENTED);
                         break;
-                    case "HELP":    //帮助
+                    case "HELP":    //Help
                         response = GetResponse(FtpResponses.NOT_IMPLEMENTED);
                         break;
                     case "SMNT":
                         response = GetResponse(FtpResponses.NOT_IMPLEMENTED);
                         break;
-                    case "REST":    //重新开始 //ADDED:尝试断点续传
+                    case "REST":    //Restart //ADDED: Attempt resumable upload
                         response = Restart(cmd.RawArguments);
                         break;
-                    case "ABOR":    //中断传输，关闭数据连接
+                    case "ABOR":    //Interrupt the transfer and close the data connection
                         response = GetResponse(FtpResponses.NOT_IMPLEMENTED);
                         break;
 
                     // Extensions defined by rfc 2228
-                    case "AUTH":    //权限验证 AUTH <验证方法>
+                    case "AUTH":    //Permission validation <Validation method>AUTH
                         response = Auth(cmd.RawArguments);
                         break;
-                    case "PBSZ":    //设置保护缓冲区大小，在SSL/TLS中永远是0
+                    case "PBSZ":    //Set the protection buffer size, which is always 0 in ssl/tls
                         response = ProtectBufferSize(cmd.RawArguments);
                         break;
-                    case "PROT":    //保护级别
+                    case "PROT":    //Protection level
                         response = ProtectionLevel(cmd.Arguments.FirstOrDefault());
                         break;
 
                     // Extensions defined by rfc 2389
-                    case "FEAT":    //显示扩展指令
+                    case "FEAT":    //Displays the extension instructions
                         response = GetResponse(FtpResponses.FEATURES);
                         break;
-                    case "OPTS":    //参数设置
+                    case "OPTS":    //Parameter settings
                         response = Options(cmd.Arguments);
                         break;
 
                     // Extensions defined by rfc 3659
-                    case "MDTM":    //回显文件修改时间，通常用于对时
-                        response = FileModificationTime(cmd.RawArguments);//FIXED:只接受一个参数的 务必使用RawArg
+                    case "MDTM":   //Echo file modification time, typically used for timing
+                        response = FileModificationTime(cmd.RawArguments); //FIXED: Accept only one parameter Be sure to use RawArg
                         break;
-                    case "SIZE":    //回显文件大小
+                    case "SIZE":    //Echo file size
                         response = FileSize(cmd.RawArguments);
                         break;
-                    case "MLSD":    //标准格式列目录
+                    case "MLSD":    //Standard format column directory
                         response = MachineListDirectory(cmd.RawArguments);
                         break;
-                    case "MLST":    //标准格式列文件信息
+                    case "MLST":    //Standard format column file information
                         response = MachineListTime(cmd.RawArguments);
                         break;
 
                     // Extensions defined by rfc 2428
-                    case "EPRT":    //扩展主动模式（IPv6）
+                    case "EPRT":    //Extended Active Mode (ipv6)
                         response = EPort(cmd.RawArguments);
                         logEntry.CPort = _dataEndpoint.Port.ToString(CultureInfo.InvariantCulture);
                         break;
-                    case "EPSV":    //扩展被动动模式（IPv6）
+                    case "EPSV":    //Extended Passive Mode (ipv6)
                         response = EPassive();
                         logEntry.SPort = ((IPEndPoint)_passiveListener.LocalEndpoint).Port.ToString(CultureInfo.InvariantCulture);
                         break;
 
                     // Extensions defined by rfc 2640
-                    case "LANG":    //切换服务端显示语言
+                    case "LANG":    //Switch the server display language
                         response = Language(cmd.Arguments.FirstOrDefault());
                         break;
 
@@ -255,7 +255,7 @@ namespace UniFTP.Server
 
         /// <summary>
         /// USER Command - RFC 959 - Section 4.1.1
-        /// <para>账号</para>
+        /// <para>Account</para>
         /// </summary>
         /// <param name="username"></param>
         /// <returns></returns>
@@ -269,7 +269,7 @@ namespace UniFTP.Server
 
         /// <summary>
         /// PASS Command - RFC 959 - Section 4.1.1
-        /// <para>密码</para>
+        /// <para>password</para>
         /// </summary>
         /// <param name="password"></param>
         /// <returns></returns>
@@ -280,7 +280,7 @@ namespace UniFTP.Server
             {
                 user.UserGroup = ((FtpServer)CurrentServer).UserGroups["anonymous"];
             }
-            if (user != null && user.UserGroup != null && user.UserGroup.Auth == AuthType.SSL && _sslEnabled == false)    //只能通过SSL加密登录
+            if (user != null && user.UserGroup != null && user.UserGroup.Auth == AuthType.SSL && _sslEnabled == false)    //Logins can only be made via ssl encryption
             {
                 user = null;
             }
@@ -300,7 +300,7 @@ namespace UniFTP.Server
                 ConnectionInfo.UserGroup = user.GroupName;
 
                 _virtualFileSystem = new VirtualFileSystem(((FtpServer)CurrentServer).Config, user.UserGroup);
-                //TODO:引入新的虚拟文件系统
+                //TODO:Introduce a new virtual file system
 
                 if (_currentUser.IsAnonymous)
                     _performanceCounter.IncrementAnonymousUsers();
@@ -326,7 +326,7 @@ namespace UniFTP.Server
 
         /// <summary>
         /// ACCT Command - RFC 959 - Section 4.1.1
-        /// <para>注：RFC协议没有明确指定ACCT的具体功能，因此此处可以采取多种实现</para>
+        /// <para>Note: The RFC protocol does not explicitly specify the specific functions of the ACCT, so multiple implementations can be taken here</para>
         /// </summary>
         /// <param name="account"></param>
         /// <returns></returns>
@@ -337,7 +337,7 @@ namespace UniFTP.Server
 
         /// <summary>
         /// CWD Command - RFC 959 - Section 4.1.1
-        /// <para>切换当前目录</para>
+        /// <para>Switch the current directory</para>
         /// </summary>
         /// <param name="pathname"></param>
         /// <returns></returns>
@@ -351,7 +351,7 @@ namespace UniFTP.Server
 
         /// <summary>
         /// PORT Command - RFC 959 - Section 4.1.2
-        /// <para>主动模式指定端口</para>
+        /// <para>Active mode specifies the port</para>
         /// </summary>
         /// <param name="hostPort"></param>
         /// <returns></returns>
@@ -374,7 +374,7 @@ namespace UniFTP.Server
 
         /// <summary>
         /// EPRT Command - RFC 2428
-        /// <para>扩展主动模式指定端口（IPv6）</para>
+        /// <para>Extended Active Mode Specified Port (ipv6)</para>
         /// </summary>
         /// <param name="hostPort"></param>
         /// <returns></returns>
@@ -398,7 +398,7 @@ namespace UniFTP.Server
 
         /// <summary>
         /// PASV Command - RFC 959 - Section 4.1.2
-        /// <para>进入被动模式（请求服务器等待数据连接）</para>
+        /// <para>Enter passive mode (requesting the server to wait for a data connection)</para>
         /// </summary> 
         /// <returns></returns>
         private Response Passive()
@@ -434,7 +434,7 @@ namespace UniFTP.Server
 
         /// <summary>
         /// EPSV Command - RFC 2428
-        /// <para>扩展被动模式（IPv6）</para>
+        /// <para>Extended Passive Mode (ipv6)</para>
         /// </summary>
         /// <returns></returns>
         private Response EPassive()
@@ -462,7 +462,7 @@ namespace UniFTP.Server
 
         /// <summary>
         /// TYPE Command - RFC 959 - Section 4.1.2
-        /// <para>设置传输类型</para>
+        /// <para>Sets the transport type</para>
         /// </summary>
         /// <param name="typeCode"></param>
         /// <returns></returns>
@@ -503,7 +503,7 @@ namespace UniFTP.Server
 
         /// <summary>
         /// STRU Command - RFC 959 - Section 4.1.2
-        /// <para>设置文件结构</para>
+        /// <para>Set the file structure</para>
         /// </summary>
         /// <param name="username"></param>
         /// <returns></returns>
@@ -512,11 +512,11 @@ namespace UniFTP.Server
             switch (structure)
             {
 
-                case "F":   //文件结构
+                case "F": // file structure
                     _fileStructureType = FileStructureType.File;
                     break;
-                case "R":   //记录结构
-                case "P":   //页结构
+                case "R": //Record structure
+                case "P": //page structure
                     return GetResponse(FtpResponses.NOT_IMPLEMENTED_FOR_PARAMETER);
                 default:
                     return GetResponse(FtpResponses.PARAMETER_NOT_RECOGNIZED.SetData(structure));
@@ -527,9 +527,9 @@ namespace UniFTP.Server
 
         /// <summary>
         /// MODE Command - RFC 959 - Section 4.1.2
-        /// <para>设置传输模式</para>
+        /// <para>Set the transfer mode</para>
         /// </summary>
-        /// <param name="mode">S:流 B:块 C:压缩</param>
+        /// <param name="mode" > S: Stream B: Block C: Compressed</param>
         /// <returns></returns>
         private Response Mode(string mode)
         {
@@ -545,7 +545,7 @@ namespace UniFTP.Server
 
         /// <summary>
         /// RETR Command - RFC 959 - Section 4.1.3
-        /// <para>下载</para>
+        /// <para>Download</para>
         /// </summary>
         /// <param name="pathname"></param>
         /// <returns></returns>
@@ -558,7 +558,7 @@ namespace UniFTP.Server
                 ConnectionInfo.CurrentFile = pathname;
 
                 var state = new DataConnectionOperation { Arguments = f.FullName, Operation = RetrieveOperation };
-                //建立一个异步过程
+                //Establish an asynchronous procedure
                 SetupDataConnectionOperation(state);
 
                 return GetResponse(FtpResponses.OPENING_DATA_TRANSFER.SetData(_dataConnectionType, "RETR" + (_protected ? withSsl : "")));
@@ -567,12 +567,12 @@ namespace UniFTP.Server
             return GetResponse(FtpResponses.FILE_NOT_FOUND);
         }
 
-        ///ADDED:重启传输命令
+        ///ADDED:Restart the transfer command
         /// <summary>
         /// REST Command - RFC 959 - Section 4.1.3
-        /// <para>重启传输</para>
+        /// <para>Restart the transfer</para>
         /// </summary>
-        /// <param name="position">无符号整型数，表示传输重启位置</param>
+        /// <param name="position">An unsigned integer number that represents the location where the transfer restarts</param>
         /// <returns></returns>
         private Response Restart(string position)
         {
@@ -612,7 +612,7 @@ namespace UniFTP.Server
 
         /// <summary>
         /// STOU Command - RFC 959 - Section 4.1.3
-        /// <para>（禁止覆盖）上传</para>
+        /// <para>(No overwriting) upload</para>
         /// </summary>
         /// <param name="pathname"></param>
         /// <returns></returns>
@@ -632,7 +632,7 @@ namespace UniFTP.Server
 
         /// <summary>
         /// APPE Command - RFC 959 - Section 4.1.3
-        /// <para>追加</para>
+        /// <para>supplement</para>
         /// </summary>
         /// <param name="pathname"></param>
         /// <returns></returns>
@@ -657,7 +657,7 @@ namespace UniFTP.Server
 
         /// <summary>
         /// RNFR - RNTO - RFC 959 - Seciton 4.1.3
-        /// <para>重命名</para>
+        /// <para>rename</para>
         /// </summary>
         /// <param name="renameFrom"></param>
         /// <param name="renameTo"></param>
@@ -685,7 +685,7 @@ namespace UniFTP.Server
 
         /// <summary>
         /// DELE Command - RFC 959 - Section 4.1.3
-        /// <para>删除</para>
+        /// <para>Delete</para>
         /// </summary>
         /// <param name="pathname"></param>
         /// <returns></returns>
@@ -704,7 +704,7 @@ namespace UniFTP.Server
 
         /// <summary>
         /// RMD Command - RFC 959 - Section 4.1.3
-        /// <para>删除文件夹</para>
+        /// <para>Delete the folder</para>
         /// </summary>
         /// <param name="pathname"></param>
         /// <returns></returns>
@@ -723,7 +723,7 @@ namespace UniFTP.Server
 
         /// <summary>
         /// MKD Command - RFC 959 - Section 4.1.3
-        /// <para>创建文件夹</para>
+        /// <para>Create a folder</para>
         /// </summary>
         /// <param name="pathname"></param>
         /// <returns></returns>
@@ -750,7 +750,7 @@ namespace UniFTP.Server
 
         /// <summary>
         /// PWD Command - RFC 959 - Section 4.1.3
-        /// <para>显示当前目录</para>
+        /// <para>Displays the current directory</para>
         /// </summary>
         /// <returns></returns>
         private Response PrintWorkingDirectory()
@@ -760,7 +760,7 @@ namespace UniFTP.Server
 
         /// <summary>
         /// NLST Command - RFC 959 - Section 4.1.3
-        /// <para>列出当前目录下的文件名</para>
+        /// <para>Lists the file names in the current directory</para>
         /// </summary>
         /// <param name="pathname"></param>
         /// <returns></returns>
@@ -786,7 +786,7 @@ namespace UniFTP.Server
 
         /// <summary>
         /// LIST Command - RFC 959 - Section 4.1.3
-        /// <para>列出当前目录下的文件详细信息</para>
+        /// <para>Lists the file details in the current directory</para>
         /// </summary>
         /// <param name="pathname"></param>
         /// <returns></returns>
@@ -816,9 +816,9 @@ namespace UniFTP.Server
 
         /// <summary>
         /// AUTH Command - RFC 2228 - Section 3
-        /// <para>要求认证</para>
+        /// <para>Require certification</para>
         /// </summary>
-        /// <param name="authMode">认证模式</param>
+        /// <param name="authMode">Authentication mode</param>
         /// <returns></returns>
         private Response Auth(string authMode)
         {
@@ -834,7 +834,7 @@ namespace UniFTP.Server
 
         /// <summary>
         /// PBSZ Command - RFC 2228
-        /// <para>设置保护缓冲区大小，在TLS/SSL中永远是0</para>
+        /// <para>Set the protection buffer size, which is always 0 in tls/ssl </para>
         /// </summary>
         /// <param name="bufferSize"></param>
         /// <returns></returns>
@@ -856,19 +856,19 @@ namespace UniFTP.Server
 
         /// <summary>
         /// PROT Command - RFC 2228
-        /// <para>设置保护级别</para>
+        /// <para>Sets the protection level</para>
         /// </summary>
-        /// <param name="level">C：无保护 P：完全保护</param>
+        /// <param name="level">C: Unprotected P: Complete Protection</param>
         /// <returns></returns>
         private Response ProtectionLevel(string level)
         {
             level = level.Trim().ToUpper();
             switch (level)
             {
-                case "C"://Clear,无保护
+                case "C"://Clear,Unprotected
                     _protected = false;
                     break;
-                case "P"://Private,同时实现机密性和完整性保护
+                case "P"://Private, which implements both confidentiality and integrity protection
                     _protected = true;
                     break;
                 case "S":
@@ -882,7 +882,7 @@ namespace UniFTP.Server
 
         /// <summary>
         /// OPTS Command - RFC 2389 - Section 4
-        /// <para>参数设置</para>
+        /// <para>Parameter settings</para>
         /// </summary>
         /// <param name="arguments">command-name [ SP command-options ]</param>
         /// <returns></returns>
@@ -901,7 +901,7 @@ namespace UniFTP.Server
 
         /// <summary>
         /// MDTM Command - RFC 3659 - Section 3
-        /// <para>文件最后修改时间，用于校准时间</para>
+        /// <para>The last modification time of the file, which is used for calibration time </para>
         /// </summary>
         /// <param name="pathname"></param>
         /// <returns></returns>
@@ -911,7 +911,7 @@ namespace UniFTP.Server
 
             if (f != null)
             {
-                //FIXED:返回的时间为UTC时间
+                //FIXED:The returned time is UTC time
                 return new Response { Code = "213", Text = f.LastWriteTimeUtc.ToString("yyyyMMddHHmmss.fff", CultureInfo.InvariantCulture) };
 
             }
@@ -921,7 +921,7 @@ namespace UniFTP.Server
 
         /// <summary>
         /// SIZE Command - RFC 3659 - Section 4
-        /// <para>返回文件大小</para>
+        /// <para>Returns the file size</para>
         /// </summary>
         /// <param name="pathname"></param>
         /// <returns></returns>
@@ -949,7 +949,7 @@ namespace UniFTP.Server
 
         /// <summary>
         /// MLST Command - RFC 3659 - Section 7
-        /// <para>标准化显示文件属性</para>
+        /// <para>Standardize the display file properties</para>
         /// </summary>
         /// <param name="pathname"></param>
         /// <returns></returns>
@@ -966,7 +966,7 @@ namespace UniFTP.Server
 
         /// <summary>
         /// MLSD Command - RFC 3659 - Section 7
-        /// <para>标准化列目录</para>
+        /// <para>Standardize column directories</para>
         /// </summary>
         /// <param name="pathname"></param>
         /// <returns></returns>
@@ -991,7 +991,7 @@ namespace UniFTP.Server
 
         /// <summary>
         /// LANG Command - RFC 2640 - Section 4
-        /// <para>指定服务端的响应语言</para>
+        /// <para>Specifies the response language of the server</para>
         /// </summary>
         /// <param name="lang"></param>
         /// <returns></returns>

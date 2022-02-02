@@ -8,30 +8,30 @@ using System.Threading;
 
 namespace UniFTP.Server
 {
-    /// <summary>
-    /// 被动模式Listener连接池
-    /// </summary>
+    ///<summary>
+    ///Passive mode Listener connection pooling
+    ///</summary>
     public static class PassiveListenerPool
     {
         private static readonly object ListLock = new object();
         private static Dictionary<AutoResetEvent, TcpListener> _listeners = new Dictionary<AutoResetEvent, TcpListener>();
 
-        /// <summary>
-        /// 取得一个TCP Listener
-        /// </summary>
-        /// <param name="ip"></param>
-        /// <returns></returns>
+        ///<summary>
+        ///Get a TCP Listener
+        ///</summary>
+        ///<param name="ip"></param>
+        ///<returns></returns>
         public static TcpListener GetListener(IPAddress ip)
         {
             TcpListener listener = null;
 
             lock (ListLock)
             {
-                //在Listener池中找到一个持有信号量（已经被释放）且IP对应的Listener
+                //Find a lister in the listener pool that holds the semaphore (which has been released) and corresponds to the ip
                 listener = _listeners.FirstOrDefault(p => p.Key.WaitOne(TimeSpan.FromMilliseconds(10)) && ((IPEndPoint)p.Value.LocalEndpoint).Address.Equals(ip)).Value;
 
                 if (listener != null) return listener;
-                //没有找到这样的Listener，新建一个
+                //Didn't find such a lister, build a new one
                 AutoResetEvent listenerLock = new AutoResetEvent(false);
 
                 listener = new TcpListener(ip, 0);
@@ -42,10 +42,10 @@ namespace UniFTP.Server
             return listener;
         }
 
-        /// <summary>
-        /// 释放一个TCP Listener
-        /// </summary>
-        /// <param name="listener"></param>
+        ///<summary>
+        ///Release a TCP Listener
+        ///</summary>
+        ///<param name="listener"></param>
         public static void FreeListener(TcpListener listener)
         {
             AutoResetEvent sync = _listeners.SingleOrDefault(p => p.Value == listener).Key;
@@ -53,9 +53,9 @@ namespace UniFTP.Server
             sync.Set();
         }
 
-        /// <summary>
-        /// 释放所有TCP Listener
-        /// </summary>
+        ///<summary>
+        ///Release all TCP Listeners
+        ///</summary>
         public static void ReleaseAll()
         {
             lock (ListLock)

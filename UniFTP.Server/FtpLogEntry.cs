@@ -12,9 +12,9 @@ namespace UniFTP.Server
     }
 
 
-    /// <summary>
-    /// 连接信息
-    /// </summary>
+    ///<summary>
+    ///Connection information
+    ///</summary>
     public class FtpConnectionInfo
     {
         public ulong ID { get; set; }
@@ -32,46 +32,46 @@ namespace UniFTP.Server
 
     public class FtpLogEntry
     {
-        /// <summary>
-        /// 日期
-        /// </summary>
+        ///<summary>
+        ///date
+        ///</summary>
         public DateTime Date { get; set; }
-        /// <summary>
-        /// 客户端IP
-        /// </summary>
+        ///<summary>
+        ///Client IP
+        ///</summary>
         public string CIP { get; set; }
-        /// <summary>
-        /// 客户端端口
-        /// </summary>
+        ///<summary>
+        ///Client port
+        ///</summary>
         public string CPort { get; set; }
-        /// <summary>
-        /// 登录用户名
-        /// </summary>
+        ///<summary>
+        ///Login user name
+        ///</summary>
         public string CSUsername { get; set; }
-        /// <summary>
-        /// 操作
-        /// </summary>
+        ///<summary>
+        ///operate
+        ///</summary>
         public string CSMethod { get; set; }
-        /// <summary>
-        /// 参数
-        /// </summary>
+        ///<summary>
+        ///parameter
+        ///</summary>
         public string CSArgs { get; set; }
-        /// <summary>
-        /// 传输响应
-        /// </summary>
+        ///<summary>
+        ///Transmit the response
+        ///</summary>
         public string SCStatus { get; set; }
         public string SCBytes { get; set; }
-        /// <summary>
-        /// 传输字节数
-        /// </summary>
+        ///<summary>
+        ///The number of bytes transferred
+        ///</summary>
         public string CSBytes { get; set; }
-        /// <summary>
-        /// 服务端端口
-        /// </summary>
+        ///<summary>
+        ///Server-side port
+        ///</summary>
         public string SPort { get; set; }
-        /// <summary>
-        /// 其他信息
-        /// </summary>
+        ///<summary>
+        ///Additional Information
+        ///</summary>
         public string Info { get; set; }
 
         public override string ToString()

@@ -18,7 +18,7 @@ namespace SharpServer
 
     //    FEATURES = 211,
     //    SYSTEM = 215,
-        
+
     //    SERVICE_READY = 220,
     //    QUIT = 221,
     //    TRANSFER_SUCCESSFUL = 226,
@@ -44,7 +44,7 @@ namespace SharpServer
     //}
 
     /// <summary>
-    /// 应答
+    /// answer
     /// </summary>
     public class Response
     {
@@ -52,9 +52,9 @@ namespace SharpServer
         {
             Data = new List<object>();
         }
-        /// <summary>
-        /// 代号
-        /// </summary>
+        ///<summary>
+        ///code
+        ///</summary>
         public string Code { get; set; }
         public string Text { get; set; }
         public bool ShouldQuit { get; set; }

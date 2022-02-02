@@ -18,29 +18,29 @@ namespace UniFTP.Server
             GroupName = groupName ?? "anonymous";
         }
 
-        /// <summary>
-        /// 用户名
-        /// </summary>
+        ///<summary>
+        ///The user name
+        ///</summary>
         public string UserName { get; set; }
 
-        /// <summary>
-        /// 密码
-        /// </summary>
+        ///<summary>
+        ///password
+        ///</summary>
         public string Password { get; set; }
 
-        /// <summary>
-        /// MD5
-        /// </summary>
+        ///<summary>
+        ///MD5
+        ///</summary>
         public string PasswordMD5 { get; set; }
 
-        /// <summary>
-        /// 用户组名
-        /// </summary>
+        ///<summary>
+        ///The user group name
+        ///</summary>
         public string GroupName { get; set; }
 
-        /// <summary>
-        /// 最大连接数
-        /// </summary>
+        ///<summary>
+        ///Maximum number of connections
+        ///</summary>
         public int MaxConnection { get; set; }
 
         //[XmlAttribute("twofactorsecret")]
@@ -52,12 +52,12 @@ namespace UniFTP.Server
 
         public static FtpUser Validate(FtpServer server, string username, string password)
         {
-            if (username==null)
+            if (username == null)
             {
                 username = "anonymous";
             }
             username = username.ToLower();
-            if (password==null)
+            if (password == null)
             {
                 password = "";
             }
@@ -73,7 +73,7 @@ namespace UniFTP.Server
                         user.IsAnonymous = true;
                         if (!server.Config.AllowAnonymous)
                         {
-                            return null;    //ADDED:禁用匿名
+                            return null;    //Added: Disables anonymous
                         }
                     }
                     if (!@group.Forbidden)
@@ -128,5 +128,5 @@ namespace UniFTP.Server
 
     //    return null;
     //}
- 
+
 }

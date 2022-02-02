@@ -6,10 +6,10 @@ using log4net;
 
 namespace SharpServer
 {
-    /// <summary>
-    /// 通用Server
-    /// </summary>
-    /// <typeparam name="T">特定客户端连接方式</typeparam>
+    ///<summary>
+    ///Universal Server
+    ///</summary>
+    ///<typeparam name="T">Specific client connection method</typeparam>
     public class Server<T> : IDisposable where T : ClientConnection, new()
     {
         private static readonly object _listLock = new object();
@@ -18,8 +18,9 @@ namespace SharpServer
 
         private List<T> _state;
 
-        protected List<TcpListener> Listeners;
-        protected List<T> Connections {
+        protected List<TcpListener> Listeners = new List<TcpListener>();
+        protected List<T> Connections
+        {
             get { return _state; }
         }
 
@@ -43,13 +44,13 @@ namespace SharpServer
         public Server(IPEndPoint[] localEndPoints, string logHeader = null)
         {
             _localEndPoints = new List<IPEndPoint>(localEndPoints);
-            _logHeader = logHeader??"";
+            _logHeader = logHeader ?? "";
         }
 
-        /// <summary>
-        /// 启动服务器
-        /// <exception cref="Exception">端口无法使用</exception>
-        /// </summary>
+        ///<summary>
+        ///start the server
+        ///<exception cref="Exception">Port unavailable</exception>
+        ///</summary>
         public void Start()
         {
             if (_disposed)
@@ -72,7 +73,7 @@ namespace SharpServer
                 try
                 {
                     listener.Start();
-                    _log.Info("Listening "+ listener.LocalEndpoint);
+                    _log.Info("Listening " + listener.LocalEndpoint);
                 }
                 catch (SocketException ex)
                 {
@@ -81,7 +82,7 @@ namespace SharpServer
                     _log.Error(exp);
                     throw exp;
                 }
-                //开始异步等待连接
+                //Start asynchronously waiting for a connection
                 listener.BeginAcceptTcpClient(HandleAcceptTcpClient, listener);
 
                 Listeners.Add(listener);
@@ -111,11 +112,11 @@ namespace SharpServer
             try
             {
                 Listeners.Clear();
-                Connections.ForEach(t => t.Dispose());
+                Connections?.ForEach(t => t.Dispose());
             }
             catch (Exception)
             {
-                
+
                 //throw;
             }
 
@@ -137,7 +138,7 @@ namespace SharpServer
 
         private void HandleAcceptTcpClient(IAsyncResult result)
         {
-            //一个客户成功连接
+            //A client successfully connected
             OnConnectAttempt();
 
             TcpListener listener = result.AsyncState as TcpListener;
@@ -147,14 +148,14 @@ namespace SharpServer
                 TcpClient client;
                 try
                 {
-                    //立即再次新开监听
+                    //Immediately re-open the listener again
                     listener.BeginAcceptTcpClient(HandleAcceptTcpClient, listener);
-                    //对本次的连接结果创建TcpClient处理
+                    //Create TcpClient processing for this connection result
                     client = listener.EndAcceptTcpClient(result);
 
                     _connectId++;
 
-                    var connection = new T { CurrentServer = this,ID = _connectId };
+                    var connection = new T { CurrentServer = this, ID = _connectId };
 
                     connection.Disposed += new EventHandler<EventArgs>(AsyncClientConnection_Disposed);
 
@@ -184,7 +185,7 @@ namespace SharpServer
 
         public void Dispose()
         {
-            //脱离GC 手动回收
+            //Manual collection from GC
             _disposing = true;
             Dispose(true);
             GC.SuppressFinalize(this);

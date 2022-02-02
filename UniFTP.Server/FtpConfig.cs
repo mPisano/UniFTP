@@ -12,13 +12,13 @@ namespace UniFTP.Server
         System,
         BuiltIn,
     }
-    /// <summary>
-    /// FTP配置
-    /// </summary>
+    ///<summary>
+    ///FTP configuration
+    ///</summary>
     [Serializable]
     public class FtpConfig
     {
-        public FtpConfig(string homeDir = null, string name = "UniFTP", bool allowAnonymous = true, string owner = "UniFTP",string ownerGroup="UniFTP",string[] welcome = null,string[] loginWelcome = null,string[] logoutWelcome = null, CounterType counter = CounterType.BuiltIn)
+        public FtpConfig(string homeDir = null, string name = "UniFTP", bool allowAnonymous = true, string owner = "UniFTP", string ownerGroup = "UniFTP", string[] welcome = null, string[] loginWelcome = null, string[] logoutWelcome = null, CounterType counter = CounterType.BuiltIn)
         {
             HomeDir = homeDir;
             //if (homeDir == null)
@@ -29,7 +29,7 @@ namespace UniFTP.Server
             //}
             ServerName = name;
             AllowAnonymous = allowAnonymous;
-            Owner = owner??"UniFTP";
+            Owner = owner ?? "UniFTP";
             OwnerGroup = ownerGroup ?? "UniFTP";
             Welcome = welcome;
             LogInWelcome = loginWelcome;
@@ -37,65 +37,65 @@ namespace UniFTP.Server
             CounterType = counter;
         }
 
-        /// <summary>
-        /// 服务器名
-        /// <para>名称不能包含路径字符</para>
-        /// </summary>
+        ///<summary>
+        ///Server name
+        ///<para>The name cannot contain path characters</para>
+        ///</summary>
         public string ServerName { get; set; }
 
-        /// <summary>
-        /// 允许匿名
-        /// </summary>
+        ///<summary>
+        ///Allow anonymity
+        ///</summary>
         public bool AllowAnonymous { get; set; }
 
-        /// <summary>
-        /// 服务器主目录
-        /// </summary>
+        ///<summary>
+        ///Server home directory
+        ///</summary>
         public string HomeDir { get; set; }
 
-        /// <summary>
-        /// 文件所有者
-        /// </summary>
+        ///<summary>
+        ///The file owner
+        ///</summary>
         public string Owner { get; set; }
 
-        /// <summary>
-        /// 文件所有组
-        /// </summary>
+        ///<summary>
+        ///File all groups
+        ///</summary>
         public string OwnerGroup { get; set; }
 
-        /// <summary>
-        /// 欢迎语
-        /// </summary>
+        ///<summary>
+        ///Welcome message
+        ///</summary>
         public string[] Welcome { get; set; }
 
-        /// <summary>
-        /// 登录后欢迎语
-        /// </summary>
+        ///<summary>
+        ///Welcome message after login
+        ///</summary>
         public string[] LogInWelcome { get; set; }
 
-        /// <summary>
-        /// 退出提示语
-        /// </summary>
+        ///<summary>
+        ///Exit prompt
+        ///</summary>
         public string[] LogOutWelcome { get; set; }
 
-        /// <summary>
-        /// 文件规则
-        /// </summary>
+        ///<summary>
+        ///File rules
+        ///</summary>
         public Dictionary<string, string> Rules { get; set; }
 
-        /// <summary>
-        /// SSL证书路径
-        /// </summary>
+        ///<summary>
+        ///SSL certification path
+        ///</summary>
         public string CertificatePath { get; set; }
 
-        /// <summary>
-        /// SSL密码
-        /// </summary>
+        ///<summary>
+        ///SSL password
+        ///</summary>
         internal string CertificatePassword { get; set; }
 
-        /// <summary>
-        /// 性能计数器
-        /// </summary>
+        ///<summary>
+        ///Performance counters
+        ///</summary>
         internal CounterType CounterType { get; set; }
     }
 }
